@@ -3,7 +3,7 @@
  * openECOMP : SDN-C
  * ================================================================================
  * Copyright (C) 2017 AT&T Intellectual Property. All rights
- *             reserved.
+ * 						reserved.
  * ================================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,37 +36,38 @@ public class VnfSdnUtil extends MdsalHelper {
     private static final Logger LOG = LoggerFactory.getLogger(VnfSdnUtil.class);
 
     public static File ODLHOME = null;
+
     private static Properties properties;
 
 
     public static void loadProperties() {
 
-        if (ODLHOME == null) {
-            ODLHOME = new File("/opt/opendaylight/current");
+		if (ODLHOME == null) {
+			ODLHOME = new File("/opt/opendaylight/current");
 
-            if (!ODLHOME.isDirectory()) {
-                ODLHOME = new File("/opt/bvc/controller");
-            }
+			if (!ODLHOME.isDirectory()) {
+				ODLHOME = new File("/opt/bvc/controller");
+			}
+		}
 
-        }
-
-        File file = new File(ODLHOME.getAbsoluteFile()+"/configuration/vnfapi.properties");
+		File propFile = new File(ODLHOME.getAbsolutePath() + "/configuration/vnfapi.properties");
+        String propFileName = propFile.getAbsolutePath();
         properties = new Properties();
         InputStream input = null;
-        if (file.isFile() && file.canRead()) {
+        if (propFile.isFile() && propFile.canRead()) {
             try    {
-                input = new FileInputStream(file);
+                input = new FileInputStream(propFile);
                 properties.load(input);
-                LOG.info("Loaded properties from " + PROPERTIES_FILE );
+                LOG.info("Loaded properties from " + propFileName );
                 setProperties(properties);
             } catch (Exception e) {
-                LOG.error("Failed to load properties " + PROPERTIES_FILE +"\n",e);
+                LOG.error("Failed to load properties " + propFileName +"\n",e);
             } finally {
                 if (input != null) {
                     try {
                         input.close();
                     } catch (IOException e) {
-                        LOG.error("Failed to close properties file " + PROPERTIES_FILE +"\n",e);
+                        LOG.error("Failed to close properties file " + propFileName +"\n",e);
                     }
                 }
             }
