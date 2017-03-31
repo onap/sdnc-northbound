@@ -411,7 +411,11 @@ module VNF-API {
             ordered-by user;
             leaf interface-route-prefix {
                 type ietf:ip-address;
-                description "route prefixes (CIDRs) to be provided to MSO in vnf-topology as a list of static routes";
+                description "OBSOLETE, route prefixes (CIDRs) to be provided to MSO in vnf-topology as a list of static routes";
+            }
+            leaf interface-route-prefix-cidr {
+                type string;
+                description "route prefixes (CIDRs) in ip/cidr format to be provided to MSO in vnf-topology as a list of static routes";
             }
         }
     }
