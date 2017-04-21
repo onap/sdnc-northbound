@@ -122,6 +122,17 @@ module VNF-API {
             leaf vnf-request-version {
                 type string; 
             }
+            leaf model-customization-uuid {
+                type string; 
+                description "customized resource, i.e. vf-module, for use within a given service";
+            }
+            leaf use-preload {
+                type enumeration { 
+                    enum "Y";
+                    enum "N";
+                }
+                description "orchestrate vf-module with full preload data or TOSCA lookup plus EIPAM automation";
+            }
             leaf vnf-id {
                 type string; 
                 description "vf-module-id";
