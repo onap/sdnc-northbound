@@ -3,7 +3,7 @@
  * openECOMP : SDN-C
  * ================================================================================
  * Copyright (C) 2017 AT&T Intellectual Property. All rights
- * 						reserved.
+ * 							reserved.
  * ================================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -797,7 +797,37 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 				}
 			}
 		}
+
 	}
+    private void DeleteVnfList (final VnfList entry, LogicalDatastoreType storeType) throws IllegalStateException {
+        // Each entry will be identifiable by a unique key, we have to create that identifier
+		InstanceIdentifier.InstanceIdentifierBuilder<VnfList> vnfListIdBuilder =
+				InstanceIdentifier.<Vnfs>builder(Vnfs.class)
+				.child(VnfList.class, entry.getKey());
+		InstanceIdentifier<VnfList> path = vnfListIdBuilder.toInstance();
+
+        int tries = 2;
+        while (true) {
+            try {
+                WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                tx.delete(storeType, path);
+                tx.submit().checkedGet();
+                log.debug("DataStore delete succeeded");
+                break;
+            } catch (final TransactionCommitFailedException e) {
+                if (e instanceof OptimisticLockFailedException) {
+                    if (--tries <= 0) {
+                        log.debug("Got OptimisticLockFailedException on last try - failing ");
+                        throw new IllegalStateException(e);
+                    }
+                    log.debug("Got OptimisticLockFailedException - trying again ");
+                } else {
+                    log.debug("Delete DataStore failed");
+                    throw new IllegalStateException(e);
+                }
+            }
+        }
+    }
 
 	//1610 vnf-instance
 	private void SaveVnfInstanceList (final VnfInstanceList entry, boolean merge, LogicalDatastoreType storeType) throws IllegalStateException {
@@ -1630,12 +1660,16 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
 			{
 				// Only update operational tree on Delete or Activate
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) ||
-				    input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
-				{
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
 					log.info("Updating OPERATIONAL tree.");
 					SaveVnfList (vnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 				}
+				else if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) ||
+				    input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Rollback)) {
+					    log.info("Delete OPERATIONAL tree.");
+					    DeleteVnfList (vnfListBuilder.build(), LogicalDatastoreType.CONFIGURATION);
+					    DeleteVnfList (vnfListBuilder.build(), LogicalDatastoreType.OPERATIONAL);
+                }
 			}
 			VnfInformationBuilder vnfInformationBuilder = new VnfInformationBuilder();
 			vnfInformationBuilder.setVnfId(siid);
