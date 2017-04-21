@@ -3,7 +3,7 @@
  * openECOMP : SDN-C
  * ================================================================================
  * Copyright (C) 2017 AT&T Intellectual Property. All rights
- *             reserved.
+ * 						reserved.
  * ================================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,8 @@ public class SdncUebConfiguration implements IConfiguration{
 	private String sdncPasswd = null;
 	private String asdcApiBaseUrl = null;
 	private String asdcApiNamespace = null;
+
+	private SdncArtifactMap artifactMap = SdncArtifactMap.getInstance();
 
 	public String getAsdcApiNamespace() {
 		return asdcApiNamespace;
@@ -172,6 +174,10 @@ public class SdncUebConfiguration implements IConfiguration{
 		xsltPathList = props.getProperty("org.openecomp.sdnc.uebclient.xslt-path-list");
 
 
+		String artifactMapFile = props.getProperty("org.openecomp.sdnc.uebclient.artifact-map");
+		if (artifactMapFile != null) {
+			artifactMap.load(artifactMapFile);
+		}
 
 	}
 
@@ -254,6 +260,20 @@ public class SdncUebConfiguration implements IConfiguration{
 
 	public String getArchiveDir() {
 		return archiveDir;
+	}
+
+	public int getMaxPasses() {
+		return(artifactMap.getNumPasses());
+	}
+
+	public SdncArtifactMap.SdncArtifactType getMapping(String tag) {
+		return(artifactMap.getMapping(tag));
+	}
+
+	@Override
+	public boolean isFilterInEmptyResources() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 
