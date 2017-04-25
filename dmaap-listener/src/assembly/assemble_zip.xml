@@ -46,6 +46,7 @@
 			<outputDirectory>lib</outputDirectory>
 			<includes>
 				<include>*.properties</include>
+				<include>*.map</include>
 			</includes>
 		</fileSet>
 	</fileSets>
