@@ -37,13 +37,6 @@
 				<groupId>org.openecomp.sdnc.northbound</groupId>
 				<artifactId>vnfapi-provider</artifactId>
 				<version>${project.version}</version>
-				<classifier>config</classifier>
-				<type>xml</type>
-			</dependency>
-			<dependency>
-				<groupId>org.openecomp.sdnc.northbound</groupId>
-				<artifactId>vnfapi-provider</artifactId>
-				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 
