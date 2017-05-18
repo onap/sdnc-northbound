@@ -51,7 +51,6 @@
 				</property>
 			</activation>
 			<build>
-				<pluginManagement>
 					<plugins>
 						<plugin>
 							<groupId>com.blackducksoftware.integration</groupId>
@@ -74,7 +73,6 @@
 						</plugin>
 					</plugins>
 
-				</pluginManagement>
 
 			</build>
 
