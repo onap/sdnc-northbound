@@ -3,14 +3,14 @@
         <groupId>org.openecomp.sdnc.northbound</groupId>
 	<packaging>jar</packaging>
 	<artifactId>ueb-listener</artifactId>
-	<version>1.1.1-SNAPSHOT</version>
+	<version>1.1.2-SNAPSHOT</version>
 
 	<name>UEB Listener</name>
 	<description>UEB Listener</description>
 	<parent>
 		<groupId>org.openecomp.sdnc.northbound</groupId>
 		<artifactId>sdnc-northbound</artifactId>
-		<version>1.1.1-SNAPSHOT</version>
+		<version>1.1.2-SNAPSHOT</version>
 	</parent>
 	<properties>
 		<sdc.client.version>1.1.7-SNAPSHOT</sdc.client.version>

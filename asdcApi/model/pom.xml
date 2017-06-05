@@ -4,11 +4,11 @@
 	<parent>
 		<artifactId>asdcApi</artifactId>
 		<groupId>org.openecomp.sdnc.northbound</groupId>
-		<version>1.1.1-SNAPSHOT</version>
+		<version>1.1.2-SNAPSHOT</version>
 	</parent>
 	<groupId>org.openecomp.sdnc.northbound</groupId>
 	<artifactId>asdcApi-model</artifactId>
-	<version>1.1.1-SNAPSHOT</version>
+	<version>1.1.2-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 
 	<build>
