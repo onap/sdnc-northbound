@@ -2,7 +2,7 @@ module VNF-API {
 
     yang-version 1;
 
-    namespace "org:openecomp:sdnctl:vnf";
+    namespace "org:onap:sdnctl:vnf";
 
     prefix vnfapi;
 
@@ -10,10 +10,10 @@ module VNF-API {
 
     include "vnfsubmodule";
 
-    organization "OpenECOMP";
+    organization "ONAP";
 
     contact
-	"Network Controller <sdnc@lists.openecomp.org>";
+	"Network Controller <onap-sdnc@lists.onap.org>";
 
     description
         "Defines API interface for VNF Orchestration";

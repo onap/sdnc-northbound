@@ -19,7 +19,7 @@
  * ============LICENSE_END=========================================================
  */
 
-package org.openecomp.sdnc.vnftools;
+package org.onap.sdnc.vnftools;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.openecomp.sdnc.sli.SvcLogicContext;
-import org.openecomp.sdnc.sli.SvcLogicException;
-import org.openecomp.sdnc.sli.SvcLogicJavaPlugin;
-import org.openecomp.sdnc.sli.SliPluginUtils.SliPluginUtils;
+import org.onap.ccsdk.sli.core.sli.SvcLogicContext;
+import org.onap.ccsdk.sli.core.sli.SvcLogicException;
+import org.onap.ccsdk.sli.core.sli.SvcLogicJavaPlugin;
+import org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -28,7 +28,7 @@
 *
 * Do not modify this file unless it is present under src/main directory
 */
-package org.opendaylight.yang.gen.v1.org.openecomp.sdnc.vnfapi.provider.impl.rev140523;
-public class VnfapiProviderModuleFactory extends org.opendaylight.yang.gen.v1.org.openecomp.sdnc.vnfapi.provider.impl.rev140523.AbstractVnfapiProviderModuleFactory {
+package org.opendaylight.yang.gen.v1.org.onap.sdnc.vnfapi.provider.impl.rev140523;
+public class VnfapiProviderModuleFactory extends org.opendaylight.yang.gen.v1.org.onap.sdnc.vnfapi.provider.impl.rev140523.AbstractVnfapiProviderModuleFactory {
 
 }

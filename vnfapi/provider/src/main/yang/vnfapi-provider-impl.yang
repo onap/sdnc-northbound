@@ -1,7 +1,7 @@
 module vnfapi-provider-impl {
 
     yang-version 1;
-    namespace "org:openecomp:sdnc:vnfapi:provider:impl";
+    namespace "org:onap:sdnc:vnfapi:provider:impl";
     prefix "vnfapi-provider-impl";
 
     import config { prefix config; revision-date 2013-04-05; }

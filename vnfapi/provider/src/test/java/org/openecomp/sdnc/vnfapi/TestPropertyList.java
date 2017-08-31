@@ -19,7 +19,7 @@
  * ============LICENSE_END=========================================================
  */
 
-package org.openecomp.sdnc.vnfapi;
+package org.onap.sdnc.vnfapi;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,14 +30,14 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.opendaylight.yang.gen.v1.org.openecomp.sdnctl.vnf.rev150720.VnfTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.openecomp.sdnctl.vnf.rev150720.VnfTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.openecomp.sdnctl.vnf.rev150720.service.data.ServiceDataBuilder;
-import org.openecomp.sdnc.vnfapi.VnfSdnUtil;
-import org.openecomp.sdnc.vnfapi.vnfapiProvider;
-import org.opendaylight.yang.gen.v1.org.openecomp.sdnctl.vnf.rev150720.PreloadVnfTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.openecomp.sdnctl.vnf.rev150720.PreloadVnfTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.openecomp.sdnctl.vnf.rev150720.preload.data.PreloadDataBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.data.ServiceDataBuilder;
+import org.onap.sdnc.vnfapi.VnfSdnUtil;
+import org.onap.sdnc.vnfapi.vnfapiProvider;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.data.PreloadDataBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

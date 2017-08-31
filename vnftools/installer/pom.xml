@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>vnftools</artifactId>
-		<groupId>org.openecomp.sdnc.northbound</groupId>
+		<groupId>org.onap.sdnc.northbound</groupId>
 		<version>1.2.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>vnftools-installer</artifactId>
@@ -14,14 +14,14 @@
 	<properties>
 		<application.name>sdnc-vnftools</application.name>
 		<features.boot>sdnc-vnftools</features.boot>
-		<features.repositories>mvn:org.openecomp.sdnc.northbound/vnftools-features/${project.version}/xml/features</features.repositories>
+		<features.repositories>mvn:org.onap.sdnc.northbound/vnftools-features/${project.version}/xml/features</features.repositories>
 		<include.transitive.dependencies>false</include.transitive.dependencies>
 	</properties>
 
 	<dependencies>
 
 		<dependency>
-			<groupId>org.openecomp.sdnc.northbound</groupId>
+			<groupId>org.onap.sdnc.northbound</groupId>
 			<artifactId>vnftools-features</artifactId>
 			<version>${project.version}</version>
 			<classifier>features</classifier>
@@ -35,7 +35,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.openecomp.sdnc.northbound</groupId>
+			<groupId>org.onap.sdnc.northbound</groupId>
 			<artifactId>vnftools-provider</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -100,7 +100,7 @@
 							<useRepositoryLayout>true</useRepositoryLayout>
 							<addParentPoms>false</addParentPoms>
 							<copyPom>false</copyPom>
-							<includeGroupIds>org.openecomp.sdnc</includeGroupIds>
+							<includeGroupIds>org.onap.sdnc</includeGroupIds>
 							<excludeArtifactIds>sli-common,sli-provider,dblib-common,dblib-provider,sliPluginUtils-provider</excludeArtifactIds>
 							<scope>provided</scope>
 						</configuration>

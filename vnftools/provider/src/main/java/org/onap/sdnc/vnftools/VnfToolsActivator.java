@@ -19,7 +19,7 @@
  * ============LICENSE_END=========================================================
  */
 
-package org.openecomp.sdnc.vnftools;
+package org.onap.sdnc.vnftools;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import org.openecomp.sdnc.sli.ConfigurationException;
+import org.onap.ccsdk.sli.core.sli.ConfigurationException;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;

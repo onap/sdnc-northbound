@@ -19,16 +19,16 @@
  * ============LICENSE_END=========================================================
  */
 
-package org.opendaylight.yang.gen.v1.org.openecomp.sdnc.vnfapi.provider.impl.rev140523;
+package org.opendaylight.yang.gen.v1.org.onap.sdnc.vnfapi.provider.impl.rev140523;
 
-import org.openecomp.sdnc.vnfapi.vnfapiProvider;
+import org.onap.sdnc.vnfapi.vnfapiProvider;
 
-public class VnfapiProviderModule extends org.opendaylight.yang.gen.v1.org.openecomp.sdnc.vnfapi.provider.impl.rev140523.AbstractVnfapiProviderModule {
+public class VnfapiProviderModule extends org.opendaylight.yang.gen.v1.org.onap.sdnc.vnfapi.provider.impl.rev140523.AbstractVnfapiProviderModule {
     public VnfapiProviderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public VnfapiProviderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.org.openecomp.sdnc.vnfapi.provider.impl.rev140523.VnfapiProviderModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public VnfapiProviderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.org.onap.sdnc.vnfapi.provider.impl.rev140523.VnfapiProviderModule oldModule, java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
