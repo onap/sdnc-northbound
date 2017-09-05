@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<features name="generic-resource-api-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
+
+    <feature name='GENERIC-RESOURCE-API' description="generic-resource-api.GENERIC-RESOURCE-API" version='${project.version}'>
+        <feature version="${odl.controller.mdsal.version}">odl-mdsal-broker</feature>
+        <feature version="${sdnctl.sli.version}">sdnc-sli</feature>
+        <!-- It is assumed that applications are installed on BVC, which installs bvc-core including MD-SAL etc.
+             Do not list those features out here as that will tie your implementation to a specific version
+             of MD-SAL / BVC and force updates to your application for every upgrade of BVC core platform.-->
+        <bundle>mvn:com.att.sdnctl.app/generic-resource-api.model/${project.version}</bundle>
+        <bundle>mvn:com.att.sdnctl.app/generic-resource-api.provider/${project.version}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/200-generic-resource-api-provider.xml">mvn:com.att.sdnctl.app/generic-resource-api.provider/${project.version}/xml/config</configfile>
+    </feature>
+
+</features>
