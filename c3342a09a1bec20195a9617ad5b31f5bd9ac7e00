@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_7593e5fa",
+        "filename": "generic-resource-api/model/src/main/yang/GENERIC-RESOURCE-API.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 1586,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-06T10:50:16Z",
+      "side": 1,
+      "message": "I couldn\u0027t find any usage of these containers are they kept for some future usage?",
+      "range": {
+        "startLine": 1550,
+        "startChar": 0,
+        "endLine": 1586,
+        "endChar": 4
+      },
+      "revId": "c3342a09a1bec20195a9617ad5b31f5bd9ac7e00",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_b5ceed81",
+        "filename": "generic-resource-api/provider/src/main/java/org/onap/sdnc/northbound/GenericResourceApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-06T10:50:16Z",
+      "side": 1,
+      "message": "As I know NotificationProviderService has been marked as deprecated and the new one is NotificationPublishService. Are we still using NotificationProviderService for a purpose?",
+      "range": {
+        "startLine": 134,
+        "startChar": 14,
+        "endLine": 134,
+        "endChar": 41
+      },
+      "revId": "c3342a09a1bec20195a9617ad5b31f5bd9ac7e00",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_5590e1eb",
+        "filename": "generic-resource-api/provider/src/main/java/org/onap/sdnc/northbound/GenericResourceApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-06T10:50:16Z",
+      "side": 1,
+      "message": "typecasting looks redundant here as getServiceData will return object of type ServiceData.\nI found similar occurrences with other typecasting in this file.",
+      "range": {
+        "startLine": 321,
+        "startChar": 38,
+        "endLine": 321,
+        "endChar": 51
+      },
+      "revId": "c3342a09a1bec20195a9617ad5b31f5bd9ac7e00",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_95ad2934",
+        "filename": "generic-resource-api/provider/src/main/java/org/onap/sdnc/northbound/GenericResourceApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-06T10:50:16Z",
+      "side": 1,
+      "message": "this seems to be deprecated too instead build() is to be used.",
+      "range": {
+        "startLine": 383,
+        "startChar": 58,
+        "endLine": 383,
+        "endChar": 68
+      },
+      "revId": "c3342a09a1bec20195a9617ad5b31f5bd9ac7e00",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_5555811b",
+        "filename": "generic-resource-api/provider/src/main/java/org/onap/sdnc/northbound/GenericResourceApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-06T10:50:16Z",
+      "side": 1,
+      "message": "it might be better to use string constants/enum for better maintainability. Same applicable for other errorCode this file.",
+      "range": {
+        "startLine": 542,
+        "startChar": 21,
+        "endLine": 542,
+        "endChar": 26
+      },
+      "revId": "c3342a09a1bec20195a9617ad5b31f5bd9ac7e00",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_752f65a2",
+        "filename": "generic-resource-api/provider/src/main/java/org/onap/sdnc/northbound/GenericResourceApiUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-06T10:50:16Z",
+      "side": 1,
+      "message": "should we be using setYangMappingProperties() directly.",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 17
+      },
+      "revId": "c3342a09a1bec20195a9617ad5b31f5bd9ac7e00",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_f5359546",
+        "filename": "generic-resource-api/provider/src/main/java/org/opendaylight/yang/gen/v1/org/onap/sdnc/northbound/generic/resource/api/provider/impl/rev140523/GENERICRESOURCEAPIProviderModule.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-06T10:50:16Z",
+      "side": 1,
+      "message": "replacing qualified name with import may help to improve readability. Similar suggestion for other places in this file.",
+      "range": {
+        "startLine": 6,
+        "startChar": 44,
+        "endLine": 6,
+        "endChar": 99
+      },
+      "revId": "c3342a09a1bec20195a9617ad5b31f5bd9ac7e00",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_151819d2",
+        "filename": "generic-resource-api/provider/src/main/java/org/opendaylight/yang/gen/v1/org/onap/sdnc/northbound/generic/resource/api/provider/impl/rev140523/GENERICRESOURCEAPIProviderModule.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-06T10:50:16Z",
+      "side": 1,
+      "message": "do we see this being instantiating by someone other then AbstractGENERICRESOURCEAPIProviderModuleFactory? if not access identifier can be package local.",
+      "range": {
+        "startLine": 10,
+        "startChar": 4,
+        "endLine": 10,
+        "endChar": 10
+      },
+      "revId": "c3342a09a1bec20195a9617ad5b31f5bd9ac7e00",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_95c76945",
+        "filename": "generic-resource-api/provider/src/main/yang/GENERIC-RESOURCE-API-provider-impl.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-06T10:50:16Z",
+      "side": 1,
+      "message": "revision date looks to be very old, should it be same as generic-resource-api.yang",
+      "range": {
+        "startLine": 14,
+        "startChar": 13,
+        "endLine": 14,
+        "endChar": 25
+      },
+      "revId": "c3342a09a1bec20195a9617ad5b31f5bd9ac7e00",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_d5b051f6",
+        "filename": "generic-resource-api/provider/src/main/yang/GENERIC-RESOURCE-API-provider-impl.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-06T10:50:16Z",
+      "side": 1,
+      "message": "should we be using notification publish service rather?\ncontainer notification-publish-adapter {\n                uses config:service-ref {\n                    refine type {\n                        mandatory true;\n                        config:required-identity sal-broker:binding-new-notification-publish-service;\n                    }\n                }\n            }",
+      "range": {
+        "startLine": 42,
+        "startChar": 12,
+        "endLine": 49,
+        "endChar": 13
+      },
+      "revId": "c3342a09a1bec20195a9617ad5b31f5bd9ac7e00",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
