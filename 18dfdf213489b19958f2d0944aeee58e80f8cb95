@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_41425e3f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 667
+      },
+      "writtenOn": "2017-09-07T19:37:26Z",
+      "side": 1,
+      "message": "Gaurav, thanks for this and your other patches. They are much appreciated. One note, please wrap your commit message lines at 72 chars and add more descriptive information to summary line. See TSC approved commit message standards: https://wiki.onap.org/display/DW/Commit+Messages\n\nThis is important. I\u0027ve already had to wade through commits \n in SDNC and and it is much more challenging to find/revert/debug when you don\u0027t have descriptive summaries and properly formatted body messages.",
+      "range": {
+        "startLine": 9,
+        "startChar": 72,
+        "endLine": 9,
+        "endChar": 98
+      },
+      "revId": "18dfdf213489b19958f2d0944aeee58e80f8cb95",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
