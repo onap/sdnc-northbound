@@ -8,9 +8,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -189,7 +189,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         try {
             VnfSdnUtil.loadProperties();
         } catch (Exception e) {
-            log.error("Caught Exception while trying to load properties file");
+            log.error("Caught Exception while trying to load properties file: ", e);
         }
         rpcRegistration = rpcRegistry.addRpcImplementation(VNFAPIService.class, this);
 
@@ -242,7 +242,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         } catch (InterruptedException | ExecutionException e) {
             log.error("Create Containers Failed: " + e);
-            e.printStackTrace();
         }
     }
 
@@ -559,7 +558,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+siid+"] " ,e);
         }
 
-        if ( data.isPresent()) {
+        if (data != null && data.isPresent()) {
             ServiceData serviceData = (ServiceData) data.get().getServiceData();
             if (serviceData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+siid+"] ServiceData: " + serviceData);
@@ -599,7 +598,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+siid+"] " ,e);
         }
 
-        if ( data.isPresent()) {
+        if (data != null && data.isPresent()) {
             VnfInstanceServiceData vnfInstanceServiceData = (VnfInstanceServiceData) data.get().getVnfInstanceServiceData();
             if (vnfInstanceServiceData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+siid+"] VnfInstanceServiceData: " + vnfInstanceServiceData);
@@ -639,7 +638,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+siid+"] " ,e);
         }
 
-        if ( data.isPresent()) {
+        if (data != null && data.isPresent()) {
             VfModuleServiceData vfModuleServiceData = (VfModuleServiceData) data.get().getVfModuleServiceData();
             if (vfModuleServiceData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+siid+"] VfModuleServiceData: " + vfModuleServiceData);
@@ -679,7 +678,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+preload_name+","+preload_type+"] " ,e);
         }
 
-        if ( data.isPresent()) {
+        if (data != null && data.isPresent()) {
             PreloadData preloadData = (PreloadData) data.get().getPreloadData();
             if (preloadData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+preload_name+","+preload_type+"] PreloadData: " + preloadData);
@@ -716,7 +715,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+preload_name+","+preload_type+"] " ,e);
         }
 
-        if ( data.isPresent()) {
+        if (data != null && data.isPresent()) {
             VnfInstancePreloadData preloadData = (VnfInstancePreloadData) data.get().getVnfInstancePreloadData();
             if (preloadData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+preload_name+","+preload_type+"] VnfInstancePreloadData: " + preloadData);
@@ -751,7 +750,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+preload_name+","+preload_type+"] " ,e);
         }
 
-        if ( data.isPresent()) {
+        if (data != null && data.isPresent()) {
             VfModulePreloadData preloadData = (VfModulePreloadData) data.get().getVfModulePreloadData();
             if (preloadData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+preload_name+","+preload_type+"] VfModulePreloadData: " + preloadData);
