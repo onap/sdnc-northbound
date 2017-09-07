@@ -45,7 +45,7 @@
           our service can be resolved. Capabilities for dependencies defined above are implied which is
           why we do not have define a required capability for the data broker, for example. -->
     <required-capabilities>
-        <capability>org:onap:sdnc:northbound:GENERIC-RESOURCE-API:provider:impl?module=GENERIC-RESOURCE-API-provider-impl&amp;revision=2014-05-23</capability>
+        <capability>org:onap:sdnc:northbound:GENERIC-RESOURCE-API:provider:impl?module=GENERIC-RESOURCE-API-provider-impl&amp;revision=2017-08-24</capability>
     </required-capabilities>
 
 </snapshot>

@@ -11,9 +11,9 @@ module GENERIC-RESOURCE-API-provider-impl {
         "This module contains the base YANG definitions for
         GENERIC-RESOURCE-API-provider impl implementation.";
 
-    revision "2014-05-23" {
+    revision "2017-08-24" {
         description
-            "Initial revision.";
+            "ONAP Amsterdam version.";
     }
 
     // This is the definition of the service implementation as a module identity.
