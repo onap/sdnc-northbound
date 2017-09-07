@@ -19,7 +19,7 @@ public class GENERICRESOURCEAPIProviderModule extends org.opendaylight.yang.gen.
     @Override
     public java.lang.AutoCloseable createInstance() {
         final GenericResourceApiProvider provider = new GenericResourceApiProvider(getDataBrokerDependency()
-                , getNotificationServiceDependency()
+                , getNotificationPublishAdapterDependency()
                 , getRpcRegistryDependency());
 
         return new AutoCloseable() {

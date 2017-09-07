@@ -11,13 +11,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationInputBuilder;
@@ -131,17 +131,17 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     private final ExecutorService executor;
 
     protected DataBroker dataBroker;
-    protected NotificationProviderService notificationService;
+    protected NotificationPublishService notificationService;
     protected RpcProviderRegistry rpcRegistry;
     protected BindingAwareBroker.RpcRegistration<GENERICRESOURCEAPIService> rpcRegistration;
 
     public GenericResourceApiProvider(DataBroker dataBroker2,
-            NotificationProviderService notificationProviderService,
+                                      NotificationPublishService notificationPublishService,
             RpcProviderRegistry rpcProviderRegistry) {
         this.log.info( "Creating provider for " + appName );
         executor = Executors.newFixedThreadPool(1);
         dataBroker = dataBroker2;
-        notificationService = notificationProviderService;
+        notificationService = notificationPublishService;
         rpcRegistry = rpcProviderRegistry;
         initialize();
 
@@ -196,7 +196,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     public void setNotificationService(
-            NotificationProviderService notificationService) {
+            NotificationPublishService notificationService) {
         this.notificationService = notificationService;
         if( log.isDebugEnabled() ){
             log.debug( "Notification Service set to " + (notificationService==null?"null":"non-null") + "." );
@@ -308,7 +308,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // See if any data exists yet for this siid, if so grab it.
         InstanceIdentifier serviceInstanceIdentifier =
                 InstanceIdentifier.<Services>builder(Services.class)
-                .child(Service.class, new ServiceKey(siid)).toInstance();
+                .child(Service.class, new ServiceKey(siid)).build();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<Service> data = null;
         try {
@@ -351,7 +351,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // See if any data exists yet for this name/type, if so grab it.
         InstanceIdentifier preloadInstanceIdentifier =
                 InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
-                .child(VnfPreloadList.class, new VnfPreloadListKey(preload_name, preload_type)).toInstance();
+                .child(VnfPreloadList.class, new VnfPreloadListKey(preload_name, preload_type)).build();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VnfPreloadList> data = null;
         try {
@@ -380,7 +380,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         InstanceIdentifier.InstanceIdentifierBuilder<Service> serviceBuilder =
                 InstanceIdentifier.<Services>builder(Services.class)
                 .child(Service.class, entry.getKey());
-        InstanceIdentifier<Service> path = serviceBuilder.toInstance();
+        InstanceIdentifier<Service> path = serviceBuilder.build();
 
         int tries = 2;
         while(true) {
@@ -413,7 +413,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Each entry will be identifiable by a unique key, we have to create
         // that identifier
         InstanceIdentifier.InstanceIdentifierBuilder<Service> serviceListIdBuilder = InstanceIdentifier.<Services> builder(Services.class).child(Service.class, entry.getKey());
-        InstanceIdentifier<Service> path = serviceListIdBuilder.toInstance();
+        InstanceIdentifier<Service> path = serviceListIdBuilder.build();
 
         int tries = 2;
         while (true) {
@@ -444,7 +444,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         InstanceIdentifier.InstanceIdentifierBuilder<VnfPreloadList> vnfPreloadListBuilder =
                 InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
                 .child(VnfPreloadList.class, entry.getKey());
-        InstanceIdentifier<VnfPreloadList> path = vnfPreloadListBuilder.toInstance();
+        InstanceIdentifier<VnfPreloadList> path = vnfPreloadListBuilder.build();
         int tries = 2;
         while(true) {
             try {

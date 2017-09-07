@@ -28,7 +28,7 @@ public class GenericResourceApiUtil extends MdsalHelper {
 				input = new FileInputStream(file);
 				properties.load(input);
 				LOG.info("Loaded properties from " + PROPERTIES_FILE );
-				setProperties(properties);
+				setYangMappingProperties(properties);
 			} catch (Exception e) {
 				LOG.error("Failed to load properties " + PROPERTIES_FILE +"\n",e);
 			} finally {
