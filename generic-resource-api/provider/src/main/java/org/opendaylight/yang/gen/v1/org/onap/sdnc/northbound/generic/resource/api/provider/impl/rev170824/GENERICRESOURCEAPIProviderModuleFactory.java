@@ -8,6 +8,6 @@
 * Do not modify this file unless it is present under src/main directory
 */
 package org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.api.provider.impl.rev170824;
-public class GENERICRESOURCEAPIProviderModuleFactory extends org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.api.provider.impl.rev170824.AbstractGENERICRESOURCEAPIProviderModuleFactory {
+public class GENERICRESOURCEAPIProviderModuleFactory extends AbstractGENERICRESOURCEAPIProviderModuleFactory {
 
 }

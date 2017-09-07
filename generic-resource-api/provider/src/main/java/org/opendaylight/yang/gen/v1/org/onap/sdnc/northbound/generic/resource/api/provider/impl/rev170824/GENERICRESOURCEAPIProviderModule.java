@@ -1,13 +1,15 @@
 package org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.api.provider.impl.rev170824;
 
 import org.onap.sdnc.northbound.GenericResourceApiProvider;
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.opendaylight.controller.config.api.ModuleIdentifier;
 
-public class GENERICRESOURCEAPIProviderModule extends org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.api.provider.impl.rev170824.AbstractGENERICRESOURCEAPIProviderModule {
-    public GENERICRESOURCEAPIProviderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+public class GENERICRESOURCEAPIProviderModule extends AbstractGENERICRESOURCEAPIProviderModule {
+    public GENERICRESOURCEAPIProviderModule(ModuleIdentifier identifier, DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public GENERICRESOURCEAPIProviderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.api.provider.impl.rev170824.GENERICRESOURCEAPIProviderModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public GENERICRESOURCEAPIProviderModule(ModuleIdentifier identifier, DependencyResolver dependencyResolver, GENERICRESOURCEAPIProviderModule oldModule, AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -17,7 +19,7 @@ public class GENERICRESOURCEAPIProviderModule extends org.opendaylight.yang.gen.
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
+    public AutoCloseable createInstance() {
         final GenericResourceApiProvider provider = new GenericResourceApiProvider(getDataBrokerDependency()
                 , getNotificationPublishAdapterDependency()
                 , getRpcRegistryDependency());

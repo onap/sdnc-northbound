@@ -317,8 +317,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+siid+"] " ,e);
         }
 
-        if (data.isPresent()) {
-            ServiceData serviceData = (ServiceData) data.get().getServiceData();
+        if (data != null && data.isPresent()) {
+            ServiceData serviceData = data.get().getServiceData();
             if (serviceData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+siid+"] ServiceData: " + serviceData);
                 serviceDataBuilder.setSdncRequestHeader(serviceData.getSdncRequestHeader());
@@ -360,8 +360,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+preload_name+","+preload_type+"] " ,e);
         }
 
-        if ( data.isPresent()) {
-            PreloadData preloadData = (PreloadData) data.get().getPreloadData();
+        if (data != null && data.isPresent()) {
+            PreloadData preloadData = data.get().getPreloadData();
             if (preloadData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+preload_name+","+preload_type+"] PreloadData: " + preloadData);
                 preloadDataBuilder.setVnfTopologyInformation(preloadData.getVnfTopologyInformation());
@@ -477,7 +477,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			ServiceTopologyOperationInput input) {
 
 		final String SVC_OPERATION = "service-topology-operation";
-		ServiceData serviceData = null;
+		ServiceData serviceData;
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
@@ -663,7 +663,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			VnfTopologyOperationInput input) {
 
 		final String SVC_OPERATION = "vnf-topology-operation";
-		ServiceData serviceData = null;
+		ServiceData serviceData;
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
@@ -907,7 +907,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             VfModuleTopologyOperationInput input) {
 
         final String SVC_OPERATION = "vf-module-topology-operation";
-        ServiceData serviceData = null;
+        ServiceData serviceData;
         ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
         Properties parms = new Properties();
 
@@ -1153,7 +1153,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			NetworkTopologyOperationInput input) {
 
 		final String SVC_OPERATION = "network-topology-operation";
-		ServiceData serviceData = null;
+		ServiceData serviceData;
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
@@ -1353,7 +1353,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			ContrailRouteTopologyOperationInput input) {
 
 		final String SVC_OPERATION = "contrail-route-topology-operation";
-		ServiceData serviceData = null;
+		ServiceData serviceData;
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
@@ -1529,7 +1529,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			SecurityZoneTopologyOperationInput input) {
 
 		final String SVC_OPERATION = "security-zone-topology-operation";
-		ServiceData serviceData = null;
+		ServiceData serviceData;
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
