@@ -8,9 +8,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,7 @@ package org.onap.sdnc.vnftools;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -161,16 +162,26 @@ public class VnfTools implements SvcLogicJavaPlugin {
 		}
 
 		PrintStream pstr = null;
+		FileOutputStream fileStream = null;
 
 		try {
-			pstr = new PrintStream(new FileOutputStream(new File(fileName), true));
+			pstr = new PrintStream(fileStream = new FileOutputStream(new File(fileName), true));
 		} catch (Exception e) {
+			if (fileStream != null) {
+				try {
+					fileStream.close();
+				} catch (IOException e1) {
+					LOG.error("FileOutputStream close exception: ", e1);
+				}
+			}
 			throw new SvcLogicException("Cannot open file " + fileName, e);
 		}
-	        pstr.println("#######################################");
+
+		pstr.println("#######################################");
 		for (String attr : ctx.getAttributeKeySet()) {
 			pstr.println(attr + " = " + ctx.getAttribute(attr));
 		}
+
 		pstr.flush();
 		pstr.close();
 	}
