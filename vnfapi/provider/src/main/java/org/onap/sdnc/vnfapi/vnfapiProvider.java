@@ -486,7 +486,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             default:
                 log.error("Unknown RequestAction: " + requestInformation.getRequestAction() );
                 break;
-            };
+            }
         }
         if (requestInformation != null && requestInformation.getRequestSubAction() != null) {
             switch (requestInformation.getRequestSubAction())
@@ -500,7 +500,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             default:
                 log.error("Unknown RequestSubAction: " + requestInformation.getRequestSubAction() );
                 break;
-            };
+            }
         }
     }
 
@@ -533,7 +533,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             default:
                 log.error("Unknown SvcAction: " + requestHeader.getSvcAction() );
                 break;
-            };
+            }
         }
     }
 
@@ -1744,7 +1744,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         // Grab the service instance ID from the input buffer
         String siid = null;
-        if (input.getSdncRequestHeader().getSvcAction().equals("assign")) {
+        if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Assign)) {
             siid = input.getNetworkRequestInformation().getNetworkName();
         }
         else {
