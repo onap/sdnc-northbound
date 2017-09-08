@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_f39a436d",
+        "filename": "vnfapi/provider/src/main/java/org/onap/sdnc/vnfapi/vnfapiProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1747,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-08T11:55:52Z",
+      "side": 1,
+      "message": "using equals(SvcAction.Assign) will be better here.",
+      "range": {
+        "startLine": 1747,
+        "startChar": 55,
+        "endLine": 1747,
+        "endChar": 82
+      },
+      "revId": "51487c38dbd7e9d18ffef6ea1d2a083a09cd9f45",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
