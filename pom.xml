@@ -14,7 +14,7 @@
 	<groupId>org.onap.sdnc.northbound</groupId>
 	<artifactId>sdnc-northbound</artifactId>
 
-	<name>SDN-C Northbound APIs</name>
+	<name>sdnc-northbound</name>
 	<url>https://wiki.openecomp.org</url>
 	<description>The SDN-C Northbound APIs repo contains code for northbound API adaptors, typically MD-SAL applications</description>
 
