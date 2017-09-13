@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_319d515a",
+        "filename": "vnfapi/provider/src/main/java/org/onap/sdnc/vnfapi/vnfapiProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 257
+      },
+      "writtenOn": "2017-09-13T05:50:45Z",
+      "side": 1,
+      "message": "Instead of repeating this multiple times, have a private method and call that method",
+      "revId": "de6d2a8a89028f448bd32e31f3909a6f5990a251",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
