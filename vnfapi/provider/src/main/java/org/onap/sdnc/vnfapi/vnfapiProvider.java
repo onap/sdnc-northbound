@@ -139,6 +139,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -1002,6 +1003,11 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         }
     }
 
+    //Save the requestId into MDC
+    private void setRequestIdAsMDC(String requestId){
+    	MDC.put("RequestId", requestId);
+    }
+   
     //1610 vnf-instance-topology-operation
     @Override
     public Future<RpcResult<VnfInstanceTopologyOperationOutput>> vnfInstanceTopologyOperation(
@@ -1050,6 +1056,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         // Get vnf-instance-preload-data
@@ -1280,6 +1287,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         // Get vf-module-preload-data
@@ -1534,6 +1542,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
@@ -1768,6 +1777,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
@@ -1931,6 +1941,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
@@ -2125,6 +2136,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         VnfInstancePreloadDataBuilder vnfInstancePreloadDataBuilder = new VnfInstancePreloadDataBuilder();
@@ -2320,6 +2332,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         VfModulePreloadDataBuilder vfModulePreloadDataBuilder = new VfModulePreloadDataBuilder();
@@ -2510,6 +2523,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
@@ -2647,4 +2661,5 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 RpcResultBuilder.<PreloadNetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
         return Futures.immediateFuture(rpcResult);
     }
+    
 }
