@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_83a032a0",
+        "filename": "vnfapi/provider/src/main/java/org/onap/sdnc/vnfapi/vnfapiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1008,
+      "author": {
+        "id": 667
+      },
+      "writtenOn": "2017-09-13T18:03:54Z",
+      "side": 1,
+      "message": "Tabs should be 4 spaces",
+      "revId": "c41182f7642faf8d0b68a0954ec8a38fbfd4d9a3",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_0384420a",
+        "filename": "vnfapi/provider/src/main/java/org/onap/sdnc/vnfapi/vnfapiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 667
+      },
+      "writtenOn": "2017-09-13T18:03:54Z",
+      "side": 1,
+      "message": "extraneous space added",
+      "range": {
+        "startLine": 1010,
+        "startChar": 0,
+        "endLine": 1010,
+        "endChar": 3
+      },
+      "revId": "c41182f7642faf8d0b68a0954ec8a38fbfd4d9a3",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_e386de12",
+        "filename": "vnfapi/provider/src/main/java/org/onap/sdnc/vnfapi/vnfapiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2664,
+      "author": {
+        "id": 667
+      },
+      "writtenOn": "2017-09-13T18:03:54Z",
+      "side": 1,
+      "message": "extraneous space added",
+      "revId": "c41182f7642faf8d0b68a0954ec8a38fbfd4d9a3",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
