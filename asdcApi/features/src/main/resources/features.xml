@@ -34,7 +34,10 @@
         <bundle>mvn:org.openecomp.sdnc.northbound/asdcApi-model/${project.version}</bundle>
         <bundle>mvn:org.openecomp.sdnc.northbound/asdcApi-provider/${project.version}</bundle>
 
+<!--
         <feature version="${sdnctl.sli.version}">sdnc-sli</feature>
+-->
+        <feature version="${project.version}">sdnc-sli</feature>
         <configfile finalname="etc/opendaylight/karaf/200-asdcApi-provider.xml">mvn:org.openecomp.sdnc.northbound/asdcApi-provider/${project.version}/xml/config</configfile>
     </feature>
 
