@@ -40,7 +40,7 @@ public class VnfapiProviderModule extends org.opendaylight.yang.gen.v1.org.onap.
     @Override
     public java.lang.AutoCloseable createInstance() {
         final vnfapiProvider provider = new vnfapiProvider(getDataBrokerDependency()
-                , getNotificationServiceDependency()
+                , getNotificationPublishAdapterDependency()
                 , getRpcRegistryDependency());
 
         return new AutoCloseable() {

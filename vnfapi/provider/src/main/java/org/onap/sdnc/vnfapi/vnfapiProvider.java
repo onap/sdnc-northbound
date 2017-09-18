@@ -41,7 +41,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.NetworkTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.NetworkTopologyOperationInputBuilder;
@@ -165,14 +165,14 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     private ListenerRegistration<DataChangeListener> dclServices;
 
     protected DataBroker dataBroker;
-    protected NotificationProviderService notificationService;
+    protected NotificationPublishService notificationService;
     protected RpcProviderRegistry rpcRegistry;
     protected BindingAwareBroker.RpcRegistration<VNFAPIService> rpcRegistration;
 
 
 
     public vnfapiProvider(DataBroker dataBroker2,
-            NotificationProviderService notificationProviderService,
+            NotificationPublishService notificationProviderService,
             RpcProviderRegistry rpcProviderRegistry) {
         this.log.info( "Creating provider for " + appName );
         executor = Executors.newFixedThreadPool(1);
@@ -550,7 +550,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this siid, if so grab it.
         InstanceIdentifier serviceInstanceIdentifier =
                 InstanceIdentifier.<Vnfs>builder(Vnfs.class)
-                .child(VnfList.class, new VnfListKey(siid)).toInstance();
+                .child(VnfList.class, new VnfListKey(siid)).build();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VnfList> data = null;
         try {
@@ -590,7 +590,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this siid, if so grab it.
         InstanceIdentifier vnfInstanceIdentifier =
                 InstanceIdentifier.<VnfInstances>builder(VnfInstances.class)
-                .child(VnfInstanceList.class, new VnfInstanceListKey(siid)).toInstance();
+                .child(VnfInstanceList.class, new VnfInstanceListKey(siid)).build();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VnfInstanceList> data = null;
         try {
@@ -630,7 +630,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this siid, if so grab it.
         InstanceIdentifier vfModuleIdentifier =
                 InstanceIdentifier.<VfModules>builder(VfModules.class)
-                .child(VfModuleList.class, new VfModuleListKey(siid)).toInstance();
+                .child(VfModuleList.class, new VfModuleListKey(siid)).build();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VfModuleList> data = null;
         try {
@@ -670,7 +670,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this name/type, if so grab it.
         InstanceIdentifier preloadInstanceIdentifier =
                 InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
-                .child(VnfPreloadList.class, new VnfPreloadListKey(preload_name, preload_type)).toInstance();
+                .child(VnfPreloadList.class, new VnfPreloadListKey(preload_name, preload_type)).build();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VnfPreloadList> data = null;
         try {
@@ -707,7 +707,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this name/type, if so grab it.
         InstanceIdentifier preloadInstanceIdentifier =
                 InstanceIdentifier.<PreloadVnfInstances>builder(PreloadVnfInstances.class)
-                .child(VnfInstancePreloadList.class, new VnfInstancePreloadListKey(preload_name, preload_type)).toInstance();
+                .child(VnfInstancePreloadList.class, new VnfInstancePreloadListKey(preload_name, preload_type)).build();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VnfInstancePreloadList> data = null;
         try {
@@ -742,7 +742,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this name/type, if so grab it.
         InstanceIdentifier preloadInstanceIdentifier =
                 InstanceIdentifier.<PreloadVfModules>builder(PreloadVfModules.class)
-                .child(VfModulePreloadList.class, new VfModulePreloadListKey(preload_name, preload_type)).toInstance();
+                .child(VfModulePreloadList.class, new VfModulePreloadListKey(preload_name, preload_type)).build();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VfModulePreloadList> data = null;
         try {
@@ -770,7 +770,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VnfList> vnfListIdBuilder =
                 InstanceIdentifier.<Vnfs>builder(Vnfs.class)
                 .child(VnfList.class, entry.getKey());
-        InstanceIdentifier<VnfList> path = vnfListIdBuilder.toInstance();
+        InstanceIdentifier<VnfList> path = vnfListIdBuilder.build();
 
         int tries = 2;
         while(true) {
@@ -804,7 +804,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VnfList> vnfListIdBuilder =
                 InstanceIdentifier.<Vnfs>builder(Vnfs.class)
                 .child(VnfList.class, entry.getKey());
-        InstanceIdentifier<VnfList> path = vnfListIdBuilder.toInstance();
+        InstanceIdentifier<VnfList> path = vnfListIdBuilder.build();
 
         int tries = 2;
         while (true) {
@@ -835,7 +835,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VnfInstanceList> vnfInstanceListIdBuilder =
                 InstanceIdentifier.<VnfInstances>builder(VnfInstances.class)
                 .child(VnfInstanceList.class, entry.getKey());
-        InstanceIdentifier<VnfInstanceList> path = vnfInstanceListIdBuilder.toInstance();
+        InstanceIdentifier<VnfInstanceList> path = vnfInstanceListIdBuilder.build();
 
         int tries = 2;
         while(true) {
@@ -870,7 +870,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VfModuleList> vfModuleListIdBuilder =
                 InstanceIdentifier.<VfModules>builder(VfModules.class)
                 .child(VfModuleList.class, entry.getKey());
-        InstanceIdentifier<VfModuleList> path = vfModuleListIdBuilder.toInstance();
+        InstanceIdentifier<VfModuleList> path = vfModuleListIdBuilder.build();
 
         int tries = 2;
         while(true) {
@@ -905,7 +905,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VnfPreloadList> vnfListIdBuilder =
                 InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
                 .child(VnfPreloadList.class, entry.getKey());
-        InstanceIdentifier<VnfPreloadList> path = vnfListIdBuilder.toInstance();
+        InstanceIdentifier<VnfPreloadList> path = vnfListIdBuilder.build();
         int tries = 2;
         while(true) {
             try {
@@ -940,7 +940,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VnfInstancePreloadList> vnfInstanceListIdBuilder =
                 InstanceIdentifier.<PreloadVnfInstances>builder(PreloadVnfInstances.class)
                 .child(VnfInstancePreloadList.class, entry.getKey());
-        InstanceIdentifier<VnfInstancePreloadList> path = vnfInstanceListIdBuilder.toInstance();
+        InstanceIdentifier<VnfInstancePreloadList> path = vnfInstanceListIdBuilder.build();
         int tries = 2;
         while(true) {
             try {
@@ -975,7 +975,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VfModulePreloadList> vfModuleListIdBuilder =
                 InstanceIdentifier.<PreloadVfModules>builder(PreloadVfModules.class)
                 .child(VfModulePreloadList.class, entry.getKey());
-        InstanceIdentifier<VfModulePreloadList> path = vfModuleListIdBuilder.toInstance();
+        InstanceIdentifier<VfModulePreloadList> path = vfModuleListIdBuilder.build();
         int tries = 2;
         while(true) {
             try {
