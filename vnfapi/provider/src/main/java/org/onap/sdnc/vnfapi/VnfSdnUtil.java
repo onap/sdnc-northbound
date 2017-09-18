@@ -59,7 +59,7 @@ public class VnfSdnUtil extends MdsalHelper {
                 input = new FileInputStream(propFile);
                 properties.load(input);
                 LOG.info("Loaded properties from " + propFileName );
-                setProperties(properties);
+                setYangMappingProperties(properties);
             } catch (Exception e) {
                 LOG.error("Failed to load properties " + propFileName +"\n",e);
             } finally {

@@ -50,9 +50,9 @@
                     </data-broker>
 
                      <notification-service>
-                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">
-                            binding:binding-notification-service
-                        </type>
+                         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">
+                             binding:binding-new-notification-publish-service
+                         </type>
                         <name>binding-notification-broker</name>
                     </notification-service>
                 </module>
