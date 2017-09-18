@@ -1,5 +1,8 @@
 package org.onap.sdnc.northbound;
 
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.*;
+import static org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader.SvcAction.*;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -138,7 +141,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     public GenericResourceApiProvider(DataBroker dataBroker2,
                                       NotificationPublishService notificationPublishService,
             RpcProviderRegistry rpcProviderRegistry) {
-        this.log.info( "Creating provider for " + appName );
+        log.info( "Creating provider for {}", appName);
         executor = Executors.newFixedThreadPool(1);
         dataBroker = dataBroker2;
         notificationService = notificationPublishService;
@@ -148,7 +151,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     public void initialize(){
-        log.info( "Initializing provider for " + appName );
+        log.info("Initializing provider for {}", appName);
         // Create the top level containers
         createContainers();
         try {
@@ -158,7 +161,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
         rpcRegistration = rpcRegistry.addRpcImplementation(GENERICRESOURCEAPIService.class, this);
 
-        log.info( "Initialization complete for " + appName );
+        log.info("Initialization complete for {}", appName);
     }
 
 
@@ -169,10 +172,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public void close() throws Exception {
-        log.info( "Closing provider for " + appName );
+        log.info("Closing provider for {}", appName);
         executor.shutdown();
         rpcRegistration.close();
-        log.info( "Successfully closed provider for " + appName );
+        log.info("Successfully closed provider for {}", appName);
     }
 
     private static class Iso8601Util
@@ -191,22 +194,21 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     public void setDataBroker(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
         if( log.isDebugEnabled() ){
-            log.debug( "DataBroker set to " + (dataBroker==null?"null":"non-null") + "." );
+            log.debug("DataBroker set to {}", (dataBroker==null?"null":"non-null"));
         }
     }
 
-    public void setNotificationService(
-            NotificationPublishService notificationService) {
+    public void setNotificationService(NotificationPublishService notificationService) {
         this.notificationService = notificationService;
         if( log.isDebugEnabled() ){
-            log.debug( "Notification Service set to " + (notificationService==null?"null":"non-null") + "." );
+            log.debug("Notification Service set to {}", (notificationService==null?"null":"non-null"));
         }
     }
 
     public void setRpcRegistry(RpcProviderRegistry rpcRegistry) {
         this.rpcRegistry = rpcRegistry;
         if( log.isDebugEnabled() ){
-            log.debug( "RpcRegistry set to " + (rpcRegistry==null?"null":"non-null") + "." );
+            log.debug("RpcRegistry set to {}", (rpcRegistry==null?"null":"non-null"));
         }
     }
 
@@ -215,25 +217,24 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         final WriteTransaction t = dataBroker.newReadWriteTransaction();
 
         // Create the service-instance container
-        t.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Services.class),
+        t.merge(CONFIGURATION, InstanceIdentifier.create(Services.class),
                 new ServicesBuilder().build());
-        t.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Services.class),
+        t.merge(OPERATIONAL, InstanceIdentifier.create(Services.class),
                 new ServicesBuilder().build());
 
         // Create the PreloadVnfs container
-        t.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(PreloadVnfs.class),
+        t.merge(CONFIGURATION, InstanceIdentifier.create(PreloadVnfs.class),
                 new PreloadVnfsBuilder().build());
-        t.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(PreloadVnfs.class),
+        t.merge(OPERATIONAL, InstanceIdentifier.create(PreloadVnfs.class),
                 new PreloadVnfsBuilder().build());
 
         try {
             CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = t.submit();
             checkedFuture.get();
-            log.info("Create Containers succeeded!: ");
+            log.info("Create containers succeeded!");
 
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Create Containers Failed: " + e);
-            e.printStackTrace();
+            log.error("Create containers failed: ", e);
         }
     }
 
@@ -290,16 +291,16 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                     serviceStatusBuilder.setRpcAction(RpcAction.Delete);
                     break;
                 default:
-                    log.error("Unknown SvcAction: " + requestHeader.getSvcAction() );
+                    log.error("Unknown SvcAction: {}", requestHeader.getSvcAction() );
                     break;
-            };
+            }
         }
     }
 
     private void getServiceData(String siid, ServiceDataBuilder serviceDataBuilder)
     {
         // default to config
-        getServiceData(siid,serviceDataBuilder,LogicalDatastoreType.CONFIGURATION);
+        getServiceData(siid,serviceDataBuilder, CONFIGURATION);
     }
 
 
@@ -314,13 +315,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         try {
             data = (Optional<Service>) readTx.read(type, serviceInstanceIdentifier).get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL ("+type+") for ["+siid+"] " ,e);
+            log.error("Caught Exception reading MD-SAL ({}) data for [{}] ", type, siid, e);
         }
 
         if (data != null && data.isPresent()) {
             ServiceData serviceData = data.get().getServiceData();
             if (serviceData != null) {
-                log.info("Read MD-SAL ("+type+") data for ["+siid+"] ServiceData: " + serviceData);
+                log.info("Read MD-SAL ({}) data for [{}] ServiceData: {}", type, siid, serviceData);
                 serviceDataBuilder.setSdncRequestHeader(serviceData.getSdncRequestHeader());
                 serviceDataBuilder.setRequestInformation(serviceData.getRequestInformation());
                 serviceDataBuilder.setServiceInformation(serviceData.getServiceInformation());
@@ -333,49 +334,49 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 serviceDataBuilder.setConsumedAllottedResources(serviceData.getConsumedAllottedResources());
                 // service-instance-id needs to be set
             } else {
-                log.info("No service-data found in MD-SAL ("+type+") for ["+siid+"] ");
+                log.info("No service-data found in MD-SAL ({}) for [{}]", type, siid);
             }
         } else {
-            log.info("No data found in MD-SAL ("+type+") for ["+siid+"] ");
+            log.info("No data found in MD-SAL ({}) for [{}]", type, siid);
         }
     }
 
     private void getPreloadData(String vnf_name, String vnf_type, PreloadDataBuilder preloadDataBuilder)
     {
         // default to config
-        getPreloadData(vnf_name, vnf_type ,preloadDataBuilder,LogicalDatastoreType.CONFIGURATION);
+        getPreloadData(vnf_name, vnf_type ,preloadDataBuilder, CONFIGURATION);
     }
 
     private void getPreloadData(String preload_name, String preload_type, PreloadDataBuilder preloadDataBuilder, LogicalDatastoreType type)
     {
         // See if any data exists yet for this name/type, if so grab it.
-        InstanceIdentifier preloadInstanceIdentifier =
-                InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
+        InstanceIdentifier preloadInstanceIdentifier = InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
                 .child(VnfPreloadList.class, new VnfPreloadListKey(preload_name, preload_type)).build();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VnfPreloadList> data = null;
         try {
             data = (Optional<VnfPreloadList>) readTx.read(type, preloadInstanceIdentifier).get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL ("+type+") for ["+preload_name+","+preload_type+"] " ,e);
+            log.error("Caught Exception reading MD-SAL ({}) for [{},{}] ", type, preload_name, preload_type, e);
         }
 
         if (data != null && data.isPresent()) {
             PreloadData preloadData = data.get().getPreloadData();
             if (preloadData != null) {
-                log.info("Read MD-SAL ("+type+") data for ["+preload_name+","+preload_type+"] PreloadData: " + preloadData);
+                log.info("Read MD-SAL ({}) data for [{},{}] PreloadData: {}",
+                    type, preload_name, preload_type, preloadData);
                 preloadDataBuilder.setVnfTopologyInformation(preloadData.getVnfTopologyInformation());
                 preloadDataBuilder.setNetworkTopologyInformation(preloadData.getNetworkTopologyInformation());
                 preloadDataBuilder.setOperStatus(preloadData.getOperStatus());
             } else {
-                log.info("No preload-data found in MD-SAL ("+type+") for ["+preload_name+","+preload_type+"] ");
+                log.info("No preload-data found in MD-SAL ({}) for [{},{}] ", type, preload_name, preload_type);
             }
         } else {
-            log.info("No data found in MD-SAL ("+type+") for ["+preload_name+","+preload_type+"] ");
+            log.info("No data found in MD-SAL ({}) for [{},{}] ", type, preload_name, preload_type);
         }
     }
 
-    private void SaveService (final Service entry, boolean merge, LogicalDatastoreType storeType) throws IllegalStateException {
+    private void saveService(final Service entry, boolean merge, LogicalDatastoreType storeType) throws IllegalStateException {
         // Each entry will be identifiable by a unique key, we have to create that identifier
         InstanceIdentifier.InstanceIdentifierBuilder<Service> serviceBuilder =
                 InstanceIdentifier.<Services>builder(Services.class)
@@ -409,7 +410,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    private void DeleteService(final Service entry, LogicalDatastoreType storeType) throws IllegalStateException {
+    private void deleteService(final Service entry, LogicalDatastoreType storeType) throws IllegalStateException {
         // Each entry will be identifiable by a unique key, we have to create
         // that identifier
         InstanceIdentifier.InstanceIdentifierBuilder<Service> serviceListIdBuilder = InstanceIdentifier.<Services> builder(Services.class).child(Service.class, entry.getKey());
@@ -438,7 +439,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    private void SavePreloadList(final VnfPreloadList entry, boolean merge, LogicalDatastoreType storeType) throws IllegalStateException{
+    private void savePreloadList(final VnfPreloadList entry, boolean merge, LogicalDatastoreType storeType) throws IllegalStateException{
 
         // Each entry will be identifiable by a unique key, we have to create that identifier
         InstanceIdentifier.InstanceIdentifierBuilder<VnfPreloadList> vnfPreloadListBuilder =
@@ -481,7 +482,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
-		log.info( SVC_OPERATION +" called." );
+		log.info("{} called.",SVC_OPERATION);
 		// create a new response object
 		ServiceTopologyOperationOutputBuilder responseBuilder = new ServiceTopologyOperationOutputBuilder();
 
@@ -490,7 +491,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 input.getServiceInformation().getServiceInstanceId() == null ||
                     input.getServiceInformation().getServiceInstanceId().length() == 0)
         {
-			log.debug("exiting " +SVC_OPERATION+ " because of null or empty service-instance-id");
+			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
@@ -510,7 +511,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		getServiceData(siid,serviceDataBuilder);
 
 		ServiceDataBuilder operDataBuilder = new ServiceDataBuilder();
-		getServiceData(siid,operDataBuilder, LogicalDatastoreType.OPERATIONAL );
+		getServiceData(siid,operDataBuilder, OPERATIONAL );
 
 		// Set the serviceStatus based on input
 		setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
@@ -526,11 +527,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         //  uses service-response-information;
         */
 
-		log.info("Adding INPUT data for "+SVC_OPERATION+" ["+siid+"] input: " + input);
+		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
 		ServiceTopologyOperationInputBuilder inputBuilder = new ServiceTopologyOperationInputBuilder(input);
 		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
-		log.info("Adding OPERATIONAL data for "+SVC_OPERATION+" ["+siid+"] operational-data: " + operDataBuilder.build());
+		log.info("Adding OPERATIONAL data for {} [{}] operational-data: {}", SVC_OPERATION, siid, operDataBuilder.build());
 		GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
 
 		// Call SLI sync method
@@ -555,7 +556,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 				}
 				catch (Exception e)
 				{
-					log.error("Caught exception executing service logic for "+ SVC_OPERATION, e);
+					log.error("Caught exception executing service logic for {} ", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
@@ -594,11 +595,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceInstanceId(siid);
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			try {
-				SaveService (serviceBuilder.build(), true,LogicalDatastoreType.CONFIGURATION);
+				saveService(serviceBuilder.build(), true, CONFIGURATION);
 			} catch (Exception e) {
-				log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] \n",e);
+				log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
 			}
-			log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 			RpcResult<ServiceTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<ServiceTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
@@ -607,23 +608,23 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Got success from SLI
 		try {
 			serviceData = serviceDataBuilder.build();
-			log.info("Updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] ServiceData: " + serviceData);
+			log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
 
 			// service object
 			ServiceBuilder serviceBuilder = new ServiceBuilder();
 			serviceBuilder.setServiceData(serviceData);
 			serviceBuilder.setServiceInstanceId(siid);
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-			SaveService (serviceBuilder.build(), false,LogicalDatastoreType.CONFIGURATION);
+			saveService(serviceBuilder.build(), false, CONFIGURATION);
 
 			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
 			{
 				// Only update operational tree on delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete))
+				if (input.getSdncRequestHeader().getSvcAction().equals(Delete))
 				{
 					log.info("Delete from both CONFIGURATION and OPERATIONAL tree.");
-	                DeleteService(serviceBuilder.build(), LogicalDatastoreType.OPERATIONAL);
-	                DeleteService(serviceBuilder.build(), LogicalDatastoreType.CONFIGURATION);
+	                deleteService(serviceBuilder.build(), OPERATIONAL);
+	                deleteService(serviceBuilder.build(), CONFIGURATION);
 				}
 			}
 
@@ -633,11 +634,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
 
 		} catch (Exception e) {
-			log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] \n",e);
+			log.error("Caught Exception updating MD-SAL for {} [{}] \n",SVC_OPERATION, siid, e);
 			responseBuilder.setResponseCode("500");
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
-			log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 			RpcResult<ServiceTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<ServiceTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
@@ -650,8 +651,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		{
 			responseBuilder.setResponseMessage(errorMessage);
 		}
-		log.info("Updated MD-SAL for "+SVC_OPERATION+" ["+siid+"] ");
-		log.info("Returned SUCCESS for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
+		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
 		RpcResult<ServiceTopologyOperationOutput> rpcResult =
             RpcResultBuilder.<ServiceTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
@@ -667,7 +668,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
-		log.info( SVC_OPERATION +" called." );
+		log.info("{} called.", SVC_OPERATION);
 		// create a new response object
 		VnfTopologyOperationOutputBuilder responseBuilder = new VnfTopologyOperationOutputBuilder();
 
@@ -676,7 +677,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 input.getServiceInformation().getServiceInstanceId() == null ||
                     input.getServiceInformation().getServiceInstanceId().length() == 0)
         {
-			log.debug("exiting " +SVC_OPERATION+ " because of null or empty service-instance-id");
+			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
@@ -697,7 +698,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 input.getVnfInformation().getVnfId() == null ||
                     input.getVnfInformation().getVnfId().length() == 0)
         {
-			log.debug("exiting " +SVC_OPERATION+ " because of null or empty vnf-id");
+			log.debug("exiting {} because of null or empty vnf-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty vnf-id");
 			responseBuilder.setAckFinalIndicator("Y");
@@ -732,7 +733,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		getServiceData(siid,serviceDataBuilder);
 
 		ServiceDataBuilder operDataBuilder = new ServiceDataBuilder();
-		getServiceData(siid,operDataBuilder, LogicalDatastoreType.OPERATIONAL );
+		getServiceData(siid,operDataBuilder, OPERATIONAL );
 
 		// Set the serviceStatus based on input
 		setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
@@ -755,11 +756,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         //   uses vnf-configuration-information;
         //   uses oper-status;
 
-		log.info("Adding INPUT data for "+SVC_OPERATION+" ["+siid+"] input: " + input);
+		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
 		VnfTopologyOperationInputBuilder inputBuilder = new VnfTopologyOperationInputBuilder(input);
 		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
-		log.info("Adding OPERATIONAL data for "+SVC_OPERATION+" ["+siid+"] operational-data: " + operDataBuilder.build());
+		log.info("Adding OPERATIONAL data for {} [{}] operational-data: {}", SVC_OPERATION, siid, operDataBuilder.build());
 		GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
 
         /*
@@ -789,7 +790,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 				}
 				catch (Exception e)
 				{
-					log.error("Caught exception executing service logic for "+ SVC_OPERATION, e);
+					log.error("Caught exception executing service logic for {} ", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
@@ -827,21 +828,21 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceInstanceId(siid);
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			try {
-				SaveService (serviceBuilder.build(), true,LogicalDatastoreType.CONFIGURATION);
+				saveService(serviceBuilder.build(), true, CONFIGURATION);
 				if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
 				{
 					// Only update operational tree on activate or delete
-					if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) ||
-							input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
+					if (input.getSdncRequestHeader().getSvcAction().equals(Delete) ||
+							input.getSdncRequestHeader().getSvcAction().equals(Activate))
 					{
 						log.info("Updating OPERATIONAL tree.");
-						SaveService (serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+						saveService(serviceBuilder.build(), false, OPERATIONAL);
 					}
 				}
 			} catch (Exception e) {
-				log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] \n",e);
+				log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
 			}
-			log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 			RpcResult<VnfTopologyOperationOutput> rpcResult =
 			    RpcResultBuilder.<VnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
 			// return error
@@ -851,22 +852,22 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Got success from SLI
 		try {
 			serviceData = serviceDataBuilder.build();
-			log.info("Updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] ServiceData: " + serviceData);
+			log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
 
 			// service object
 			ServiceBuilder serviceBuilder = new ServiceBuilder();
 			serviceBuilder.setServiceData(serviceData);
 			serviceBuilder.setServiceInstanceId(siid);
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-			SaveService (serviceBuilder.build(), false,LogicalDatastoreType.CONFIGURATION);
+			saveService(serviceBuilder.build(), false, CONFIGURATION);
 
 			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
 			{
 				// Only update operational tree on Assign
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
+				if (input.getSdncRequestHeader().getSvcAction().equals(Activate))
 				{
 					log.info("Updating OPERATIONAL tree.");
-					SaveService (serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+					saveService(serviceBuilder.build(), false, OPERATIONAL);
 				}
 			}
 
@@ -876,11 +877,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
 
 		} catch (Exception e) {
-			log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] \n",e);
+			log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
 			responseBuilder.setResponseCode("500");
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
-			log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 			RpcResult<VnfTopologyOperationOutput> rpcResult =
 			    RpcResultBuilder.<VnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
@@ -893,8 +894,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		{
 			responseBuilder.setResponseMessage(errorMessage);
 		}
-		log.info("Updated MD-SAL for "+SVC_OPERATION+" ["+siid+"] ");
-		log.info("Returned SUCCESS for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
+		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
 		RpcResult<VnfTopologyOperationOutput> rpcResult =
 		    RpcResultBuilder.<VnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
@@ -911,7 +912,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
         Properties parms = new Properties();
 
-        log.info( SVC_OPERATION +" called." );
+        log.info("{} called.", SVC_OPERATION);
         // create a new response object
         VfModuleTopologyOperationOutputBuilder responseBuilder = new VfModuleTopologyOperationOutputBuilder();
 
@@ -920,7 +921,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 input.getServiceInformation().getServiceInstanceId() == null ||
                     input.getServiceInformation().getServiceInstanceId().length() == 0)
         {
-            log.debug("exiting " +SVC_OPERATION+ " because of null or empty service-instance-id");
+            log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
             responseBuilder.setAckFinalIndicator("Y");
@@ -934,7 +935,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 input.getVnfInformation().getVnfId() == null ||
                     input.getVnfInformation().getVnfId().length() == 0)
         {
-            log.debug("exiting " +SVC_OPERATION+ " because of null or empty vnf-id");
+            log.debug("exiting {} because of null or empty vnf-id", SVC_OPERATION);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, null or empty vnf-id");
             responseBuilder.setAckFinalIndicator("Y");
@@ -947,7 +948,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 input.getVfModuleInformation().getVfModuleId() == null ||
                     input.getVfModuleInformation().getVfModuleId().length() == 0)
         {
-            log.debug("exiting " +SVC_OPERATION+ " because of null or empty vf-module-id");
+            log.debug("exiting {} because of null or empty vf-module-id", SVC_OPERATION);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, vf-module-id is null or empty");
             responseBuilder.setAckFinalIndicator("Y");
@@ -987,7 +988,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         getServiceData(siid,serviceDataBuilder);
 
         ServiceDataBuilder operDataBuilder = new ServiceDataBuilder();
-        getServiceData(siid,operDataBuilder, LogicalDatastoreType.OPERATIONAL );
+        getServiceData(siid,operDataBuilder, OPERATIONAL );
 
         // Set the serviceStatus based on input
         setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
@@ -1010,11 +1011,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         //   uses vnf-configuration-information;
         //   uses oper-status;
 
-        log.info("Adding INPUT data for "+SVC_OPERATION+" ["+siid+"] input: " + input);
+        log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
         VfModuleTopologyOperationInputBuilder inputBuilder = new VfModuleTopologyOperationInputBuilder(input);
         GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
-        log.info("Adding OPERATIONAL data for "+SVC_OPERATION+" ["+siid+"] operational-data: " + operDataBuilder.build());
+        log.info("Adding OPERATIONAL data for {} [{}] operational-data: {}", SVC_OPERATION, siid, operDataBuilder.build());
         GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
 
         /*
@@ -1081,11 +1082,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             serviceBuilder.setServiceInstanceId(siid);
             serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
             try {
-                SaveService (serviceBuilder.build(), true,LogicalDatastoreType.CONFIGURATION);
+                saveService(serviceBuilder.build(), true, CONFIGURATION);
             } catch (Exception e) {
-                log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] \n",e);
+                log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
             }
-            log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+            log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
             RpcResult<VfModuleTopologyOperationOutput> rpcResult =
                     RpcResultBuilder.<VfModuleTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
             // return error
@@ -1095,7 +1096,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Got success from SLI
         try {
             serviceData = serviceDataBuilder.build();
-            log.info("Updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] ServiceData: " + serviceData);
+            log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
 
             // service object
             ServiceBuilder serviceBuilder = new ServiceBuilder();
@@ -1103,16 +1104,16 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             //serviceBuilder.setServiceInstanceId(serviceData.getServiceTopology().getServiceTopologyIdentifier().getServiceInstanceId());
             serviceBuilder.setServiceInstanceId(siid);
             serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-            SaveService (serviceBuilder.build(), false,LogicalDatastoreType.CONFIGURATION);
+            saveService(serviceBuilder.build(), false, CONFIGURATION);
 
 			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
 			{
 				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
-						input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
+				if (input.getSdncRequestHeader().getSvcAction().equals(Unassign) ||
+						input.getSdncRequestHeader().getSvcAction().equals(Activate))
 				{
 					log.info("Updating OPERATIONAL tree.");
-					SaveService (serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+					saveService(serviceBuilder.build(), false, OPERATIONAL);
 				}
 			}
 
@@ -1122,11 +1123,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
 
         } catch (Exception e) {
-            log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] \n",e);
+            log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
             responseBuilder.setResponseCode("500");
             responseBuilder.setResponseMessage(e.toString());
             responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+            log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
             RpcResult<VfModuleTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<VfModuleTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
@@ -1139,8 +1140,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         {
             responseBuilder.setResponseMessage(errorMessage);
         }
-        log.info("Updated MD-SAL for "+SVC_OPERATION+" ["+siid+"] ");
-        log.info("Returned SUCCESS for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+        log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
+        log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
         RpcResult<VfModuleTopologyOperationOutput> rpcResult =
             RpcResultBuilder.<VfModuleTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
@@ -1157,7 +1158,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
-		log.info( SVC_OPERATION +" called." );
+		log.info("{} called.", SVC_OPERATION );
 		// create a new response object
 		NetworkTopologyOperationOutputBuilder responseBuilder = new NetworkTopologyOperationOutputBuilder();
 
@@ -1166,7 +1167,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 input.getServiceInformation().getServiceInstanceId() == null ||
                     input.getServiceInformation().getServiceInstanceId().length() == 0)
         {
-			log.debug("exiting " +SVC_OPERATION+ " because of null or empty service-instance-id");
+			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
@@ -1188,7 +1189,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         ServiceData sd = serviceDataBuilder.build();
         if (sd == null || sd.getServiceLevelOperStatus() == null)
         {
-			log.debug("exiting " +SVC_OPERATION+ " because the service-instance does not have any service data in SDNC");
+			log.debug("exiting {} because the service-instance does not have any service data in SDNC", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
 			responseBuilder.setAckFinalIndicator("Y");
@@ -1222,7 +1223,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
         */
 
-		log.info("Adding INPUT data for "+SVC_OPERATION+" ["+siid+"] input: " + input);
+		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
 		NetworkTopologyOperationInputBuilder inputBuilder = new NetworkTopologyOperationInputBuilder(input);
 		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
@@ -1250,7 +1251,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 				}
 				catch (Exception e)
 				{
-					log.error("Caught exception executing service logic for "+ SVC_OPERATION, e);
+					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
@@ -1282,7 +1283,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setResponseMessage(errorMessage);
 			responseBuilder.setAckFinalIndicator(ackFinal);
 
-			log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
 			RpcResult<NetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<NetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
@@ -1293,22 +1294,22 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		try {
 
 			serviceData = serviceDataBuilder.build();
-			log.info("Updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] ServiceData: " + serviceData);
+			log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
 
 			// service object
 			ServiceBuilder serviceBuilder = new ServiceBuilder();
 			serviceBuilder.setServiceData(serviceData);
 			serviceBuilder.setServiceInstanceId(siid);
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-			SaveService (serviceBuilder.build(), false,LogicalDatastoreType.CONFIGURATION);
+			saveService(serviceBuilder.build(), false, CONFIGURATION);
 
 			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
 			{
 				// Only update operational tree on Activate
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
+				if (input.getSdncRequestHeader().getSvcAction().equals(Activate))
                 {
 					log.info("Updating OPERATIONAL tree.");
-					SaveService (serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+					saveService(serviceBuilder.build(), false, OPERATIONAL);
 				}
 			}
 
@@ -1323,11 +1324,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
 
 		} catch (IllegalStateException e) {
-			log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] \n",e);
+			log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
 			responseBuilder.setResponseCode("500");
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
-			log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 			RpcResult<NetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<NetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
@@ -1340,8 +1341,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		{
 			responseBuilder.setResponseMessage(errorMessage);
 		}
-		log.info("Updated MD-SAL for "+SVC_OPERATION+" ["+siid+"] ");
-		log.info("Returned SUCCESS for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
+		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
 		RpcResult<NetworkTopologyOperationOutput> rpcResult =
             RpcResultBuilder.<NetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
@@ -1357,7 +1358,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
-		log.info( SVC_OPERATION +" called." );
+		log.info("{} called.", SVC_OPERATION);
 		// create a new response object
 		ContrailRouteTopologyOperationOutputBuilder responseBuilder = new ContrailRouteTopologyOperationOutputBuilder();
 
@@ -1366,7 +1367,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 input.getServiceInformation().getServiceInstanceId() == null ||
                     input.getServiceInformation().getServiceInstanceId().length() == 0)
         {
-			log.debug("exiting " +SVC_OPERATION+ " because of null or empty service-instance-id");
+			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
@@ -1388,7 +1389,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         ServiceData sd = serviceDataBuilder.build();
         if (sd == null || sd.getServiceLevelOperStatus() == null)
         {
-			log.debug("exiting " +SVC_OPERATION+ " because the service-instance does not have any service data in SDNC");
+			log.debug("exiting {} because the service-instance does not have any service data in SDNC", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
 			responseBuilder.setAckFinalIndicator("Y");
@@ -1425,7 +1426,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 				}
 				catch (Exception e)
 				{
-					log.error("Caught exception executing service logic for "+ SVC_OPERATION, e);
+					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
@@ -1457,7 +1458,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setResponseMessage(errorMessage);
 			responseBuilder.setAckFinalIndicator(ackFinal);
 
-			log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
 			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<ContrailRouteTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
@@ -1468,23 +1469,23 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		try {
 
 			serviceData = serviceDataBuilder.build();
-			log.info("Updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] ServiceData: " + serviceData);
+			log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
 
 			// service object
 			ServiceBuilder serviceBuilder = new ServiceBuilder();
 			serviceBuilder.setServiceData(serviceData);
 			serviceBuilder.setServiceInstanceId(siid);
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-			SaveService (serviceBuilder.build(), false,LogicalDatastoreType.CONFIGURATION);
+			saveService(serviceBuilder.build(), false, CONFIGURATION);
 
 			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
 			{
 				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
-						input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
+				if (input.getSdncRequestHeader().getSvcAction().equals(Unassign) ||
+						input.getSdncRequestHeader().getSvcAction().equals(Activate))
 				{
 					log.info("Updating OPERATIONAL tree.");
-					SaveService (serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+					saveService(serviceBuilder.build(), false, OPERATIONAL);
 				}
 			}
 
@@ -1499,11 +1500,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
 
 		} catch (IllegalStateException e) {
-			log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] \n",e);
+			log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
 			responseBuilder.setResponseCode("500");
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
-			log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<ContrailRouteTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
@@ -1516,8 +1517,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		{
 			responseBuilder.setResponseMessage(errorMessage);
 		}
-		log.info("Updated MD-SAL for "+SVC_OPERATION+" ["+siid+"] ");
-		log.info("Returned SUCCESS for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
+		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
 		RpcResult<ContrailRouteTopologyOperationOutput> rpcResult =
             RpcResultBuilder.<ContrailRouteTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
@@ -1533,7 +1534,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
-		log.info( SVC_OPERATION +" called." );
+		log.info("{} called.", SVC_OPERATION);
 		// create a new response object
 		SecurityZoneTopologyOperationOutputBuilder responseBuilder = new SecurityZoneTopologyOperationOutputBuilder();
 
@@ -1542,7 +1543,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 input.getServiceInformation().getServiceInstanceId() == null ||
                     input.getServiceInformation().getServiceInstanceId().length() == 0)
         {
-			log.debug("exiting " +SVC_OPERATION+ " because of null or empty service-instance-id");
+			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
@@ -1564,7 +1565,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         ServiceData sd = serviceDataBuilder.build();
         if (sd == null || sd.getServiceLevelOperStatus() == null)
         {
-			log.debug("exiting " +SVC_OPERATION+ " because the service-instance does not have any service data in SDNC");
+			log.debug("exiting {} because the service-instance does not have any service data in SDNC", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
 			responseBuilder.setAckFinalIndicator("Y");
@@ -1573,7 +1574,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			return Futures.immediateFuture(rpcResult);
 		}
 
-		log.info("Adding INPUT data for "+SVC_OPERATION+" ["+siid+"] input: " + input);
+		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
 		SecurityZoneTopologyOperationInputBuilder inputBuilder = new SecurityZoneTopologyOperationInputBuilder(input);
 		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
@@ -1601,7 +1602,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 				}
 				catch (Exception e)
 				{
-					log.error("Caught exception executing service logic for "+ SVC_OPERATION, e);
+					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
@@ -1633,7 +1634,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setResponseMessage(errorMessage);
 			responseBuilder.setAckFinalIndicator(ackFinal);
 
-			log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
 			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<SecurityZoneTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
@@ -1644,23 +1645,23 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		try {
 
 			serviceData = serviceDataBuilder.build();
-			log.info("Updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] ServiceData: " + serviceData);
+			log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
 
 			// service object
 			ServiceBuilder serviceBuilder = new ServiceBuilder();
 			serviceBuilder.setServiceData(serviceData);
 			serviceBuilder.setServiceInstanceId(siid);
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-			SaveService (serviceBuilder.build(), false,LogicalDatastoreType.CONFIGURATION);
+			saveService(serviceBuilder.build(), false, CONFIGURATION);
 
 			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
 			{
 				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
-						input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
+				if (input.getSdncRequestHeader().getSvcAction().equals(Unassign) ||
+						input.getSdncRequestHeader().getSvcAction().equals(Activate))
 				{
 					log.info("Updating OPERATIONAL tree.");
-					SaveService (serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+					saveService(serviceBuilder.build(), false, OPERATIONAL);
 				}
 			}
 
@@ -1675,11 +1676,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
 
 		} catch (IllegalStateException e) {
-			log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+siid+"] \n",e);
+			log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
 			responseBuilder.setResponseCode("500");
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
-			log.error("Returned FAILED for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<SecurityZoneTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
@@ -1692,8 +1693,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		{
 			responseBuilder.setResponseMessage(errorMessage);
 		}
-		log.info("Updated MD-SAL for "+SVC_OPERATION+" ["+siid+"] ");
-		log.info("Returned SUCCESS for "+SVC_OPERATION+" ["+siid+"] " + responseBuilder.build());
+		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
+		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
 		RpcResult<SecurityZoneTopologyOperationOutput> rpcResult =
             RpcResultBuilder.<SecurityZoneTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
@@ -1705,10 +1706,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             PreloadVnfTopologyOperationInput input) {
 
         final String SVC_OPERATION = "preload-vnf-topology-operation";
-        PreloadData preloadData = null;
+        PreloadData preloadData;
         Properties parms = new Properties();
 
-        log.info( SVC_OPERATION +" called." );
+        log.info("{} called.", SVC_OPERATION);
         // create a new response object
         PreloadVnfTopologyOperationOutputBuilder responseBuilder = new PreloadVnfTopologyOperationOutputBuilder();
 
@@ -1717,7 +1718,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         if(input == null || input.getVnfTopologyInformation() == null ||
             input.getVnfTopologyInformation().getVnfTopologyIdentifier() == null) {
-                log.debug("exiting " +SVC_OPERATION+ " because of null input");
+                log.debug("exiting {} because of null input", SVC_OPERATION);
                 responseBuilder.setResponseCode("403");
                 responseBuilder.setResponseMessage("invalid input: input is null");
                 responseBuilder.setAckFinalIndicator("Y");
@@ -1732,7 +1733,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Make sure we have a preload_name and preload_type
         if(preload_name == null || preload_name.length() == 0 || preload_type == null || preload_type.length() == 0 ) {
-            log.debug("exiting "+ SVC_OPERATION + " vnf-name or vnf-type is null or empty");
+            log.debug("exiting {} vnf-name or vnf-type is null or empty", SVC_OPERATION);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input: vnf-name or vnf-type is null or empty");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1749,7 +1750,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         getPreloadData(preload_name, preload_type, preloadDataBuilder);
 
         PreloadDataBuilder operDataBuilder = new PreloadDataBuilder();
-        getPreloadData(preload_name, preload_type, operDataBuilder, LogicalDatastoreType.OPERATIONAL );
+        getPreloadData(preload_name, preload_type, operDataBuilder, OPERATIONAL );
 
         // setup a preload-data object builder
         // ACTION preload-vnf-topology-operation
@@ -1765,10 +1766,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         //   uses network-topology-information;
         //   uses oper-status;
 
-        log.info("Adding INPUT data for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] input: " + input);
+        log.info("Adding INPUT data for {} [{},{}] input: {}", SVC_OPERATION, preload_name, preload_type, input);
         PreloadVnfTopologyOperationInputBuilder inputBuilder = new PreloadVnfTopologyOperationInputBuilder(input);
         GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
-        log.info("Adding OPERATIONAL data for "+SVC_OPERATION+" ["+preload_name+","+preload_type +"] operational-data: " + operDataBuilder.build());
+        log.info("Adding OPERATIONAL data for {} [{},{}] operational-data: {}",
+            SVC_OPERATION, preload_name, preload_type, operDataBuilder.build());
         GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
 
         // Call SLI sync method
@@ -1793,7 +1795,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 }
                 catch (Exception e)
                 {
-                    log.error("Caught exception executing service logic for "+ SVC_OPERATION, e);
+                    log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
                     errorMessage = e.getMessage();
                     errorCode = "500";
                 }
@@ -1828,11 +1830,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             preloadVnfListBuilder.setVnfName(preload_name);
             preloadVnfListBuilder.setVnfType(preload_type);
             preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
-            log.error("Returned FAILED for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] error code: '" + errorCode + "', Reason: '" + errorMessage + "'");
+            log.error("Returned FAILED for {} [{},{}] error code: '{}', Reason: '{}'",
+                SVC_OPERATION, preload_name, preload_type, errorCode, errorMessage);
             try {
-                SavePreloadList (preloadVnfListBuilder.build(), true,LogicalDatastoreType.CONFIGURATION);
+                savePreloadList(preloadVnfListBuilder.build(), true, CONFIGURATION);
             } catch (Exception e) {
-                log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] \n",e);
+                log.error("Caught Exception updating MD-SAL for {} [{},{}] \n",
+                    SVC_OPERATION, preload_name, preload_type, e);
             }
             log.debug("Sending Success rpc result due to external error");
             RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
@@ -1843,7 +1847,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Got success from SLI
         try {
             preloadData = preloadDataBuilder.build();
-            log.info("Updating MD-SAL for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] preloadData: " + preloadData);
+            log.info("Updating MD-SAL for {} [{},{}] preloadData: {}",
+                SVC_OPERATION, preload_name, preload_type, preloadData);
             // svc-configuration-list
             VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
             preloadVnfListBuilder.setVnfName(preload_name);
@@ -1851,15 +1856,17 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             preloadVnfListBuilder.setPreloadData(preloadData);
 
             // merge flag sets to false to allow it to be overwritten (not appended)
-            SavePreloadList (preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+            savePreloadList(preloadVnfListBuilder.build(), false, CONFIGURATION);
             log.info("Updating OPERATIONAL tree.");
-            SavePreloadList (preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+            savePreloadList(preloadVnfListBuilder.build(), false, OPERATIONAL);
         } catch (Exception e) {
-            log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] \n",e);
+            log.error("Caught Exception updating MD-SAL for {} [{},{}] \n",
+                SVC_OPERATION, preload_name, preload_type, e);
             responseBuilder.setResponseCode("500");
             responseBuilder.setResponseMessage(e.toString());
             responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] " + responseBuilder.build());
+            log.error("Returned FAILED for {} [{},{}] {}",
+                SVC_OPERATION, preload_name, preload_type, responseBuilder.build());
             RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfTopologyOperationOutput> status(false).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
@@ -1872,8 +1879,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         {
             responseBuilder.setResponseMessage(errorMessage);
         }
-        log.info("Updated MD-SAL for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] ");
-        log.info("Returned SUCCESS for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] " + responseBuilder.build());
+        log.info("Updated MD-SAL for {} [{},{}]", SVC_OPERATION, preload_name, preload_type);
+        log.info("Returned SUCCESS for {} [{},{}] {}", SVC_OPERATION, preload_name, preload_type, responseBuilder.build());
 
         RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
@@ -1886,10 +1893,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             PreloadNetworkTopologyOperationInput input) {
 
         final String SVC_OPERATION = "preload-network-topology-operation";
-        PreloadData preloadData = null;
+        PreloadData preloadData;
         Properties parms = new Properties();
 
-        log.info( SVC_OPERATION +" called." );
+        log.info("{} called.", SVC_OPERATION);
         // create a new response object
         PreloadNetworkTopologyOperationOutputBuilder responseBuilder = new PreloadNetworkTopologyOperationOutputBuilder();
 
@@ -1899,7 +1906,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         if(input == null || input.getNetworkTopologyInformation() == null ||
             input.getNetworkTopologyInformation().getNetworkTopologyIdentifier() == null) {
 
-            log.debug("exiting " +SVC_OPERATION+ " because of null input");
+            log.debug("exiting {} because of null input", SVC_OPERATION);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("input is null");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1914,7 +1921,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Make sure we have a preload_name and preload_type
         if(preload_name == null || preload_name.length() == 0 || preload_type == null || preload_type.length() == 0 ) {
-            log.debug("exiting "+SVC_OPERATION+" because of invalid preload-name");
+            log.debug("exiting {} because of invalid preload-name", SVC_OPERATION);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("input, invalid preload-name");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1931,7 +1938,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         getPreloadData(preload_name, preload_type, preloadDataBuilder);
 
         PreloadDataBuilder operDataBuilder = new PreloadDataBuilder();
-        getPreloadData(preload_name, preload_type, operDataBuilder, LogicalDatastoreType.OPERATIONAL );
+        getPreloadData(preload_name, preload_type, operDataBuilder, OPERATIONAL );
 
         //
         // setup a preload-data object builder
@@ -1949,10 +1956,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         //   uses oper-status;
 
 
-        log.info("Adding INPUT data for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] input: " + input);
+        log.info("Adding INPUT data for {} [{},{}] input: {}", SVC_OPERATION, preload_name, preload_type, input);
         PreloadNetworkTopologyOperationInputBuilder inputBuilder = new PreloadNetworkTopologyOperationInputBuilder(input);
         GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
-        log.info("Adding OPERATIONAL data for "+SVC_OPERATION+" ["+preload_name+","+preload_type +"] operational-data: " + operDataBuilder.build());
+        log.info("Adding OPERATIONAL data for {} [{},{}] operational-data: {}",
+            SVC_OPERATION, preload_name, preload_type, operDataBuilder.build());
         GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
 
         // Call SLI sync method
@@ -1977,7 +1985,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 }
                 catch (Exception e)
                 {
-                    log.error("Caught exception executing service logic for "+ SVC_OPERATION, e);
+                    log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
                     errorMessage = e.getMessage();
                     errorCode = "500";
                 }
@@ -2012,11 +2020,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             preloadVnfListBuilder.setVnfName(preload_name);
             preloadVnfListBuilder.setVnfType(preload_type);
             preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
-            log.error("Returned FAILED for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] error code: '" + errorCode + "', Reason: '" + errorMessage + "'");
+            log.error("Returned FAILED for {} [{},{}] error code: '{}', Reason: '{}'",
+                SVC_OPERATION, preload_name, preload_type, errorCode, errorMessage);
             try {
-                SavePreloadList (preloadVnfListBuilder.build(),true,LogicalDatastoreType.CONFIGURATION);
+                savePreloadList(preloadVnfListBuilder.build(),true, CONFIGURATION);
             } catch (Exception e) {
-                log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] \n",e);
+                log.error("Caught Exception updating MD-SAL for {} [{},{}] \n",
+                    SVC_OPERATION, preload_name, preload_type, e);
 
             }
             log.debug("Sending Success rpc result due to external error");
@@ -2028,7 +2038,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Got success from SLI
         try {
             preloadData = preloadDataBuilder.build();
-            log.info("Updating MD-SAL for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] preloadData: " + preloadData);
+            log.info("Updating MD-SAL for {} [{},{}] preloadData: {}",
+                SVC_OPERATION, preload_name, preload_type, preloadData);
             // svc-configuration-list
             VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
             preloadVnfListBuilder.setVnfName(preload_name);
@@ -2036,15 +2047,16 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             preloadVnfListBuilder.setPreloadData(preloadData);
 
             // merge flag sets to false to allow it to be overwritten (not appended)
-            SavePreloadList (preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+            savePreloadList(preloadVnfListBuilder.build(), false, CONFIGURATION);
             log.info("Updating OPERATIONAL tree.");
-            SavePreloadList (preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+            savePreloadList(preloadVnfListBuilder.build(), false, OPERATIONAL);
         } catch (Exception e) {
             log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] \n",e);
             responseBuilder.setResponseCode("500");
             responseBuilder.setResponseMessage(e.toString());
             responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] " + responseBuilder.build());
+            log.error("Returned FAILED for {} [{},{}] {}",
+                SVC_OPERATION, preload_name, preload_type, responseBuilder.build());
             RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadNetworkTopologyOperationOutput> status(false).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
@@ -2057,8 +2069,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         {
             responseBuilder.setResponseMessage(errorMessage);
         }
-        log.info("Updated MD-SAL for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] ");
-        log.info("Returned SUCCESS for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] " + responseBuilder.build());
+        log.info("Updated MD-SAL for {} [{},{}]", SVC_OPERATION, preload_name, preload_type);
+        log.info("Returned SUCCESS for {} [{},{}] {}",
+            SVC_OPERATION, preload_name, preload_type, responseBuilder.build());
 
         RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadNetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
