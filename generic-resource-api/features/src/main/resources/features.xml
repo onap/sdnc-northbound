@@ -6,7 +6,7 @@
 
     <feature name='GENERIC-RESOURCE-API' description="generic-resource-api.GENERIC-RESOURCE-API" version='${project.version}'>
         <feature version="${odl.controller.mdsal.version}">odl-mdsal-broker</feature>
-        <feature version="${sdnctl.sli.version}">sdnc-sli</feature>
+        <feature>sdnc-sli</feature>
         <!-- It is assumed that applications are installed on BVC, which installs bvc-core including MD-SAL etc.
              Do not list those features out here as that will tie your implementation to a specific version
              of MD-SAL / BVC and force updates to your application for every upgrade of BVC core platform.-->

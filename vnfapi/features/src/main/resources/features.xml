@@ -30,7 +30,7 @@
     <feature name='sdnc-vnfapi' description="sdnc-vnfapi" version='${project.version}'>
         <!-- Most applications will have a dependency on the ODL MD-SAL Broker -->
         <feature version="${odl.mdsal.version}">odl-mdsal-broker</feature>
-        <feature version="${sdnctl.sli.version}">sdnc-sli</feature>
+        <feature>sdnc-sli</feature>
         <bundle>mvn:org.onap.sdnc.northbound/vnfapi-model/${project.version}</bundle>
         <bundle>mvn:org.onap.sdnc.northbound/vnfapi-provider/${project.version}</bundle>
         <configfile finalname="etc/opendaylight/karaf/200-vnfapi-provider.xml">mvn:org.openecomp.sdnc.northbound/vnfapi-provider/${project.version}/xml/config</configfile>
