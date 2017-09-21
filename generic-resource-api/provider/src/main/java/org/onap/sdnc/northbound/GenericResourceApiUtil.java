@@ -40,8 +40,8 @@ public class GenericResourceApiUtil extends MdsalHelper {
 		// Trick class loader into loading builders. Some of
 		// these will be needed later by Reflection classes, but need
 		// to explicitly "new" them here to get class loader to load them.
-		org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ecomp.model.information.EcompModelInformationBuilder u1 =
-			new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ecomp.model.information.EcompModelInformationBuilder();
+		org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.onap.model.information.OnapModelInformationBuilder u1 =
+			new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.onap.model.information.OnapModelInformationBuilder();
 		org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.assignments.NetworkAssignmentsBuilder u2 =
 			new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.assignments.NetworkAssignmentsBuilder();
 		org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.information.NetworkInformationBuilder u3 =

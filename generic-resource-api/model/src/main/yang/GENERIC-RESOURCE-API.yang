@@ -160,7 +160,7 @@ module GENERIC-RESOURCE-API {
    grouping service-topology {
       container service-topology {
          uses service-topology-identifier;
-         uses ecomp-model-information;
+         uses onap-model-information;
          uses service-assignments;
          uses service-parameters;
       }
@@ -225,7 +225,7 @@ module GENERIC-RESOURCE-API {
          leaf network-type {
             type string;
          }
-         uses ecomp-model-information;
+         uses onap-model-information;
       }
    }
    grouping network-request-input {
@@ -243,7 +243,7 @@ module GENERIC-RESOURCE-API {
       container network-topology {
          uses network-topology-identifier-structure;
          uses region-identifier;
-         uses ecomp-model-information;
+         uses onap-model-information;
          uses network-assignments;
          uses network-parameters;
       }
@@ -313,7 +313,7 @@ module GENERIC-RESOURCE-API {
             description "vnf-model-id in Pats model?in Pats vnf submodule, contained within vnf-instance-topology-identifier grouping (along with vnf-name and vnf-instance-id)";
             type string;
          }
-         uses ecomp-model-information;
+         uses onap-model-information;
       }
    }
    grouping vnf-request-input {
@@ -342,7 +342,7 @@ module GENERIC-RESOURCE-API {
       container vnf-topology {
          uses vnf-topology-identifier-structure;
          uses region-identifier;
-         uses ecomp-model-information;
+         uses onap-model-information;
          uses vnf-resource-assignments;
          container vnf-parameters-data {
             uses param;
@@ -458,7 +458,7 @@ module GENERIC-RESOURCE-API {
          leaf vf-module-type {
             type string;
          }
-         uses ecomp-model-information;
+         uses onap-model-information;
       }
    }
    grouping vf-module-request-input {
@@ -480,7 +480,7 @@ module GENERIC-RESOURCE-API {
       container vf-module-topology {
          uses vf-module-topology-identifier;
          uses region-identifier;
-         uses ecomp-model-information;
+         uses onap-model-information;
          uses vf-module-assignments;
          container vf-module-parameters {
             uses param;
@@ -691,7 +691,7 @@ module GENERIC-RESOURCE-API {
    grouping contrail-route-topology {
       container contrail-route-topology {
          uses allotted-resource-identifiers;
-         uses ecomp-model-information;
+         uses onap-model-information;
          uses contrail-route-assignments;
          container contrail-route-parameters {
             uses param;
@@ -762,7 +762,7 @@ module GENERIC-RESOURCE-API {
    grouping security-zone-topology {
       container security-zone-topology {
          uses allotted-resource-identifiers;
-         uses ecomp-model-information;
+         uses onap-model-information;
          uses security-zone-assignments;
          container security-zone-parameters {
             uses param;
@@ -798,6 +798,75 @@ module GENERIC-RESOURCE-API {
          }
       }
    }
+   grouping tunnelxconn-operation-information {
+       uses sdnc-request-header;
+       uses request-information;
+       uses service-information;
+       uses allotted-resource-information;
+       uses tunnelxconn-request-input;
+   }
+   grouping tunnelxconn-request-input {
+       leaf brg-wan-mac-address {
+           type string;
+       }
+   }
+   grouping tunnelxconn-topology {
+       container tunnelxconn-topology {
+           uses allotted-resource-identifiers;
+           uses onap-model-information;
+           uses tunnelxconn-assignments;
+           container tunnelxconn-parameters {
+               uses param;
+           }
+       }
+   }
+   grouping tunnelxconn-assignments {
+       leaf vni {
+           description "The Network Controller will assign a VNI value from the associated vGMUX VNI pool";
+           type string;
+       }
+       leaf vgmux-bearer-ip {
+           description "The Network Controller will look up the vgmux bearer ip from the vgmux vf module";
+           type inet:ip-address;
+       }
+       leaf vgmux-lan-up {
+           description "The Network Controller will look up the vgmux lan ip from the vgmux vg module";
+           type inet:ip-address;
+       }
+   }
+   grouping brg-operation-information {
+       uses sdnc-request-header;
+       uses request-information;
+       uses service-information;
+       uses allotted-resource-information;
+       uses brg-request-input;
+   }
+   grouping brg-request-input {
+       leaf vgmux-bearer-ip {
+           type inet:ip-address;
+       }
+       leaf vni {
+           type string;
+       }
+       leaf brg-wan-ip-address {
+           type inet:ip-address;
+       }
+   }
+   grouping brg-topology {
+       container brg-topology {
+           uses allotted-resource-identifiers;
+           uses onap-model-information;
+           uses brg-assignments;
+           container brg-parameters {
+               uses param;
+           }
+       }
+   }
+   grouping brg-assignments {
+       leaf vbrg-wan-ip {
+           type inet:ip-address;
+       }
+   }
    grouping allotted-resource-information {
       container allotted-resource-information {
          leaf allotted-resource-id {
@@ -811,7 +880,7 @@ module GENERIC-RESOURCE-API {
             description "Service-instance-id of the parent service to which this allotted resource belongs.";
             type string;
          }
-         uses ecomp-model-information;
+         uses onap-model-information;
       }
    }
    grouping allotted-resource-identifiers {
@@ -978,7 +1047,7 @@ module GENERIC-RESOURCE-API {
             description "used to reference a&ai subscription-service-type. For example, we show as vIPR-ATM in example.";
             type string;
          }
-         uses ecomp-model-information;
+         uses onap-model-information;
          leaf service-instance-id {
             type string;
          }
@@ -992,8 +1061,8 @@ module GENERIC-RESOURCE-API {
          }
       }
    }
-   grouping ecomp-model-information {
-      container ecomp-model-information {
+   grouping onap-model-information {
+      container onap-model-information {
          leaf model-invariant-uuid {
             description "identifies the invariant uuid for this service or resource";
             type string;
@@ -1143,6 +1212,16 @@ module GENERIC-RESOURCE-API {
       container security-zone-response-information {
          uses instance-reference;
       }
+   }
+   grouping tunnelxconn-response-information {
+       container tunnelxconn-response-information {
+           uses instance-reference;
+       }
+   }
+   grouping brg-response-information {
+       container brg-response-information {
+           uses instance-reference;
+       }
    }
    grouping preload-model-information {
       list vnf-preload-list {
@@ -1584,6 +1663,46 @@ module GENERIC-RESOURCE-API {
          uses allotted-resource-status;
       }
    }
+   container tunnelxconn-allotted-resources {
+       list tunnelxconn-allotted-resource {
+           key "allotted-resource-id";
+           leaf allotted-resource-id {
+               type string;
+               mandatory true;
+           }
+           container allotted-resource-data {
+               container allotted-resource-operation-information {
+                   uses tunnelxconn-operation-information;
+               }
+               uses tunnelxconn-topology;
+               container tunnelxconn-parameters {
+                   uses param;
+               }
+               uses allotted-resource-oper-status;
+           }
+           uses allotted-resource-status;
+       }
+   }
+   container brg-allotted-respources {
+       list brg-allotted-resource {
+           key "allotted-resource-id";
+           leaf allotted-resource-id {
+               type string;
+               mandatory true;
+           }
+           container allotted-resource-data {
+               container allotted-resource-operation-information {
+                   uses brg-operation-information;
+               }
+               uses brg-topology;
+               container brg-parameters {
+                   uses param;
+               }
+               uses allotted-resource-oper-status;
+           }
+           uses allotted-resource-status;
+       }
+   }
    rpc service-topology-operation {
       input {
          uses service-operation-information;
@@ -1644,6 +1763,26 @@ module GENERIC-RESOURCE-API {
          uses service-response-information;
       }
    }
+   rpc tunnelxconn-topology-operation {
+       input {
+           uses tunnelxconn-operation-information;
+       }
+       output {
+           uses topology-response-common;
+           uses tunnelxconn-response-information;
+           uses service-response-information;
+       }
+   }
+   rpc brg-topology-operation {
+       input {
+           uses brg-operation-information;
+       }
+       output {
+           uses topology-response-common;
+           uses brg-response-information;
+           uses service-response-information;
+       }
+   }
    container preload-vnfs {
       uses preload-model-information;
    }
@@ -1667,4 +1806,5 @@ module GENERIC-RESOURCE-API {
          uses vnf-topology-response-body;
       }
    }
+
 } ////closes the module
