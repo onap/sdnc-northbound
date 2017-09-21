@@ -19,6 +19,10 @@ import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedEx
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationOutput;
@@ -48,6 +52,10 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.Services;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServicesBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.TunnelxconnTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.TunnelxconnTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.TunnelxconnTopologyOperationOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.TunnelxconnTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VfModuleTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VfModuleTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VfModuleTopologyOperationOutput;
@@ -56,6 +64,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.brg.response.information.BrgResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.contrail.route.response.information.ContrailRouteResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.response.information.NetworkResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.preload.data.PreloadData;
@@ -76,6 +85,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatus.RequestStatus;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatus.RpcAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatusBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.tunnelxconn.response.information.TunnelxconnResponseInformationBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -1698,6 +1708,356 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		return Futures.immediateFuture(rpcResult);
 	}
 
+	@Override
+	public Future<RpcResult<TunnelxconnTopologyOperationOutput>> tunnelxconnTopologyOperation(
+			TunnelxconnTopologyOperationInput input) {
+
+		final String SVC_OPERATION = "tunnelxconn-topology-operation";
+		ServiceData serviceData;
+		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
+		Properties parms = new Properties();
+
+		log.info("{} called.", SVC_OPERATION);
+		// create a new response object
+		TunnelxconnTopologyOperationOutputBuilder responseBuilder = new TunnelxconnTopologyOperationOutputBuilder();
+
+		if(input == null ||
+            input.getServiceInformation() == null ||
+                input.getServiceInformation().getServiceInstanceId() == null ||
+                    input.getServiceInformation().getServiceInstanceId().length() == 0)
+        {
+			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
+			responseBuilder.setResponseCode("404");
+			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult =
+                RpcResultBuilder.<TunnelxconnTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
+
+        String siid = input.getServiceInformation().getServiceInstanceId();
+
+        // Get the service-instance service data from MD-SAL
+        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+        getServiceData(siid,serviceDataBuilder);
+
+		if (input.getSdncRequestHeader() != null) {
+			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+		}
+
+        ServiceData sd = serviceDataBuilder.build();
+        if (sd == null || sd.getServiceLevelOperStatus() == null)
+        {
+			log.debug("exiting {} because the service-instance does not have any service data in SDNC", SVC_OPERATION);
+			responseBuilder.setResponseCode("404");
+			responseBuilder.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult =
+                RpcResultBuilder.<TunnelxconnTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
+
+		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
+		TunnelxconnTopologyOperationInputBuilder inputBuilder = new TunnelxconnTopologyOperationInputBuilder(input);
+		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+
+		// Call SLI sync method
+		// Get SvcLogicService reference
+
+		GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
+		Properties respProps = null;
+
+		String errorCode = "200";
+		String errorMessage = null;
+		String ackFinal = "Y";
+		String allottedResourceId = "error";
+        String serviceObjectPath = null;
+        String tunnelxconnObjectPath = null;
+
+		try
+		{
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
+			{
+
+				try
+				{
+					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
+				}
+				catch (Exception e)
+				{
+					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
+					errorMessage = e.getMessage();
+					errorCode = "500";
+				}
+			} else {
+				errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
+				errorCode = "503";
+			}
+		}
+		catch (Exception e)
+		{
+			errorCode = "500";
+			errorMessage = e.getMessage();
+			log.error("Caught exception looking for service logic", e);
+		}
+
+
+		if (respProps != null)
+		{
+			errorCode = respProps.getProperty("error-code");
+			errorMessage = respProps.getProperty("error-message");
+			ackFinal = respProps.getProperty("ack-final", "Y");
+			allottedResourceId = respProps.getProperty("allotted-resource-id");
+			serviceObjectPath = respProps.getProperty("service-object-path");
+			tunnelxconnObjectPath = respProps.getProperty("tunnelxconn-object-path");
+		}
+
+		if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+			responseBuilder.setResponseCode(errorCode);
+			responseBuilder.setResponseMessage(errorMessage);
+			responseBuilder.setAckFinalIndicator(ackFinal);
+
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
+
+			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult =
+                RpcResultBuilder.<TunnelxconnTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
+
+		// Got success from SLI
+		try {
+
+			serviceData = serviceDataBuilder.build();
+			log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
+
+			// service object
+			ServiceBuilder serviceBuilder = new ServiceBuilder();
+			serviceBuilder.setServiceData(serviceData);
+			serviceBuilder.setServiceInstanceId(siid);
+			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+
+			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
+			{
+				// Only update operational tree on activate or delete
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
+						input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
+				{
+					log.info("Updating OPERATIONAL tree.");
+					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+				}
+			}
+
+			TunnelxconnResponseInformationBuilder tunnelxconnResponseInformationBuilder = new TunnelxconnResponseInformationBuilder();
+			tunnelxconnResponseInformationBuilder.setInstanceId(allottedResourceId);
+			tunnelxconnResponseInformationBuilder.setObjectPath(tunnelxconnObjectPath);
+			responseBuilder.setTunnelxconnResponseInformation(tunnelxconnResponseInformationBuilder.build());
+
+			ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
+			serviceResponseInformationBuilder.setInstanceId(siid);
+			serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
+			responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
+
+		} catch (IllegalStateException e) {
+			log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
+			responseBuilder.setResponseCode("500");
+			responseBuilder.setResponseMessage(e.toString());
+			responseBuilder.setAckFinalIndicator("Y");
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
+			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult =
+                RpcResultBuilder.<TunnelxconnTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
+
+		// Update succeeded
+		responseBuilder.setResponseCode(errorCode);
+		responseBuilder.setAckFinalIndicator(ackFinal);
+		if (errorMessage != null)
+		{
+			responseBuilder.setResponseMessage(errorMessage);
+		}
+		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
+		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
+
+		RpcResult<TunnelxconnTopologyOperationOutput> rpcResult =
+            RpcResultBuilder.<TunnelxconnTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+		return Futures.immediateFuture(rpcResult);
+	}
+
+	@Override
+	public Future<RpcResult<BrgTopologyOperationOutput>> brgTopologyOperation(BrgTopologyOperationInput input) {
+		final String SVC_OPERATION = "brg-topology-operation";
+		ServiceData serviceData;
+		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
+		Properties parms = new Properties();
+
+		log.info("{} called.", SVC_OPERATION);
+		// create a new response object
+		BrgTopologyOperationOutputBuilder responseBuilder = new BrgTopologyOperationOutputBuilder();
+
+		if(input == null ||
+            input.getServiceInformation() == null ||
+                input.getServiceInformation().getServiceInstanceId() == null ||
+                    input.getServiceInformation().getServiceInstanceId().length() == 0)
+        {
+			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
+			responseBuilder.setResponseCode("404");
+			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<BrgTopologyOperationOutput> rpcResult =
+                RpcResultBuilder.<BrgTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
+
+        String siid = input.getServiceInformation().getServiceInstanceId();
+
+        // Get the service-instance service data from MD-SAL
+        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+        getServiceData(siid,serviceDataBuilder);
+
+		if (input.getSdncRequestHeader() != null) {
+			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+		}
+
+        ServiceData sd = serviceDataBuilder.build();
+        if (sd == null || sd.getServiceLevelOperStatus() == null)
+        {
+			log.debug("exiting {} because the service-instance does not have any service data in SDNC", SVC_OPERATION);
+			responseBuilder.setResponseCode("404");
+			responseBuilder.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<BrgTopologyOperationOutput> rpcResult =
+                RpcResultBuilder.<BrgTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
+
+		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
+		BrgTopologyOperationInputBuilder inputBuilder = new BrgTopologyOperationInputBuilder(input);
+		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+
+		// Call SLI sync method
+		// Get SvcLogicService reference
+
+		GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
+		Properties respProps = null;
+
+		String errorCode = "200";
+		String errorMessage = null;
+		String ackFinal = "Y";
+		String allottedResourceId = "error";
+        String serviceObjectPath = null;
+        String brgObjectPath = null;
+
+		try
+		{
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
+			{
+
+				try
+				{
+					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
+				}
+				catch (Exception e)
+				{
+					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
+					errorMessage = e.getMessage();
+					errorCode = "500";
+				}
+			} else {
+				errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
+				errorCode = "503";
+			}
+		}
+		catch (Exception e)
+		{
+			errorCode = "500";
+			errorMessage = e.getMessage();
+			log.error("Caught exception looking for service logic", e);
+		}
+
+
+		if (respProps != null)
+		{
+			errorCode = respProps.getProperty("error-code");
+			errorMessage = respProps.getProperty("error-message");
+			ackFinal = respProps.getProperty("ack-final", "Y");
+			allottedResourceId = respProps.getProperty("allotted-resource-id");
+			serviceObjectPath = respProps.getProperty("service-object-path");
+			brgObjectPath = respProps.getProperty("brg-object-path");
+		}
+
+		if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+			responseBuilder.setResponseCode(errorCode);
+			responseBuilder.setResponseMessage(errorMessage);
+			responseBuilder.setAckFinalIndicator(ackFinal);
+
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
+
+			RpcResult<BrgTopologyOperationOutput> rpcResult =
+                RpcResultBuilder.<BrgTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
+
+		// Got success from SLI
+		try {
+
+			serviceData = serviceDataBuilder.build();
+			log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
+
+			// service object
+			ServiceBuilder serviceBuilder = new ServiceBuilder();
+			serviceBuilder.setServiceData(serviceData);
+			serviceBuilder.setServiceInstanceId(siid);
+			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+
+			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
+			{
+				// Only update operational tree on activate or delete
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
+						input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
+				{
+					log.info("Updating OPERATIONAL tree.");
+					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+				}
+			}
+
+			BrgResponseInformationBuilder brgResponseInformationBuilder = new BrgResponseInformationBuilder();
+			brgResponseInformationBuilder.setInstanceId(allottedResourceId);
+			brgResponseInformationBuilder.setObjectPath(brgObjectPath);
+			responseBuilder.setBrgResponseInformation(brgResponseInformationBuilder.build());
+
+			ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
+			serviceResponseInformationBuilder.setInstanceId(siid);
+			serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
+			responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
+
+		} catch (IllegalStateException e) {
+			log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
+			responseBuilder.setResponseCode("500");
+			responseBuilder.setResponseMessage(e.toString());
+			responseBuilder.setAckFinalIndicator("Y");
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
+			RpcResult<BrgTopologyOperationOutput> rpcResult =
+                RpcResultBuilder.<BrgTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
+
+		// Update succeeded
+		responseBuilder.setResponseCode(errorCode);
+		responseBuilder.setAckFinalIndicator(ackFinal);
+		if (errorMessage != null)
+		{
+			responseBuilder.setResponseMessage(errorMessage);
+		}
+		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
+		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
+
+		RpcResult<BrgTopologyOperationOutput> rpcResult =
+            RpcResultBuilder.<BrgTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+		return Futures.immediateFuture(rpcResult);
+	}
+
     @Override
     public Future<RpcResult<PreloadVnfTopologyOperationOutput>> preloadVnfTopologyOperation(
             PreloadVnfTopologyOperationInput input) {
@@ -2074,4 +2434,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 RpcResultBuilder.<PreloadNetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
         return Futures.immediateFuture(rpcResult);
     }
+
+
 }
