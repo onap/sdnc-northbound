@@ -22,23 +22,15 @@ public class GenericResourceApiUtil extends MdsalHelper {
 
 		File file = new File(PROPERTIES_FILE);
 		properties = new Properties();
-		InputStream input = null;
-		if (file.isFile() && file.canRead()) {
-			try	{
-				input = new FileInputStream(file);
+		if(file.isFile() && file.canRead()) {
+			try(InputStream input = new FileInputStream(file)){
 				properties.load(input);
 				LOG.info("Loaded properties from " + PROPERTIES_FILE );
 				setYangMappingProperties(properties);
+			} catch (IOException e) {
+				LOG.error("Failed to close properties file " + PROPERTIES_FILE +"\n",e);
 			} catch (Exception e) {
 				LOG.error("Failed to load properties " + PROPERTIES_FILE +"\n",e);
-			} finally {
-				if (input != null) {
-					try {
-						input.close();
-					} catch (IOException e) {
-						LOG.error("Failed to close properties file " + PROPERTIES_FILE +"\n",e);
-					}
-				}
 			}
 		}
 	}
