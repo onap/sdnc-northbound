@@ -1229,7 +1229,7 @@ module GENERIC-RESOURCE-API {
             }
          }
          list vnf-networks {
-            key "";
+            key "network-role";
             uses vnf-network;
             uses sriov-vlan-filter-list;
          }
@@ -1253,7 +1253,7 @@ module GENERIC-RESOURCE-API {
             }
          }
          list vm-networks {
-            key "";
+            key "network-role";
             uses vm-network;
          }
       }
