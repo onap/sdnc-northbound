@@ -53,23 +53,15 @@ public class VnfSdnUtil extends MdsalHelper {
         File propFile = new File(ODLHOME.getAbsolutePath() + "/configuration/vnfapi.properties");
         String propFileName = propFile.getAbsolutePath();
         properties = new Properties();
-        InputStream input = null;
         if (propFile.isFile() && propFile.canRead()) {
-            try    {
-                input = new FileInputStream(propFile);
+            try (InputStream input = new FileInputStream(propFile)) {
                 properties.load(input);
                 LOG.info("Loaded properties from " + propFileName );
                 setYangMappingProperties(properties);
+            } catch (IOException e) {
+                LOG.error("Failed to close properties file " + propFileName +"\n",e);
             } catch (Exception e) {
                 LOG.error("Failed to load properties " + propFileName +"\n",e);
-            } finally {
-                if (input != null) {
-                    try {
-                        input.close();
-                    } catch (IOException e) {
-                        LOG.error("Failed to close properties file " + propFileName +"\n",e);
-                    }
-                }
             }
         }
     }
