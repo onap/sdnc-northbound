@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a437d4f_30e74fae",
+        "filename": "generic-resource-api/provider/src/test/java/org/onap/sdnc/northbound/TestGenericResourceApi.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 373
+      },
+      "writtenOn": "2017-09-25T16:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a437d4f_f0742769",
+      "range": {
+        "startLine": 48,
+        "startChar": 44,
+        "endLine": 48,
+        "endChar": 66
+      },
+      "revId": "a9e6db958207f8c6d525f83dd47cf613fa8f1bf9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a437d4f_d0712377",
         "filename": "generic-resource-api/provider/src/test/java/org/onap/sdnc/northbound/TestGenericResourceApi.java",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9a437d4f_7034b7fb",
+        "filename": "generic-resource-api/provider/src/test/java/org/onap/sdnc/northbound/TestGenericResourceApi.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 373
+      },
+      "writtenOn": "2017-09-25T16:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a437d4f_d0712377",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 1
+      },
+      "revId": "a9e6db958207f8c6d525f83dd47cf613fa8f1bf9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a437d4f_500d33e8",
         "filename": "generic-resource-api/provider/src/test/java/org/onap/sdnc/northbound/TestGenericResourceApi.java",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2017-09-25T14:12:21Z",
       "side": 1,
       "message": "as I understand this is failing since SvcLogicActivator is not loaded that needs to be mocked too.",
+      "range": {
+        "startLine": 83,
+        "startChar": 2,
+        "endLine": 83,
+        "endChar": 95
+      },
+      "revId": "a9e6db958207f8c6d525f83dd47cf613fa8f1bf9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_93184576",
+        "filename": "generic-resource-api/provider/src/test/java/org/onap/sdnc/northbound/TestGenericResourceApi.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 373
+      },
+      "writtenOn": "2017-09-25T16:09:13Z",
+      "side": 1,
+      "message": "currently it\u0027s failing to get SvcLogicService reference, if you mock it can\u0027t be able to execute the graph. i will analyze further and resolve it later.",
+      "parentUuid": "9a437d4f_500d33e8",
       "range": {
         "startLine": 83,
         "startChar": 2,
