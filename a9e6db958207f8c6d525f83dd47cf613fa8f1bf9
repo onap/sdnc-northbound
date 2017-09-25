@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_f0742769",
+        "filename": "generic-resource-api/provider/src/test/java/org/onap/sdnc/northbound/TestGenericResourceApi.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-25T14:12:21Z",
+      "side": 1,
+      "message": "kindly use AbstractConcurrentDataBrokerTest instead, AbstractDataBrokerTest is deprecated.",
+      "range": {
+        "startLine": 48,
+        "startChar": 44,
+        "endLine": 48,
+        "endChar": 66
+      },
+      "revId": "a9e6db958207f8c6d525f83dd47cf613fa8f1bf9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_d0712377",
+        "filename": "generic-resource-api/provider/src/test/java/org/onap/sdnc/northbound/TestGenericResourceApi.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-25T14:12:21Z",
+      "side": 1,
+      "message": "spaces to be used instead.",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 1
+      },
+      "revId": "a9e6db958207f8c6d525f83dd47cf613fa8f1bf9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_500d33e8",
+        "filename": "generic-resource-api/provider/src/test/java/org/onap/sdnc/northbound/TestGenericResourceApi.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2017-09-25T14:12:21Z",
+      "side": 1,
+      "message": "as I understand this is failing since SvcLogicActivator is not loaded that needs to be mocked too.",
+      "range": {
+        "startLine": 83,
+        "startChar": 2,
+        "endLine": 83,
+        "endChar": 95
+      },
+      "revId": "a9e6db958207f8c6d525f83dd47cf613fa8f1bf9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
