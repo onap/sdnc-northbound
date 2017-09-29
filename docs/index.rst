@@ -12,9 +12,9 @@ List of Northbound APIs
 VNF-API(2015-07-20)
 ==================
 
-.. swaggerv2doc:: https://gerrit.onap.org/r/gitweb?p=sdnc/northbound/vnfapi.git;a=blob_plain;f=vnfapi/model/src/main/resources/vnf-api.20150720.json
+.. swaggerv2doc:: https://gerrit.onap.org/r/gitweb?p=sdnc/northbound.git;a=blob_plain;f=vnfapi/model/src/main/resources/vnf-api.20150720.json
 
 GENERIC-RESOURCE-API(2016-11-11)
 ================================
 
-.. swaggerv2doc:: https://gerrit.onap.org/r/gitweb?p=sdnc/northbound/generic-resource-api.git;a=blob_plain;f=generic-resource-api/model/src/main/generic-resource-api.20resources/generic-resource-api.20161111.json
+.. swaggerv2doc:: https://gerrit.onap.org/r/gitweb?p=sdnc/northbound.git;a=blob_plain;f=generic-resource-api/model/src/main/resources/generic-resource-api.20161111.json
