@@ -1021,6 +1021,8 @@ module GENERIC-RESOURCE-API {
                enum "DeleteContrailRouteInstance";
                enum "CreateSecurityZoneInstance";
                enum "DeleteSecurityZoneInstance";
+               enum "ActivateDCINetworkInstance";
+               enum "DeActivateDCINetworkInstance";
             }
          }
          leaf source {
