@@ -1,9 +1,17 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "title" : "Generic Resource API",
+    "description" : "Generic Resource API",
+    "contact" : {
+        "name" : "ONAP SDNC team",
+        "email" : "onap-discuss@lists.onap.org",
+        "url" : "https://gerrit.onap.org/r/#/admin./projects/sdnc/sli/northbound"
+    }
   },
   "basePath": "/restconf",
+  "schemes" : [ "http" ],
   "paths": {
     "/config": {
       "post": {
