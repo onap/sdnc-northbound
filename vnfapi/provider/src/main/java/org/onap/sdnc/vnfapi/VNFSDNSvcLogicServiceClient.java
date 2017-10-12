@@ -3,7 +3,7 @@
  * openECOMP : SDN-C
  * ================================================================================
  * Copyright (C) 2017 AT&T Intellectual Property. All rights
- * 							reserved.
+ *                             reserved.
  * ================================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,340 +40,340 @@ import org.slf4j.LoggerFactory;
 
 public class VNFSDNSvcLogicServiceClient {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(VNFSDNSvcLogicServiceClient.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(VNFSDNSvcLogicServiceClient.class);
 
-	private SvcLogicService svcLogic = null;
+    private SvcLogicService svcLogic = null;
 
-	public VNFSDNSvcLogicServiceClient()
-	{
-		BundleContext bctx = FrameworkUtil.getBundle(SvcLogicService.class).getBundleContext();
+    public VNFSDNSvcLogicServiceClient()
+    {
+        BundleContext bctx = FrameworkUtil.getBundle(SvcLogicService.class).getBundleContext();
 
-    	// Get SvcLogicService reference
-		ServiceReference sref = bctx.getServiceReference(SvcLogicService.NAME);
-		if (sref  != null)
-		{
-			svcLogic =  (SvcLogicService) bctx.getService(sref);
+        // Get SvcLogicService reference
+        ServiceReference sref = bctx.getServiceReference(SvcLogicService.NAME);
+        if (sref  != null)
+        {
+            svcLogic =  (SvcLogicService) bctx.getService(sref);
 
-		}
-		else
-		{
-			LOG.warn("Cannot find service reference for "+SvcLogicService.NAME);
+        }
+        else
+        {
+            LOG.warn("Cannot find service reference for "+SvcLogicService.NAME);
 
-		}
-	}
+        }
+    }
 
-	public boolean hasGraph(String module, String rpc, String version, String mode) throws SvcLogicException
-	{
-		return(svcLogic.hasGraph(module, rpc, version, mode));
-	}
+    public boolean hasGraph(String module, String rpc, String version, String mode) throws SvcLogicException
+    {
+        return(svcLogic.hasGraph(module, rpc, version, mode));
+    }
 
-	public Properties execute(String module, String rpc, String version, String mode, ServiceDataBuilder serviceData)
-			throws SvcLogicException {
+    public Properties execute(String module, String rpc, String version, String mode, ServiceDataBuilder serviceData)
+            throws SvcLogicException {
 
-		Properties parms = new Properties();
+        Properties parms = new Properties();
 
-		return execute(module,rpc,version, mode,serviceData,parms);
-	}
+        return execute(module,rpc,version, mode,serviceData,parms);
+    }
 
-	public Properties execute(String module, String rpc, String version, String mode, PreloadDataBuilder serviceData)
-			throws SvcLogicException {
+    public Properties execute(String module, String rpc, String version, String mode, PreloadDataBuilder serviceData)
+            throws SvcLogicException {
 
-		Properties parms = new Properties();
+        Properties parms = new Properties();
 
-		return execute(module,rpc,version, mode,serviceData,parms);
-	}
+        return execute(module,rpc,version, mode,serviceData,parms);
+    }
 
 
-	public Properties execute(String module, String rpc, String version, String mode, ServiceDataBuilder serviceData, Properties parms)
-				throws SvcLogicException {
+    public Properties execute(String module, String rpc, String version, String mode, ServiceDataBuilder serviceData, Properties parms)
+                throws SvcLogicException {
 
-		parms = VnfSdnUtil.toProperties(parms, serviceData);
+        parms = VnfSdnUtil.toProperties(parms, serviceData);
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters passed to SLI");
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters passed to SLI");
 
-			for (Object key : parms.keySet()) {
-				String parmName = (String) key;
-				String parmValue = parms.getProperty(parmName);
+            for (Object key : parms.keySet()) {
+                String parmName = (String) key;
+                String parmValue = parms.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+                LOG.debug(parmName+" = "+parmValue);
 
-			}
-		}
+            }
+        }
 
-		Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
+        Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters returned by SLI");
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters returned by SLI");
 
-			for (Object key : respProps.keySet()) {
-				String parmName = (String) key;
-				String parmValue = respProps.getProperty(parmName);
+            for (Object key : respProps.keySet()) {
+                String parmName = (String) key;
+                String parmValue = respProps.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+                LOG.debug(parmName+" = "+parmValue);
 
-			}
-		}
-		if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
-			return (respProps);
-		}
+            }
+        }
+        if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
+            return (respProps);
+        }
 
-		VnfSdnUtil.toBuilder(respProps, serviceData);
+        VnfSdnUtil.toBuilder(respProps, serviceData);
 
-		return (respProps);
-	}
+        return (respProps);
+    }
 
 
-	public Properties execute(String module, String rpc, String version, String mode, PreloadDataBuilder serviceData, Properties parms)
-				throws SvcLogicException {
+    public Properties execute(String module, String rpc, String version, String mode, PreloadDataBuilder serviceData, Properties parms)
+                throws SvcLogicException {
 
-		parms = VnfSdnUtil.toProperties(parms, serviceData);
+        parms = VnfSdnUtil.toProperties(parms, serviceData);
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters passed to SLI");
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters passed to SLI");
 
-			for (Object key : parms.keySet()) {
-				String parmName = (String) key;
-				String parmValue = parms.getProperty(parmName);
+            for (Object key : parms.keySet()) {
+                String parmName = (String) key;
+                String parmValue = parms.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+                LOG.debug(parmName+" = "+parmValue);
 
-			}
-		}
+            }
+        }
 
-		Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
+        Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters returned by SLI");
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters returned by SLI");
 
-			for (Object key : respProps.keySet()) {
-				String parmName = (String) key;
-				String parmValue = respProps.getProperty(parmName);
+            for (Object key : respProps.keySet()) {
+                String parmName = (String) key;
+                String parmValue = respProps.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+                LOG.debug(parmName+" = "+parmValue);
 
-			}
-		}
-		if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
-			return (respProps);
-		}
+            }
+        }
+        if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
+            return (respProps);
+        }
 
-		VnfSdnUtil.toBuilder(respProps, serviceData);
+        VnfSdnUtil.toBuilder(respProps, serviceData);
 
-		return (respProps);
-	}
+        return (respProps);
+    }
 
 
-	//1610 vnf-instance
-	public Properties execute(String module, String rpc, String version, String mode, VnfInstanceServiceDataBuilder serviceData)
-			throws SvcLogicException {
+    //1610 vnf-instance
+    public Properties execute(String module, String rpc, String version, String mode, VnfInstanceServiceDataBuilder serviceData)
+            throws SvcLogicException {
 
-		Properties parms = new Properties();
+        Properties parms = new Properties();
 
-		return execute(module,rpc,version, mode,serviceData,parms);
-	}
+        return execute(module,rpc,version, mode,serviceData,parms);
+    }
 
-	//1610 vnf-instance
-	public Properties execute(String module, String rpc, String version, String mode, VnfInstanceServiceDataBuilder serviceData, Properties parms)
-				throws SvcLogicException {
+    //1610 vnf-instance
+    public Properties execute(String module, String rpc, String version, String mode, VnfInstanceServiceDataBuilder serviceData, Properties parms)
+                throws SvcLogicException {
 
-		parms = VnfSdnUtil.toProperties(parms, serviceData);
+        parms = VnfSdnUtil.toProperties(parms, serviceData);
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters passed to SLI");
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters passed to SLI");
 
-			for (Object key : parms.keySet()) {
-				String parmName = (String) key;
-				String parmValue = parms.getProperty(parmName);
+            for (Object key : parms.keySet()) {
+                String parmName = (String) key;
+                String parmValue = parms.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+                LOG.debug(parmName+" = "+parmValue);
 
-			}
-		}
+            }
+        }
 
-		Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
+        Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters returned by SLI");
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters returned by SLI");
 
-			for (Object key : respProps.keySet()) {
-				String parmName = (String) key;
-				String parmValue = respProps.getProperty(parmName);
+            for (Object key : respProps.keySet()) {
+                String parmName = (String) key;
+                String parmValue = respProps.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+                LOG.debug(parmName+" = "+parmValue);
 
-			}
-		}
-		if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
-			return (respProps);
-		}
+            }
+        }
+        if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
+            return (respProps);
+        }
 
-		VnfSdnUtil.toBuilder(respProps, serviceData);
+        VnfSdnUtil.toBuilder(respProps, serviceData);
 
-		return (respProps);
-	}
+        return (respProps);
+    }
 
-	//1610 vf-module
-	public Properties execute(String module, String rpc, String version, String mode, VfModuleServiceDataBuilder serviceData)
-			throws SvcLogicException {
+    //1610 vf-module
+    public Properties execute(String module, String rpc, String version, String mode, VfModuleServiceDataBuilder serviceData)
+            throws SvcLogicException {
 
-		Properties parms = new Properties();
+        Properties parms = new Properties();
 
-		return execute(module,rpc,version, mode,serviceData,parms);
-	}
+        return execute(module,rpc,version, mode,serviceData,parms);
+    }
 
-	//1610 vf-module
-	public Properties execute(String module, String rpc, String version, String mode, VfModuleServiceDataBuilder serviceData, Properties parms)
-				throws SvcLogicException {
+    //1610 vf-module
+    public Properties execute(String module, String rpc, String version, String mode, VfModuleServiceDataBuilder serviceData, Properties parms)
+                throws SvcLogicException {
 
-		parms = VnfSdnUtil.toProperties(parms, serviceData);
+        parms = VnfSdnUtil.toProperties(parms, serviceData);
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters passed to SLI");
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters passed to SLI");
 
-			for (Object key : parms.keySet()) {
-				String parmName = (String) key;
-				String parmValue = parms.getProperty(parmName);
+            for (Object key : parms.keySet()) {
+                String parmName = (String) key;
+                String parmValue = parms.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+                LOG.debug(parmName+" = "+parmValue);
 
-			}
-		}
+            }
+        }
 
-		Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
+        Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters returned by SLI");
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters returned by SLI");
 
-			for (Object key : respProps.keySet()) {
-				String parmName = (String) key;
-				String parmValue = respProps.getProperty(parmName);
+            for (Object key : respProps.keySet()) {
+                String parmName = (String) key;
+                String parmValue = respProps.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+                LOG.debug(parmName+" = "+parmValue);
 
-			}
-		}
-		if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
-			return (respProps);
-		}
+            }
+        }
+        if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
+            return (respProps);
+        }
 
-		VnfSdnUtil.toBuilder(respProps, serviceData);
+        VnfSdnUtil.toBuilder(respProps, serviceData);
 
-		return (respProps);
-	}
+        return (respProps);
+    }
 
     //1610 vnf-instance-preload
-	public Properties execute(String module, String rpc, String version, String mode, VnfInstancePreloadDataBuilder serviceData)
-			throws SvcLogicException {
+    public Properties execute(String module, String rpc, String version, String mode, VnfInstancePreloadDataBuilder serviceData)
+            throws SvcLogicException {
 
-		Properties parms = new Properties();
+        Properties parms = new Properties();
 
-		return execute(module,rpc,version, mode,serviceData,parms);
-	}
+        return execute(module,rpc,version, mode,serviceData,parms);
+    }
 
 
     //1610 vnf-instance-preload
-	public Properties execute(String module, String rpc, String version, String mode, VnfInstancePreloadDataBuilder serviceData, Properties parms)
-				throws SvcLogicException {
+    public Properties execute(String module, String rpc, String version, String mode, VnfInstancePreloadDataBuilder serviceData, Properties parms)
+                throws SvcLogicException {
 
-		parms = VnfSdnUtil.toProperties(parms, serviceData);
+        parms = VnfSdnUtil.toProperties(parms, serviceData);
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters passed to SLI");
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters passed to SLI");
 
-			for (Object key : parms.keySet()) {
-				String parmName = (String) key;
-				String parmValue = parms.getProperty(parmName);
+            for (Object key : parms.keySet()) {
+                String parmName = (String) key;
+                String parmValue = parms.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+                LOG.debug(parmName+" = "+parmValue);
 
-			}
-		}
+            }
+        }
 
-		Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
+        Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters returned by SLI");
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters returned by SLI");
 
-			for (Object key : respProps.keySet()) {
-				String parmName = (String) key;
-				String parmValue = respProps.getProperty(parmName);
+            for (Object key : respProps.keySet()) {
+                String parmName = (String) key;
+                String parmValue = respProps.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+                LOG.debug(parmName+" = "+parmValue);
 
-			}
-		}
-		if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
-			return (respProps);
-		}
+            }
+        }
+        if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
+            return (respProps);
+        }
 
-		VnfSdnUtil.toBuilder(respProps, serviceData);
+        VnfSdnUtil.toBuilder(respProps, serviceData);
 
-		return (respProps);
-	}
-
-    //1610 vf-module-preload
-	public Properties execute(String module, String rpc, String version, String mode, VfModulePreloadDataBuilder serviceData)
-			throws SvcLogicException {
-
-		Properties parms = new Properties();
-
-		return execute(module,rpc,version, mode,serviceData,parms);
-	}
-
+        return (respProps);
+    }
 
     //1610 vf-module-preload
-	public Properties execute(String module, String rpc, String version, String mode, VfModulePreloadDataBuilder serviceData, Properties parms)
-				throws SvcLogicException {
+    public Properties execute(String module, String rpc, String version, String mode, VfModulePreloadDataBuilder serviceData)
+            throws SvcLogicException {
 
-		parms = VnfSdnUtil.toProperties(parms, serviceData);
+        Properties parms = new Properties();
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters passed to SLI");
+        return execute(module,rpc,version, mode,serviceData,parms);
+    }
 
-			for (Object key : parms.keySet()) {
-				String parmName = (String) key;
-				String parmValue = parms.getProperty(parmName);
 
-				LOG.debug(parmName+" = "+parmValue);
+    //1610 vf-module-preload
+    public Properties execute(String module, String rpc, String version, String mode, VfModulePreloadDataBuilder serviceData, Properties parms)
+                throws SvcLogicException {
 
-			}
-		}
+        parms = VnfSdnUtil.toProperties(parms, serviceData);
 
-		Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters passed to SLI");
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters returned by SLI");
+            for (Object key : parms.keySet()) {
+                String parmName = (String) key;
+                String parmValue = parms.getProperty(parmName);
 
-			for (Object key : respProps.keySet()) {
-				String parmName = (String) key;
-				String parmValue = respProps.getProperty(parmName);
+                LOG.debug(parmName+" = "+parmValue);
 
-				LOG.debug(parmName+" = "+parmValue);
+            }
+        }
 
-			}
-		}
-		if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
-			return (respProps);
-		}
+        Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
 
-		VnfSdnUtil.toBuilder(respProps, serviceData);
+        if (LOG.isDebugEnabled())
+        {
+            LOG.debug("Parameters returned by SLI");
 
-		return (respProps);
-	}
+            for (Object key : respProps.keySet()) {
+                String parmName = (String) key;
+                String parmValue = respProps.getProperty(parmName);
+
+                LOG.debug(parmName+" = "+parmValue);
+
+            }
+        }
+        if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
+            return (respProps);
+        }
+
+        VnfSdnUtil.toBuilder(respProps, serviceData);
+
+        return (respProps);
+    }
 
 
 }
