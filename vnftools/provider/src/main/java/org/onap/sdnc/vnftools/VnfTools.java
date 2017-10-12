@@ -162,18 +162,13 @@ public class VnfTools implements SvcLogicJavaPlugin {
 		}
 
 		PrintStream pstr = null;
-		FileOutputStream fileStream = null;
 
-		try {
-			pstr = new PrintStream(fileStream = new FileOutputStream(new File(fileName), true));
-		} catch (Exception e) {
-			if (fileStream != null) {
-				try {
-					fileStream.close();
-				} catch (IOException e1) {
-					LOG.error("FileOutputStream close exception: ", e1);
-				}
-			}
+		try (FileOutputStream fileStream = new FileOutputStream(new File(fileName), true)){
+			pstr = new PrintStream(fileStream);
+		} catch (IOException e1) {
+			LOG.error("FileOutputStream close exception: ", e1);
+		}
+		catch (Exception e) {
 			throw new SvcLogicException("Cannot open file " + fileName, e);
 		}
 
