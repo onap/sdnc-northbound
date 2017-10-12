@@ -3,7 +3,7 @@
  * openECOMP : SDN-C
  * ================================================================================
  * Copyright (C) 2017 AT&T Intellectual Property. All rights
- * 							reserved.
+ *                             reserved.
  * ================================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,6 @@
 
 package org.onap.sdnc.vnftools;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import org.onap.ccsdk.sli.core.sli.SvcLogicContext;
 import org.onap.ccsdk.sli.core.sli.SvcLogicException;
 import org.onap.ccsdk.sli.core.sli.SvcLogicJavaPlugin;
@@ -37,175 +28,153 @@ import org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Map;
+import java.util.Properties;
+
 public class VnfTools implements SvcLogicJavaPlugin {
-	// ========== FIELDS ==========
+    static final String BASE = "base";
+    static final String FILENAME = "filename";
+    static final String RESULT_CTX_STRING = "result_ctx_string";
+    static final String RETURN_KEY = "return-key";
+    static final String RETURN_PATH = "return-path";
+    static final String STRING_TO_FIND = "string_to_find";
+    static final String STRING_TO_SEARCH = "string_to_search";
+    static final String SUFFIX = "suffix";
+    static final String TRUE_STRING = "true";
 
-	private static final Logger LOG = LoggerFactory.getLogger(VnfTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VnfTools.class);
 
-	// ========== CONSTRUCTORS ==========
+    public VnfTools(Properties props) {
+        if (props != null) {
+            LOG.debug("props is not null.");
+        }
+    }
 
-	public VnfTools(Properties props) {
-		if (props != null) {
-			LOG.debug("props is not null.");
-		}
-	}
+    public void checkIfActivateReady(Map<String, String> parameters, SvcLogicContext ctx) throws SvcLogicException {
+        LOG.debug("Checking if enough data is available to send the NCS Activate request...");
 
+        SliPluginUtils.checkParameters(parameters, new String[]{RETURN_KEY}, LOG);
+        setIfNotNull(parameters.get(RETURN_KEY), TRUE_STRING, ctx);
+    }
 
-	public void checkIfActivateReady( Map<String, String> parameters, SvcLogicContext ctx ) throws SvcLogicException {
-		LOG.debug("Checking if enough data is available to send the NCS Activate request...");
-
-		SliPluginUtils.checkParameters(parameters, new String[]{"return-key"}, LOG);
-		final String returnKey = parameters.get("return-key");
-		ctx.setAttribute(returnKey, "true");
-
-	}
-
-	/**
-	 * DG node performs a java String.contains(String) and writes true or false
-	 * to a key in context memory.
-	 * @param parameters Hashmap in context memory must contain the following:
-	 * <table border='1'>
-	 * <thead>
-	 * 	<th>Key</th>
-	 * 	<th>Description</th>
-	 * </thead>
-	 * <tbody>
-	 * 	<tr>
-	 * 		<td>string_to_search</td>
-	 * 		<td>String to perform java String.contains(String) on</td>
-	 * 	</tr>
-	 *  <tr>
-	 * 		<td>string_to_find</td>
-	 * 		<td>String to find in the string_to_search</td>
-	 * 	</tr>
-	 *  <tr>
-	 * 		<td>result_ctx_string</td>
-	 * 		<td>Context memory key to write the result ("true" or "false") to</td>
-	 * 	</tr>
-	 * </tbody>
-	 * </table>
-	 * @param ctx Reference to context memory
-	 * @throws SvcLogicException
-	 */
-	public void stringContains( Map<String, String> parameters, SvcLogicContext ctx ) throws SvcLogicException {
-		SliPluginUtils.checkParameters(parameters, new String[]{"string_to_search","string_to_find","result_ctx_string"}, LOG);
-		ctx.setAttribute(parameters.get("result_ctx_string"), Boolean.toString(parameters.get("string_to_search").contains(parameters.get("string_to_find"))));
-	}
-
-
-	public void generateName( Map<String, String> parameters, SvcLogicContext ctx ) throws SvcLogicException {
-		LOG.debug("generateName");
-
-		SliPluginUtils.checkParameters(parameters, new String[]{"base","suffix","return-path"}, LOG);
-
-		String base = parameters.get("base");
-		ctx.setAttribute( parameters.get("return-path"), base.substring(0, base.length() - 4) + parameters.get("suffix") + base.substring(base.length() - 2) );
-	}
+    /**
+     * DG node performs a java String.contains(String) and writes true or false
+     * to a key in context memory.
+     * @param parameters HashMap in context memory must contain the following:
+     * <table border='1'>
+     * <thead>
+     *     <th>Key</th>
+     *     <th>Description</th>
+     * </thead>
+     * <tbody>
+     *     <tr>
+     *         <td>string_to_search</td>
+     *         <td>String to perform java String.contains(String) on</td>
+     *     </tr>
+     *  <tr>
+     *         <td>string_to_find</td>
+     *         <td>String to find in the string_to_search</td>
+     *     </tr>
+     *  <tr>
+     *         <td>result_ctx_string</td>
+     *         <td>Context memory key to write the result ("true" or "false") to</td>
+     *     </tr>
+     * </tbody>
+     * </table>
+     * @param ctx Reference to context memory
+     * @throws SvcLogicException when passed in parameter is not valid
+     */
+    public void stringContains(Map<String, String> parameters, SvcLogicContext ctx) throws SvcLogicException {
+        SliPluginUtils.checkParameters(
+                parameters, new String[]{STRING_TO_SEARCH, STRING_TO_FIND, RESULT_CTX_STRING}, LOG);
+        setIfNotNull(parameters.get(RESULT_CTX_STRING),
+                Boolean.toString(parameters.get(STRING_TO_SEARCH).contains(parameters.get(STRING_TO_FIND))),
+                ctx);
+    }
 
 
-	private boolean matches(String str1, String str2) {
-		if (str1 == null) {
-			if (str2 == null) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			if (str2 == null) {
-				return false;
-			} else {
-				return str1.equals(str2);
-			}
-		}
-	}
+    public void generateName(Map<String, String> parameters, SvcLogicContext ctx) throws SvcLogicException {
+        LOG.debug("generateName");
 
-	private void setIfNotNull(String property, String value, SvcLogicContext ctx) {
-		if (value != null) {
-			LOG.debug("Setting " + property + " to " + value);
-			ctx.setAttribute(property, value);
-		}
-	}
+        SliPluginUtils.checkParameters(parameters, new String[]{BASE, SUFFIX, RETURN_PATH}, LOG);
 
-	/*
-	 * Moves an array element from one index to another
-	 */
-	private void copyArrayEntry(String srcRoot, String destRoot, SvcLogicContext ctx) {
-		LOG.debug("copyArrayEntry called: srcRoot=" + srcRoot + ", destRoot=" + destRoot);
+        String base = parameters.get(BASE);
+        int baseLength = base.length();
+        if (baseLength < 4) {
+            String errorMessage = String.format("Parameter(%s) needs at least length 4 but only have %d",
+                    BASE, baseLength);
+            LOG.error(errorMessage);
+            throw new SvcLogicException(errorMessage);
+        }
 
-		// Record all of the source keys
-		List<String> keysToMove = new ArrayList<String>();
-		for (String key : ctx.getAttributeKeySet()) {
-			if (key.startsWith(srcRoot)) {
-				keysToMove.add(key);
-			}
-		}
+        setIfNotNull(parameters.get(RETURN_PATH), String.format("%s%s%s",
+                base.substring(0, baseLength - 4), parameters.get(SUFFIX), base.substring(baseLength - 2)),
+                ctx);
+    }
 
-		// Now loop through and copy those keys to the destination, and then delete the source
-		for (String key : keysToMove) {
-			String suffix = key.substring(srcRoot.length());
-			LOG.debug("Move " + key + " to " + destRoot + suffix);
-			ctx.setAttribute(destRoot + suffix, ctx.getAttribute(key));
-			ctx.setAttribute(key, null);
-		}
+    private void setIfNotNull(String property, String value, SvcLogicContext ctx) {
+        if (property != null && value != null) {
+            LOG.debug("Setting ", property, " to ",  value);
+            ctx.setAttribute(property, value);
+        }
+    }
 
-	}
+    public void printContext(Map<String, String> parameters, SvcLogicContext ctx) throws SvcLogicException {
+        if (parameters == null) {
+            throw new SvcLogicException("no parameters passed");
+        }
 
-	public void printContext(Map<String, String> parameters, SvcLogicContext ctx) throws SvcLogicException {
-		if (parameters == null) {
-			throw new SvcLogicException("no parameters passed");
-		}
+        String fileName = parameters.get(FILENAME);
 
-		String fileName = parameters.get("filename");
+        if ((fileName == null) || (fileName.length() == 0)) {
+            throw new SvcLogicException("printContext requires 'filename' parameter");
+        }
 
-		if ((fileName == null) || (fileName.length() == 0)) {
-			throw new SvcLogicException("printContext requires 'filename' parameter");
-		}
+        PrintStream pstr = null;
 
-		PrintStream pstr = null;
+        try (FileOutputStream fileStream = new FileOutputStream(new File(fileName), true)){
+            pstr = new PrintStream(fileStream);
+        } catch (IOException e1) {
+            LOG.error("FileOutputStream close exception: ", e1);
+        }
+        catch (Exception e) {
+            throw new SvcLogicException("Cannot open file " + fileName, e);
+        } finally {
+            if (pstr != null) {
+                pstr.println("#######################################");
+                for (String attr : ctx.getAttributeKeySet()) {
+                    pstr.println(attr + " = " + ctx.getAttribute(attr));
+                }
 
-		try (FileOutputStream fileStream = new FileOutputStream(new File(fileName), true)){
-			pstr = new PrintStream(fileStream);
-		} catch (IOException e1) {
-			LOG.error("FileOutputStream close exception: ", e1);
-		}
-		catch (Exception e) {
-			throw new SvcLogicException("Cannot open file " + fileName, e);
-		}
+                pstr.flush();
+                pstr.close();
+            }
+        }
 
-		pstr.println("#######################################");
-		for (String attr : ctx.getAttributeKeySet()) {
-			pstr.println(attr + " = " + ctx.getAttribute(attr));
-		}
+    }
 
-		pstr.flush();
-		pstr.close();
-	}
+    static int getArrayLength(SvcLogicContext ctx, String key) {
+        String value = ctx.getAttribute(key);
+        try {
+            return Integer.parseInt(value);
+        } catch( NumberFormatException e ) {
+            LOG.debug(String.format("Ctx contained key(%s) value(%s) is not integer", key, value));
+        }
 
-	static int getArrayLength( SvcLogicContext ctx, String key ) {
-		try {
-			return Integer.parseInt(ctx.getAttribute(key));
-		} catch( NumberFormatException e ) {}
+        return 0;
+    }
 
-		return 0;
-	}
+    static int getArrayLength(SvcLogicContext ctx, String key, String debug) {
+        try {
+            return Integer.parseInt(ctx.getAttribute(key));
+        } catch( NumberFormatException e ) {
+            LOG.debug(debug);
+        }
 
-	static int getArrayLength( SvcLogicContext ctx, String key, String debug ) {
-		try {
-			return Integer.parseInt(ctx.getAttribute(key));
-		} catch( NumberFormatException e ) {
-			LOG.debug(debug);
-		}
-
-		return 0;
-	}
-
-	/**
-	 * Returns true if string is null or empty.
-	 * @param str
-	 * @return
-	 */
-	private static boolean stringIsBlank( String str ) {
-		return str == null || str.isEmpty();
-	}
-
+        return 0;
+    }
 }
