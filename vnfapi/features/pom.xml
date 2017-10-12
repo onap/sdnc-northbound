@@ -16,12 +16,7 @@
             <artifactId>vnfapi-model</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.onap.sdnc.northbound</groupId>
-            <artifactId>vnfapi-provider</artifactId>
-            <classifier>config</classifier>
-            <type>xml</type>
-        </dependency>
+
         <dependency>
             <groupId>org.onap.sdnc.northbound</groupId>
             <artifactId>vnfapi-provider</artifactId>

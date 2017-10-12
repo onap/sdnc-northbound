@@ -8,9 +8,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,29 +46,8 @@ public class VnfToolsActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext ctx) throws Exception {
-		// Read properties
-		Properties props = new Properties();
 
-		String propDir = System.getenv(SDNC_CONFIG_DIR);
-		if (propDir == null) {
-			propDir = "/opt/sdnc/data/properties";
-		}
-
-		String propPath = propDir + VNFTOOLS_PROP_VAR;
-
-		File propFile = new File(propPath);
-
-		if (!propFile.exists()) {
-			props = null;
-		} else {
-
-			try {
-				props.load(new FileInputStream(propFile));
-			} catch (Exception e) {
-				throw new ConfigurationException("Could not load properties file " + propPath, e);
-			}
-		}
-		VnfTools plugin = new VnfTools(props);
+		VnfTools plugin = new VnfTools(null);
 
 		LOG.info("Registering service " + plugin.getClass().getName());
 		registrations.add(ctx.registerService(plugin.getClass().getName(), plugin, null));

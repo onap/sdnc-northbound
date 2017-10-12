@@ -169,15 +169,18 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     protected RpcProviderRegistry rpcRegistry;
     protected BindingAwareBroker.RpcRegistration<VNFAPIService> rpcRegistration;
 
+    private VNFSDNSvcLogicServiceClient svcLogicClient;
+
 
 
     public vnfapiProvider(DataBroker dataBroker2, NotificationPublishService notificationPublishService,
-            RpcProviderRegistry rpcProviderRegistry) {
+            RpcProviderRegistry rpcProviderRegistry, VNFSDNSvcLogicServiceClient client) {
         this.log.info( "Creating provider for " + appName );
         executor = Executors.newFixedThreadPool(1);
         dataBroker = dataBroker2;
         notificationService = notificationPublishService;
         rpcRegistry = rpcProviderRegistry;
+        this.svcLogicClient = client;
         initialize();
 
     }
@@ -191,7 +194,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         } catch (Exception e) {
             log.error("Caught Exception while trying to load properties file: ", e);
         }
-        rpcRegistration = rpcRegistry.addRpcImplementation(VNFAPIService.class, this);
+        // rpcRegistration = rpcRegistry.addRpcImplementation(VNFAPIService.class, this);
 
         log.info( "Initialization complete for " + appName );
     }
@@ -1104,7 +1107,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -1357,7 +1359,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -1587,7 +1588,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -1797,7 +1797,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -1973,7 +1972,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -2168,7 +2166,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -2364,7 +2361,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
+
         Properties respProps = null;
 
         String errorCode = "200";
@@ -2554,7 +2551,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
