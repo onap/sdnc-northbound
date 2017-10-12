@@ -3,14 +3,14 @@
  * openECOMP : SDN-C
  * ================================================================================
  * Copyright (C) 2017 AT&T Intellectual Property. All rights
- * 							reserved.
+ *                             reserved.
  * ================================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.onap.ccsdk.sli.core.sli.provider.MdsalHelper;
+import org.onap.sdnc.sli.provider.MdsalHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class VnfSdnUtil extends MdsalHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(VnfSdnUtil.class);
 
-    private static File ODLHOME = null;
+    public static File ODLHOME = null;
 
     private static Properties properties;
 
@@ -53,15 +53,23 @@ public class VnfSdnUtil extends MdsalHelper {
         File propFile = new File(ODLHOME.getAbsolutePath() + "/configuration/vnfapi.properties");
         String propFileName = propFile.getAbsolutePath();
         properties = new Properties();
+        InputStream input = null;
         if (propFile.isFile() && propFile.canRead()) {
-            try (InputStream input = new FileInputStream(propFile)) {
+            try    {
+                input = new FileInputStream(propFile);
                 properties.load(input);
                 LOG.info("Loaded properties from " + propFileName );
-                setYangMappingProperties(properties);
-            } catch (IOException e) {
-                LOG.error("Failed to close properties file " + propFileName +"\n",e);
+                setProperties(properties);
             } catch (Exception e) {
                 LOG.error("Failed to load properties " + propFileName +"\n",e);
+            } finally {
+                if (input != null) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        LOG.error("Failed to close properties file " + propFileName +"\n",e);
+                    }
+                }
             }
         }
     }

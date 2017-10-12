@@ -3,14 +3,14 @@
  * openECOMP : SDN-C
  * ================================================================================
  * Copyright (C) 2017 AT&T Intellectual Property. All rights
- * 							reserved.
+ *                             reserved.
  * ================================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,7 +41,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
+import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.NetworkTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.NetworkTopologyOperationInputBuilder;
@@ -101,6 +101,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.vnf.in
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.vnf.instance.model.information.VnfInstancePreloadListBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.vnf.instance.model.information.VnfInstancePreloadListKey;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.request.information.RequestInformation;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.request.information.RequestInformation.RequestSubAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.sdnc.request.header.SdncRequestHeader;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.sdnc.request.header.SdncRequestHeader.SvcAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.data.ServiceData;
@@ -139,7 +140,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -165,22 +165,20 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     private ListenerRegistration<DataChangeListener> dclServices;
 
     protected DataBroker dataBroker;
-    protected NotificationPublishService notificationService;
+    protected NotificationProviderService notificationService;
     protected RpcProviderRegistry rpcRegistry;
     protected BindingAwareBroker.RpcRegistration<VNFAPIService> rpcRegistration;
 
-    private VNFSDNSvcLogicServiceClient svcLogicClient;
 
 
-
-    public vnfapiProvider(DataBroker dataBroker2, NotificationPublishService notificationPublishService,
-            RpcProviderRegistry rpcProviderRegistry, VNFSDNSvcLogicServiceClient client) {
+    public vnfapiProvider(DataBroker dataBroker2,
+            NotificationProviderService notificationProviderService,
+            RpcProviderRegistry rpcProviderRegistry) {
         this.log.info( "Creating provider for " + appName );
         executor = Executors.newFixedThreadPool(1);
         dataBroker = dataBroker2;
-        notificationService = notificationPublishService;
+        notificationService = notificationProviderService;
         rpcRegistry = rpcProviderRegistry;
-        this.svcLogicClient = client;
         initialize();
 
     }
@@ -192,9 +190,9 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         try {
             VnfSdnUtil.loadProperties();
         } catch (Exception e) {
-            log.error("Caught Exception while trying to load properties file: ", e);
+            log.error("Caught Exception while trying to load properties file");
         }
-        // rpcRegistration = rpcRegistry.addRpcImplementation(VNFAPIService.class, this);
+        rpcRegistration = rpcRegistry.addRpcImplementation(VNFAPIService.class, this);
 
         log.info( "Initialization complete for " + appName );
     }
@@ -245,6 +243,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         } catch (InterruptedException | ExecutionException e) {
             log.error("Create Containers Failed: " + e);
+            e.printStackTrace();
         }
     }
 
@@ -489,7 +488,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             default:
                 log.error("Unknown RequestAction: " + requestInformation.getRequestAction() );
                 break;
-            }
+            };
         }
         if (requestInformation != null && requestInformation.getRequestSubAction() != null) {
             switch (requestInformation.getRequestSubAction())
@@ -497,13 +496,16 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             case SUPP:
                 serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.SUPP);
                 break;
+            case RetainResource:
+                serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.RetainResource);
+                break;
             case CANCEL:
                 serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.CANCEL);
                 break;
             default:
                 log.error("Unknown RequestSubAction: " + requestInformation.getRequestSubAction() );
                 break;
-            }
+            };
         }
     }
 
@@ -536,7 +538,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             default:
                 log.error("Unknown SvcAction: " + requestHeader.getSvcAction() );
                 break;
-            }
+            };
         }
     }
 
@@ -552,7 +554,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this siid, if so grab it.
         InstanceIdentifier serviceInstanceIdentifier =
                 InstanceIdentifier.<Vnfs>builder(Vnfs.class)
-                .child(VnfList.class, new VnfListKey(siid)).build();
+                .child(VnfList.class, new VnfListKey(siid)).toInstance();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VnfList> data = null;
         try {
@@ -561,7 +563,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+siid+"] " ,e);
         }
 
-        if (data != null && data.isPresent()) {
+        if ( data.isPresent()) {
             ServiceData serviceData = (ServiceData) data.get().getServiceData();
             if (serviceData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+siid+"] ServiceData: " + serviceData);
@@ -592,7 +594,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this siid, if so grab it.
         InstanceIdentifier vnfInstanceIdentifier =
                 InstanceIdentifier.<VnfInstances>builder(VnfInstances.class)
-                .child(VnfInstanceList.class, new VnfInstanceListKey(siid)).build();
+                .child(VnfInstanceList.class, new VnfInstanceListKey(siid)).toInstance();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VnfInstanceList> data = null;
         try {
@@ -601,7 +603,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+siid+"] " ,e);
         }
 
-        if (data != null && data.isPresent()) {
+        if ( data.isPresent()) {
             VnfInstanceServiceData vnfInstanceServiceData = (VnfInstanceServiceData) data.get().getVnfInstanceServiceData();
             if (vnfInstanceServiceData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+siid+"] VnfInstanceServiceData: " + vnfInstanceServiceData);
@@ -632,7 +634,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this siid, if so grab it.
         InstanceIdentifier vfModuleIdentifier =
                 InstanceIdentifier.<VfModules>builder(VfModules.class)
-                .child(VfModuleList.class, new VfModuleListKey(siid)).build();
+                .child(VfModuleList.class, new VfModuleListKey(siid)).toInstance();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VfModuleList> data = null;
         try {
@@ -641,7 +643,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+siid+"] " ,e);
         }
 
-        if (data != null && data.isPresent()) {
+        if ( data.isPresent()) {
             VfModuleServiceData vfModuleServiceData = (VfModuleServiceData) data.get().getVfModuleServiceData();
             if (vfModuleServiceData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+siid+"] VfModuleServiceData: " + vfModuleServiceData);
@@ -672,7 +674,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this name/type, if so grab it.
         InstanceIdentifier preloadInstanceIdentifier =
                 InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
-                .child(VnfPreloadList.class, new VnfPreloadListKey(preload_name, preload_type)).build();
+                .child(VnfPreloadList.class, new VnfPreloadListKey(preload_name, preload_type)).toInstance();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VnfPreloadList> data = null;
         try {
@@ -681,7 +683,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+preload_name+","+preload_type+"] " ,e);
         }
 
-        if (data != null && data.isPresent()) {
+        if ( data.isPresent()) {
             PreloadData preloadData = (PreloadData) data.get().getPreloadData();
             if (preloadData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+preload_name+","+preload_type+"] PreloadData: " + preloadData);
@@ -709,7 +711,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this name/type, if so grab it.
         InstanceIdentifier preloadInstanceIdentifier =
                 InstanceIdentifier.<PreloadVnfInstances>builder(PreloadVnfInstances.class)
-                .child(VnfInstancePreloadList.class, new VnfInstancePreloadListKey(preload_name, preload_type)).build();
+                .child(VnfInstancePreloadList.class, new VnfInstancePreloadListKey(preload_name, preload_type)).toInstance();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VnfInstancePreloadList> data = null;
         try {
@@ -718,7 +720,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+preload_name+","+preload_type+"] " ,e);
         }
 
-        if (data != null && data.isPresent()) {
+        if ( data.isPresent()) {
             VnfInstancePreloadData preloadData = (VnfInstancePreloadData) data.get().getVnfInstancePreloadData();
             if (preloadData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+preload_name+","+preload_type+"] VnfInstancePreloadData: " + preloadData);
@@ -744,7 +746,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // See if any data exists yet for this name/type, if so grab it.
         InstanceIdentifier preloadInstanceIdentifier =
                 InstanceIdentifier.<PreloadVfModules>builder(PreloadVfModules.class)
-                .child(VfModulePreloadList.class, new VfModulePreloadListKey(preload_name, preload_type)).build();
+                .child(VfModulePreloadList.class, new VfModulePreloadListKey(preload_name, preload_type)).toInstance();
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<VfModulePreloadList> data = null;
         try {
@@ -753,7 +755,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception reading MD-SAL ("+type+") for ["+preload_name+","+preload_type+"] " ,e);
         }
 
-        if (data != null && data.isPresent()) {
+        if ( data.isPresent()) {
             VfModulePreloadData preloadData = (VfModulePreloadData) data.get().getVfModulePreloadData();
             if (preloadData != null) {
                 log.info("Read MD-SAL ("+type+") data for ["+preload_name+","+preload_type+"] VfModulePreloadData: " + preloadData);
@@ -772,7 +774,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VnfList> vnfListIdBuilder =
                 InstanceIdentifier.<Vnfs>builder(Vnfs.class)
                 .child(VnfList.class, entry.getKey());
-        InstanceIdentifier<VnfList> path = vnfListIdBuilder.build();
+        InstanceIdentifier<VnfList> path = vnfListIdBuilder.toInstance();
 
         int tries = 2;
         while(true) {
@@ -806,7 +808,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VnfList> vnfListIdBuilder =
                 InstanceIdentifier.<Vnfs>builder(Vnfs.class)
                 .child(VnfList.class, entry.getKey());
-        InstanceIdentifier<VnfList> path = vnfListIdBuilder.build();
+        InstanceIdentifier<VnfList> path = vnfListIdBuilder.toInstance();
 
         int tries = 2;
         while (true) {
@@ -837,7 +839,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VnfInstanceList> vnfInstanceListIdBuilder =
                 InstanceIdentifier.<VnfInstances>builder(VnfInstances.class)
                 .child(VnfInstanceList.class, entry.getKey());
-        InstanceIdentifier<VnfInstanceList> path = vnfInstanceListIdBuilder.build();
+        InstanceIdentifier<VnfInstanceList> path = vnfInstanceListIdBuilder.toInstance();
 
         int tries = 2;
         while(true) {
@@ -872,7 +874,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VfModuleList> vfModuleListIdBuilder =
                 InstanceIdentifier.<VfModules>builder(VfModules.class)
                 .child(VfModuleList.class, entry.getKey());
-        InstanceIdentifier<VfModuleList> path = vfModuleListIdBuilder.build();
+        InstanceIdentifier<VfModuleList> path = vfModuleListIdBuilder.toInstance();
 
         int tries = 2;
         while(true) {
@@ -907,7 +909,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VnfPreloadList> vnfListIdBuilder =
                 InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
                 .child(VnfPreloadList.class, entry.getKey());
-        InstanceIdentifier<VnfPreloadList> path = vnfListIdBuilder.build();
+        InstanceIdentifier<VnfPreloadList> path = vnfListIdBuilder.toInstance();
         int tries = 2;
         while(true) {
             try {
@@ -942,7 +944,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VnfInstancePreloadList> vnfInstanceListIdBuilder =
                 InstanceIdentifier.<PreloadVnfInstances>builder(PreloadVnfInstances.class)
                 .child(VnfInstancePreloadList.class, entry.getKey());
-        InstanceIdentifier<VnfInstancePreloadList> path = vnfInstanceListIdBuilder.build();
+        InstanceIdentifier<VnfInstancePreloadList> path = vnfInstanceListIdBuilder.toInstance();
         int tries = 2;
         while(true) {
             try {
@@ -977,7 +979,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         InstanceIdentifier.InstanceIdentifierBuilder<VfModulePreloadList> vfModuleListIdBuilder =
                 InstanceIdentifier.<PreloadVfModules>builder(PreloadVfModules.class)
                 .child(VfModulePreloadList.class, entry.getKey());
-        InstanceIdentifier<VfModulePreloadList> path = vfModuleListIdBuilder.build();
+        InstanceIdentifier<VfModulePreloadList> path = vfModuleListIdBuilder.toInstance();
         int tries = 2;
         while(true) {
             try {
@@ -1003,11 +1005,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 }
             }
         }
-    }
-
-    //Save the requestId into MDC
-    private void setRequestIdAsMDC(String requestId){
-        MDC.put("RequestId", requestId);
     }
 
     //1610 vnf-instance-topology-operation
@@ -1058,7 +1055,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         // Get vnf-instance-preload-data
@@ -1107,6 +1103,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
+        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -1288,7 +1285,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         // Get vf-module-preload-data
@@ -1359,6 +1355,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
+        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -1542,7 +1539,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
@@ -1588,6 +1584,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
+        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -1663,19 +1660,36 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             vnfListBuilder.setVnfId(serviceData.getVnfId());
             siid = serviceData.getVnfId();
             vnfListBuilder.setServiceStatus(serviceStatusBuilder.build());
+
             SaveVnfList (vnfListBuilder.build(), false,LogicalDatastoreType.CONFIGURATION);
+
             if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
             {
                 // Only update operational tree on Delete or Activate
                 if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
                     log.info("Updating OPERATIONAL tree.");
                     SaveVnfList (vnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
-                }
-                else if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) ||
-                    input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Rollback)) {
-                        log.info("Delete OPERATIONAL tree.");
+
+                } else if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Rollback)) {
+                    log.info("Delete CONFIGURAION tree.");
+                    DeleteVnfList (vnfListBuilder.build(), LogicalDatastoreType.CONFIGURATION);
+
+                } else if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete)) {
+                    if (input.getRequestInformation().getRequestSubAction() != null &&
+                            input.getRequestInformation().getRequestSubAction().equals(RequestSubAction.RetainResource))
+                    {
+                        // Do nothing
+                        log.debug("soft delete with RetainResource sub-action, do nothing");
+
+                    } else {
+                        log.debug(" svc-action is delete AND request-sub-action is NOT RetainResource");
+
+                        log.info("Delete CONFIGURAION tree.");
                         DeleteVnfList (vnfListBuilder.build(), LogicalDatastoreType.CONFIGURATION);
+
+                        log.info("Delete OPERATIONAL tree.");
                         DeleteVnfList (vnfListBuilder.build(), LogicalDatastoreType.OPERATIONAL);
+                    }
                 }
             }
             VnfInformationBuilder vnfInformationBuilder = new VnfInformationBuilder();
@@ -1752,7 +1766,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         // Grab the service instance ID from the input buffer
         String siid = null;
-        if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Assign)) {
+        if (input.getSdncRequestHeader().getSvcAction().equals("assign")) {
             siid = input.getNetworkRequestInformation().getNetworkName();
         }
         else {
@@ -1776,7 +1790,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
@@ -1797,6 +1810,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
+        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -1939,7 +1953,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
@@ -1972,6 +1985,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
+        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -2133,7 +2147,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         VnfInstancePreloadDataBuilder vnfInstancePreloadDataBuilder = new VnfInstancePreloadDataBuilder();
@@ -2166,6 +2179,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
+        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -2328,7 +2342,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         VfModulePreloadDataBuilder vfModulePreloadDataBuilder = new VfModulePreloadDataBuilder();
@@ -2361,7 +2374,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
-
+        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -2519,7 +2532,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-            setRequestIdAsMDC(input.getSdncRequestHeader().getSvcRequestId());
         }
 
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
@@ -2551,6 +2563,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Call SLI sync method
         // Get SvcLogicService reference
 
+        VNFSDNSvcLogicServiceClient svcLogicClient = new VNFSDNSvcLogicServiceClient();
         Properties respProps = null;
 
         String errorCode = "200";
@@ -2656,5 +2669,4 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 RpcResultBuilder.<PreloadNetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
         return Futures.immediateFuture(rpcResult);
     }
-
 }
