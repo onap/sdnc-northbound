@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.onap.sdnc.northbound</groupId>
@@ -10,14 +12,22 @@
 	<packaging>bundle</packaging>
 	<name>VNF Tools Plugin - Provider</name>
 	<url>http://maven.apache.org</url>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -55,12 +65,20 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>junit</groupId>-->
+			<!--<artifactId>junit</artifactId>-->
+			<!--<scope>compile</scope>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>org.mockito</groupId>-->
+			<!--<artifactId>mockito-core</artifactId>-->
+			<!--<scope>compile</scope>-->
+		<!--</dependency>-->
 	</dependencies>
 
 	<build>
 		<plugins>
-
-
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -71,8 +89,24 @@
 						<Bundle-SymbolicName>org.onap.sdnc.vnftools</Bundle-SymbolicName>
 						<Bundle-Activator>org.onap.sdnc.vnftools.VnfToolsActivator</Bundle-Activator>
 						<Export-Package>org.onap.sdnc.vnftools</Export-Package>
-						<Import-Package>org.onap.sdnc.*,org.osgi.framework.*,org.slf4j.*,java.net.*,org.apache.commons.*</Import-Package>
-						<Embed-Dependency>*;scope=compile|runtime;artifactId=!sli-common|org.eclipse.osgi|mysql-connector-java|slf4j-api|jcl-over-slf4j|xml-apis|InetAddress|commons-lang3</Embed-Dependency>
+						<Import-Package>
+							org.onap.sdnc.*,
+							org.osgi.framework.*,
+							org.slf4j.*,
+							java.net.*,
+							org.apache.commons.*
+						</Import-Package>
+						<Embed-Dependency>
+							*;scope=compile|
+							runtime;artifactId=!sli-common|
+							org.eclipse.osgi|
+							mysql-connector-java|
+							slf4j-api|
+							jcl-over-slf4j|
+							xml-apis|
+							InetAddress|
+							commons-lang3
+						</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
 					</instructions>
 				</configuration>

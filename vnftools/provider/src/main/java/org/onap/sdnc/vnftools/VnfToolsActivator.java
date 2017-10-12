@@ -3,7 +3,7 @@
  * openECOMP : SDN-C
  * ================================================================================
  * Copyright (C) 2017 AT&T Intellectual Property. All rights
- * 							reserved.
+ *                             reserved.
  * ================================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,54 +34,59 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * VNF Tool Activator <br>
+ * Overwrite the bundle activator methods start and stop to instantiate <b>VnfTool</b> with properties in the existing
+ * property file <I>vnftools.properties</I> and store the <b>ServiceRegistration</b> reference of VnfTool in the
+ * internal <I>registrations</I> list, which will be cleared when the bundle is stopped. <br>
+ */
 public class VnfToolsActivator implements BundleActivator {
+    private static final String SDNC_CONFIG_DIR = "SDNC_CONFIG_DIR";
+    static final String VNFTOOLS_PROP_VAR = "/vnftools.properties";
+    static final String DEFAULT_PROP_DIR = "/opt/sdnc/data/properties";
 
-	private static final String VNFTOOLS_PROP_VAR = "/vnftools.properties";
-	private static final String SDNC_CONFIG_DIR = "SDNC_CONFIG_DIR";
+    @SuppressWarnings("rawtypes")
+    private List<ServiceRegistration> registrations = new LinkedList<>();
 
-	@SuppressWarnings("rawtypes")
-	private List<ServiceRegistration> registrations = new LinkedList<ServiceRegistration>();
+    private static final Logger LOG = LoggerFactory.getLogger(VnfToolsActivator.class);
 
-	private static final Logger LOG = LoggerFactory.getLogger(VnfToolsActivator.class);
+    @Override
+    public void start(BundleContext ctx) throws Exception {
+        // Read properties
+        Properties props = new Properties();
 
-	@Override
-	public void start(BundleContext ctx) throws Exception {
-		// Read properties
-		Properties props = new Properties();
+        String propDir = System.getenv(SDNC_CONFIG_DIR);
+        if (propDir == null) {
+            propDir = DEFAULT_PROP_DIR;
+        }
 
-		String propDir = System.getenv(SDNC_CONFIG_DIR);
-		if (propDir == null) {
-			propDir = "/opt/sdnc/data/properties";
-		}
+        String propPath = propDir + VNFTOOLS_PROP_VAR;
 
-		String propPath = propDir + VNFTOOLS_PROP_VAR;
+        File propFile = new File(propPath);
 
-		File propFile = new File(propPath);
+        if (!propFile.exists()) {
+            props = null;
+        } else {
 
-		if (!propFile.exists()) {
-			props = null;
-		} else {
+            try {
+                props.load(new FileInputStream(propFile));
+            } catch (Exception e) {
+                throw new ConfigurationException("Could not load properties file " + propPath, e);
+            }
+        }
+        VnfTools plugin = new VnfTools(props);
 
-			try {
-				props.load(new FileInputStream(propFile));
-			} catch (Exception e) {
-				throw new ConfigurationException("Could not load properties file " + propPath, e);
-			}
-		}
-		VnfTools plugin = new VnfTools(props);
+        LOG.info("Registering service {}", plugin.getClass().getName());
+        registrations.add(ctx.registerService(plugin.getClass().getName(), plugin, null));
+    }
 
-		LOG.info("Registering service " + plugin.getClass().getName());
-		registrations.add(ctx.registerService(plugin.getClass().getName(), plugin, null));
-	}
-
-	@Override
-	public void stop(BundleContext ctx) throws Exception {
-
-		for (@SuppressWarnings("rawtypes")
-		ServiceRegistration registration : registrations) {
-			registration.unregister();
-			registration = null;
-		}
-	}
+    @Override
+    public void stop(BundleContext ctx) throws Exception {
+        for (@SuppressWarnings("rawtypes")
+        ServiceRegistration registration : registrations) {
+            registration.unregister();
+        }
+        registrations.clear();
+    }
 
 }
