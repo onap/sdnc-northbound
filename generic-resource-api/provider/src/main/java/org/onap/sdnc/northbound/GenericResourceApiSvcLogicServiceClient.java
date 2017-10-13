@@ -1,133 +1,124 @@
-package org.onap.sdnc.northbound;
+/*-
+ * ============LICENSE_START=======================================================
+ * openECOMP : SDN-C
+ * ================================================================================
+ * Copyright (C) 2017 AT&T Intellectual Property. All rights
+ *                             reserved.
+ * ================================================================================
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ============LICENSE_END=========================================================
+ */
 
-import java.util.Properties;
+package org.onap.sdnc.northbound;
 
 import org.onap.ccsdk.sli.core.sli.SvcLogicException;
 import org.onap.ccsdk.sli.core.sli.provider.SvcLogicService;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.preload.data.PreloadDataBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceDataBuilder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Properties;
+
 public class GenericResourceApiSvcLogicServiceClient {
+    static final String FAILURE_RESULT = "failure";
+    static final String SVC_LOGIC_STATUS_KEY = "SvcLogic.status";
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(GenericResourceApiSvcLogicServiceClient.class);
+    private final Logger LOG = LoggerFactory
+            .getLogger(GenericResourceApiSvcLogicServiceClient.class);
 
-	private SvcLogicService svcLogic = null;
+    private SvcLogicService svcLogic = null;
 
-	public GenericResourceApiSvcLogicServiceClient(SvcLogicService svcLogic)
-	{
-		this.svcLogic = svcLogic;
-	}
+    public GenericResourceApiSvcLogicServiceClient(SvcLogicService svcLogic)
+    {
+        this.svcLogic = svcLogic;
+    }
 
-	public boolean hasGraph(String module, String rpc, String version, String mode) throws SvcLogicException
-	{
-		return(svcLogic.hasGraph(module, rpc, version, mode));
-	}
+    public boolean hasGraph(String module, String rpc, String version, String mode) throws SvcLogicException
+    {
+        return svcLogic.hasGraph(module, rpc, version, mode);
+    }
 
-	public Properties execute(String module, String rpc, String version, String mode, ServiceDataBuilder serviceData)
-			throws SvcLogicException {
+    public Properties execute(String module, String rpc, String version, String mode, ServiceDataBuilder serviceData)
+            throws SvcLogicException {
+        return execute(module, rpc, version, mode, serviceData, new Properties());
+    }
 
-		Properties parms = new Properties();
+    public Properties execute(String module, String rpc, String version, String mode, PreloadDataBuilder serviceData)
+            throws SvcLogicException {
+        return execute(module, rpc, version, mode, serviceData, new Properties());
+    }
 
-		return execute(module,rpc,version, mode,serviceData,parms);
-	}
+    public Properties execute(String module,
+                              String rpc,
+                              String version,
+                              String mode,
+                              ServiceDataBuilder serviceData,
+                              Properties properties)
+            throws SvcLogicException {
 
-	public Properties execute(String module, String rpc, String version, String mode, PreloadDataBuilder serviceData)
-			throws SvcLogicException {
+        Properties props = GenericResourceApiUtil.toProperties(properties, serviceData);
+        printPropsDebugLogs(props, "Parameters passed to SLI");
 
-		Properties parms = new Properties();
+        Properties respProps = svcLogic.execute(module, rpc, version, mode, props);
+        printPropsDebugLogs(respProps, "Parameters returned by SLI");
+        if (respProps == null
+                || FAILURE_RESULT.equalsIgnoreCase(respProps.getProperty(SVC_LOGIC_STATUS_KEY))) {
+            return respProps;
+        }
 
-		return execute(module,rpc,version, mode,serviceData,parms);
-	}
+        GenericResourceApiUtil.toBuilder(respProps, serviceData);
 
-
-	public Properties execute(String module, String rpc, String version, String mode, ServiceDataBuilder serviceData, Properties parms)
-				throws SvcLogicException {
-
-		parms = GenericResourceApiUtil.toProperties(parms, serviceData);
-
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters passed to SLI");
-
-			for (Object key : parms.keySet()) {
-				String parmName = (String) key;
-				String parmValue = parms.getProperty(parmName);
-
-				LOG.debug(parmName+" = "+parmValue);
-
-			}
-		}
-
-
-		Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
+        return respProps;
+    }
 
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters returned by SLI");
+    public Properties execute(String module,
+                              String rpc,
+                              String version,
+                              String mode,
+                              PreloadDataBuilder serviceData,
+                              Properties properties)
+            throws SvcLogicException {
 
-			for (Object key : respProps.keySet()) {
-				String parmName = (String) key;
-				String parmValue = respProps.getProperty(parmName);
+        Properties props = GenericResourceApiUtil.toProperties(properties, serviceData);
+        printPropsDebugLogs(props, "Parameters passed to SLI");
 
-				LOG.debug(parmName+" = "+parmValue);
+        Properties respProps = svcLogic.execute(module, rpc, version, mode, props);
+        printPropsDebugLogs(respProps, "Parameters returned by SLI");
+        if (respProps == null
+                || FAILURE_RESULT.equalsIgnoreCase(respProps.getProperty(SVC_LOGIC_STATUS_KEY))) {
+            return (respProps);
+        }
 
-			}
-		}
-		if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
-			return (respProps);
-		}
+        GenericResourceApiUtil.toBuilder(respProps, serviceData);
 
-		GenericResourceApiUtil.toBuilder(respProps, serviceData);
+        return respProps;
+    }
 
-		return (respProps);
-	}
+    private void printPropsDebugLogs(Properties properties, String msg) {
+        if (!LOG.isDebugEnabled()) {
+            return;
+        }
+        if (properties == null) {
+            LOG.debug(msg, "properties is null");
+            return;
+        }
 
-
-	public Properties execute(String module, String rpc, String version, String mode, PreloadDataBuilder serviceData, Properties parms)
-				throws SvcLogicException {
-
-		parms = GenericResourceApiUtil.toProperties(parms, serviceData);
-
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters passed to SLI");
-
-			for (Object key : parms.keySet()) {
-				String parmName = (String) key;
-				String parmValue = parms.getProperty(parmName);
-
-				LOG.debug(parmName+" = "+parmValue);
-
-			}
-		}
-
-		Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
-
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Parameters returned by SLI");
-
-			for (Object key : respProps.keySet()) {
-				String parmName = (String) key;
-				String parmValue = respProps.getProperty(parmName);
-
-				LOG.debug(parmName+" = "+parmValue);
-
-			}
-		}
-		if ("failure".equalsIgnoreCase(respProps.getProperty("SvcLogic.status"))) {
-			return (respProps);
-		}
-
-		GenericResourceApiUtil.toBuilder(respProps, serviceData);
-
-		return (respProps);
-	}
+        LOG.debug(msg);
+        for (Object key : properties.keySet()) {
+            String paramName = (String) key;
+            LOG.debug(paramName, " = ", properties.getProperty(paramName));
+        }
+    }
 }
