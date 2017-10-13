@@ -12,9 +12,9 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<application.name>sdnc-generic-resources-api</application.name>
-		<features.boot>sdnc-generic-resources-api</features.boot>
-		<features.repositories>mvn:org.onap.sdnc.northbound/generic-resources-api-features/${project.version}/xml/features</features.repositories>
+		<application.name>sdnc-generic-resource-api</application.name>
+		<features.boot>sdnc-generic-resource-api</features.boot>
+		<features.repositories>mvn:org.onap.sdnc.northbound/generic-resource-api-features/${project.version}/xml/features</features.repositories>
 		<include.transitive.dependencies>false</include.transitive.dependencies>
 	</properties>
 
@@ -22,7 +22,7 @@
 
 		<dependency>
 			<groupId>org.onap.sdnc.northbound</groupId>
-			<artifactId>generic-resource-api.features</artifactId>
+			<artifactId>generic-resource-api-features</artifactId>
 			<version>${project.version}</version>
 			<classifier>features</classifier>
 			<type>xml</type>
@@ -36,7 +36,7 @@
 
 		<dependency>
 			<groupId>org.onap.sdnc.northbound</groupId>
-			<artifactId>generic-resource-api.provider</artifactId>
+			<artifactId>generic-resource-api-provider</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
