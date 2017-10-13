@@ -19,22 +19,9 @@ public class GenericResourceApiSvcLogicServiceClient {
 
 	private SvcLogicService svcLogic = null;
 
-	public GenericResourceApiSvcLogicServiceClient()
+	public GenericResourceApiSvcLogicServiceClient(SvcLogicService svcLogic)
 	{
-		BundleContext bctx = FrameworkUtil.getBundle(SvcLogicService.class).getBundleContext();
-
-    	// Get SvcLogicService reference
-		ServiceReference sref = bctx.getServiceReference(SvcLogicService.NAME);
-		if (sref  != null)
-		{
-			svcLogic =  (SvcLogicService) bctx.getService(sref);
-
-		}
-		else
-		{
-			LOG.warn("Cannot find service reference for "+SvcLogicService.NAME);
-
-		}
+		this.svcLogic = svcLogic;
 	}
 
 	public boolean hasGraph(String module, String rpc, String version, String mode) throws SvcLogicException
@@ -77,7 +64,9 @@ public class GenericResourceApiSvcLogicServiceClient {
 			}
 		}
 
+
 		Properties respProps = svcLogic.execute(module, rpc, version, mode, parms);
+
 
 		if (LOG.isDebugEnabled())
 		{

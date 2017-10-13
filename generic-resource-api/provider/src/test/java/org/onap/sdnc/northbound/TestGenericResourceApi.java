@@ -57,9 +57,9 @@ public class TestGenericResourceApi extends AbstractConcurrentDataBrokerTest {
             DataBroker dataBroker = getDataBroker();
             NotificationPublishService mockNotification = mock(NotificationPublishService.class);
             RpcProviderRegistry mockRpcRegistry = mock(RpcProviderRegistry.class);
-
+            GenericResourceApiSvcLogicServiceClient client = mock(GenericResourceApiSvcLogicServiceClient.class);
             try {
-            	genericResourceApiProvider = new GenericResourceApiProvider(dataBroker, mockNotification, mockRpcRegistry);
+            	genericResourceApiProvider = new GenericResourceApiProvider(dataBroker, mockNotification, mockRpcRegistry, client);
             } catch (Exception e) {
             		LOG.error("Caught exception on setUp", e);
             		throw e;
@@ -67,7 +67,7 @@ public class TestGenericResourceApi extends AbstractConcurrentDataBrokerTest {
         }
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testServiceTopologyOperation() {
 
         ServiceTopologyOperationInputBuilder inputBuilder = new ServiceTopologyOperationInputBuilder();

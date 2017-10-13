@@ -97,388 +97,375 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
 
-
 /**
- * Defines a base implementation for your provider. This class extends from a helper class
- * which provides storage for the most commonly used components of the MD-SAL. Additionally the
- * base class provides some basic logging and initialization / clean up methods.
+ * Defines a base implementation for your provider. This class extends from a
+ * helper class which provides storage for the most commonly used components of
+ * the MD-SAL. Additionally the base class provides some basic logging and
+ * initialization / clean up methods.
  *
- * To use this, copy and paste (overwrite) the following method into the TestApplicationProviderModule
- * class which is auto generated under src/main/java in this project
- * (created only once during first compilation):
+ * To use this, copy and paste (overwrite) the following method into the
+ * TestApplicationProviderModule class which is auto generated under
+ * src/main/java in this project (created only once during first compilation):
  *
  * <pre>
-
-    @Override
-    public java.lang.AutoCloseable createInstance() {
-
-         //final GENERIC-RESOURCE-APIProvider provider = new GENERIC-RESOURCE-APIProvider();
-         final GenericResourceApiProvider provider = new GenericResourceApiProvider();
-         provider.setDataBroker( getDataBrokerDependency() );
-         provider.setNotificationService( getNotificationServiceDependency() );
-         provider.setRpcRegistry( getRpcRegistryDependency() );
-         provider.initialize();
-         return new AutoCloseable() {
-
-            @Override
-            public void close() throws Exception {
-                //TODO: CLOSE ANY REGISTRATION OBJECTS CREATED USING ABOVE BROKER/NOTIFICATION
-                //SERVIE/RPC REGISTRY
-                provider.close();
-            }
-        };
-    }
-
-
-    </pre>
+ *
+ * &#64;Override
+ * public java.lang.AutoCloseable createInstance() {
+ *
+ * 	// final GENERIC-RESOURCE-APIProvider provider = new
+ * 	// GENERIC-RESOURCE-APIProvider();
+ * 	final GenericResourceApiProvider provider = new GenericResourceApiProvider();
+ * 	provider.setDataBroker(getDataBrokerDependency());
+ * 	provider.setNotificationService(getNotificationServiceDependency());
+ * 	provider.setRpcRegistry(getRpcRegistryDependency());
+ * 	provider.initialize();
+ * 	return new AutoCloseable() {
+ *
+ * 		&#64;Override
+ * 		public void close() throws Exception {
+ * 			// TODO: CLOSE ANY REGISTRATION OBJECTS CREATED USING ABOVE
+ * 			// BROKER/NOTIFICATION
+ * 			// SERVIE/RPC REGISTRY
+ * 			provider.close();
+ * 		}
+ * 	};
+ * }
+ *
+ * </pre>
  */
 
-public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURCEAPIService{
+public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURCEAPIService {
 
-    private final Logger log = LoggerFactory.getLogger( GenericResourceApiProvider.class );
-    private final String appName = "generic-resource-api";
+	private final Logger log = LoggerFactory.getLogger(GenericResourceApiProvider.class);
+	private final String appName = "generic-resource-api";
 
-    private final ExecutorService executor;
+	private final ExecutorService executor;
 
-    protected DataBroker dataBroker;
-    protected NotificationPublishService notificationService;
-    protected RpcProviderRegistry rpcRegistry;
-    protected BindingAwareBroker.RpcRegistration<GENERICRESOURCEAPIService> rpcRegistration;
+	protected DataBroker dataBroker;
+	protected NotificationPublishService notificationService;
+	protected RpcProviderRegistry rpcRegistry;
+	protected BindingAwareBroker.RpcRegistration<GENERICRESOURCEAPIService> rpcRegistration;
 
-    public GenericResourceApiProvider(DataBroker dataBroker2,
-                                      NotificationPublishService notificationPublishService,
-            RpcProviderRegistry rpcProviderRegistry) {
-        log.info( "Creating provider for {}", appName);
-        executor = Executors.newFixedThreadPool(1);
-        dataBroker = dataBroker2;
-        notificationService = notificationPublishService;
-        rpcRegistry = rpcProviderRegistry;
-        initialize();
+	private GenericResourceApiSvcLogicServiceClient svcLogicClient;
 
-    }
+	public GenericResourceApiProvider(DataBroker dataBroker2, NotificationPublishService notificationPublishService,
+			RpcProviderRegistry rpcProviderRegistry, GenericResourceApiSvcLogicServiceClient client) {
+		log.info("Creating provider for {}", appName);
+		executor = Executors.newFixedThreadPool(1);
+		dataBroker = dataBroker2;
+		notificationService = notificationPublishService;
+		rpcRegistry = rpcProviderRegistry;
+		svcLogicClient = client;
+		initialize();
 
-    public void initialize(){
-        log.info("Initializing provider for {}", appName);
-        // Create the top level containers
-        createContainers();
-        try {
-            GenericResourceApiUtil.loadProperties();
-        } catch (Exception e) {
-            log.error("Caught Exception while trying to load properties file");
-        }
-        rpcRegistration = rpcRegistry.addRpcImplementation(GENERICRESOURCEAPIService.class, this);
+	}
 
-        log.info("Initialization complete for {}", appName);
-    }
+	public void initialize() {
+		log.info("Initializing provider for {}", appName);
+		// Create the top level containers
+		createContainers();
+		try {
+			GenericResourceApiUtil.loadProperties();
+		} catch (Exception e) {
+			log.error("Caught Exception while trying to load properties file");
+		}
 
+		log.info("Initialization complete for {}", appName);
+	}
 
-    protected void initializeChild() {
-        //Override if you have custom initialization intelligence
-    }
+	protected void initializeChild() {
+		// Override if you have custom initialization intelligence
+	}
 
+	@Override
+	public void close() throws Exception {
+		log.info("Closing provider for {}", appName);
+		executor.shutdown();
+		rpcRegistration.close();
+		log.info("Successfully closed provider for {}", appName);
+	}
 
-    @Override
-    public void close() throws Exception {
-        log.info("Closing provider for {}", appName);
-        executor.shutdown();
-        rpcRegistration.close();
-        log.info("Successfully closed provider for {}", appName);
-    }
+	private static class Iso8601Util {
+		private static TimeZone tz = TimeZone.getTimeZone("UTC");
+		private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-    private static class Iso8601Util
-    {
-        private static TimeZone tz = TimeZone.getTimeZone("UTC");
-        private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		static {
+			df.setTimeZone(tz);
+		}
 
-        static { df.setTimeZone(tz); }
+		private static String now() {
+			return df.format(new Date());
+		}
+	}
 
-        private static String now() {
-            return df.format(new Date());
-        }
-    }
+	public void setDataBroker(DataBroker dataBroker) {
+		this.dataBroker = dataBroker;
+		if (log.isDebugEnabled()) {
+			log.debug("DataBroker set to {}", (dataBroker == null ? "null" : "non-null"));
+		}
+	}
 
+	public void setNotificationService(NotificationPublishService notificationService) {
+		this.notificationService = notificationService;
+		if (log.isDebugEnabled()) {
+			log.debug("Notification Service set to {}", (notificationService == null ? "null" : "non-null"));
+		}
+	}
 
-    public void setDataBroker(DataBroker dataBroker) {
-        this.dataBroker = dataBroker;
-        if( log.isDebugEnabled() ){
-            log.debug("DataBroker set to {}", (dataBroker==null?"null":"non-null"));
-        }
-    }
+	public void setRpcRegistry(RpcProviderRegistry rpcRegistry) {
+		this.rpcRegistry = rpcRegistry;
+		if (log.isDebugEnabled()) {
+			log.debug("RpcRegistry set to {}", (rpcRegistry == null ? "null" : "non-null"));
+		}
+	}
 
-    public void setNotificationService(NotificationPublishService notificationService) {
-        this.notificationService = notificationService;
-        if( log.isDebugEnabled() ){
-            log.debug("Notification Service set to {}", (notificationService==null?"null":"non-null"));
-        }
-    }
+	private void createContainers() {
 
-    public void setRpcRegistry(RpcProviderRegistry rpcRegistry) {
-        this.rpcRegistry = rpcRegistry;
-        if( log.isDebugEnabled() ){
-            log.debug("RpcRegistry set to {}", (rpcRegistry==null?"null":"non-null"));
-        }
-    }
+		final WriteTransaction t = dataBroker.newReadWriteTransaction();
 
-    private void createContainers() {
+		// Create the service-instance container
+		t.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Services.class),
+				new ServicesBuilder().build());
+		t.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Services.class),
+				new ServicesBuilder().build());
 
-        final WriteTransaction t = dataBroker.newReadWriteTransaction();
+		// Create the PreloadVnfs container
+		t.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(PreloadVnfs.class),
+				new PreloadVnfsBuilder().build());
+		t.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(PreloadVnfs.class),
+				new PreloadVnfsBuilder().build());
 
-        // Create the service-instance container
-        t.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Services.class),
-                new ServicesBuilder().build());
-        t.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Services.class),
-                new ServicesBuilder().build());
+		try {
+			CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = t.submit();
+			checkedFuture.get();
+			log.info("Create containers succeeded!");
 
-        // Create the PreloadVnfs container
-        t.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(PreloadVnfs.class),
-                new PreloadVnfsBuilder().build());
-        t.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(PreloadVnfs.class),
-                new PreloadVnfsBuilder().build());
+		} catch (InterruptedException | ExecutionException e) {
+			log.error("Create containers failed: ", e);
+		}
+	}
 
-        try {
-            CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = t.submit();
-            checkedFuture.get();
-            log.info("Create containers succeeded!");
+	private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, String errorCode, String errorMessage,
+			String ackFinal) {
+		serviceStatusBuilder.setResponseCode(errorCode);
+		serviceStatusBuilder.setResponseMessage(errorMessage);
+		serviceStatusBuilder.setFinalIndicator(ackFinal);
+		serviceStatusBuilder.setResponseTimestamp(Iso8601Util.now());
+	}
 
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("Create containers failed: ", e);
-        }
-    }
+	private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, RequestInformation requestInformation) {
+		if (requestInformation != null && requestInformation.getRequestAction() != null) {
+			serviceStatusBuilder.setAction(requestInformation.getRequestAction().toString());
+		}
 
-    private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, String errorCode, String errorMessage, String ackFinal)
-    {
-        serviceStatusBuilder.setResponseCode(errorCode);
-        serviceStatusBuilder.setResponseMessage(errorMessage);
-        serviceStatusBuilder.setFinalIndicator(ackFinal);
-        serviceStatusBuilder.setResponseTimestamp(Iso8601Util.now());
-    }
+		/*
+		 * if (requestInformation != null && requestInformation.getRequestSubAction() !=
+		 * null) { switch (requestInformation.getRequestSubAction()) { case SUPP:
+		 * serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.SUPP); break; case
+		 * CANCEL: serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.CANCEL);
+		 * break; default: log.error("Unknown RequestSubAction: " +
+		 * requestInformation.getRequestSubAction() ); break; }; }
+		 */
+	}
 
-    private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder,  RequestInformation requestInformation)
-    {
-        if (requestInformation != null && requestInformation.getRequestAction() != null) {
-            serviceStatusBuilder.setAction(requestInformation.getRequestAction().toString());
-        }
+	private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, SdncRequestHeader requestHeader) {
+		if (requestHeader != null && requestHeader.getSvcAction() != null) {
+			switch (requestHeader.getSvcAction()) {
+			case Assign:
+				serviceStatusBuilder.setRpcAction(RpcAction.Assign);
+				break;
+			case Unassign:
+				serviceStatusBuilder.setRpcAction(RpcAction.Unassign);
+				break;
+			case Activate:
+				serviceStatusBuilder.setRpcAction(RpcAction.Activate);
+				break;
+			case Deactivate:
+				serviceStatusBuilder.setRpcAction(RpcAction.Deactivate);
+				break;
+			case Delete:
+				serviceStatusBuilder.setRpcAction(RpcAction.Delete);
+				break;
+			default:
+				log.error("Unknown SvcAction: {}", requestHeader.getSvcAction());
+				break;
+			}
+		}
+	}
 
-        /*
-        if (requestInformation != null && requestInformation.getRequestSubAction() != null) {
-            switch (requestInformation.getRequestSubAction())
-            {
-                case SUPP:
-                    serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.SUPP);
-                    break;
-                case CANCEL:
-                    serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.CANCEL);
-                    break;
-                default:
-                    log.error("Unknown RequestSubAction: " + requestInformation.getRequestSubAction() );
-                    break;
-            };
-        }
-        */
-    }
+	private void getServiceData(String siid, ServiceDataBuilder serviceDataBuilder) {
+		// default to config
+		getServiceData(siid, serviceDataBuilder, LogicalDatastoreType.CONFIGURATION);
+	}
 
-    private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder,  SdncRequestHeader requestHeader)
-    {
-        if (requestHeader != null && requestHeader.getSvcAction() != null) {
-            switch (requestHeader.getSvcAction())
-            {
-                case Assign:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Assign);
-                    break;
-                case Unassign:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Unassign);
-                    break;
-                case Activate:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Activate);
-                    break;
-                case Deactivate:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Deactivate);
-                    break;
-                case Delete:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Delete);
-                    break;
-                default:
-                    log.error("Unknown SvcAction: {}", requestHeader.getSvcAction() );
-                    break;
-            }
-        }
-    }
+	private void getServiceData(String siid, ServiceDataBuilder serviceDataBuilder, LogicalDatastoreType type) {
+		// See if any data exists yet for this siid, if so grab it.
+		InstanceIdentifier serviceInstanceIdentifier = InstanceIdentifier.<Services>builder(Services.class)
+				.child(Service.class, new ServiceKey(siid)).build();
+		ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
+		Optional<Service> data = null;
+		try {
+			data = (Optional<Service>) readTx.read(type, serviceInstanceIdentifier).get();
+		} catch (InterruptedException | ExecutionException e) {
+			log.error("Caught Exception reading MD-SAL ({}) data for [{}] ", type, siid, e);
+		}
 
-    private void getServiceData(String siid, ServiceDataBuilder serviceDataBuilder)
-    {
-        // default to config
-        getServiceData(siid,serviceDataBuilder, LogicalDatastoreType.CONFIGURATION);
-    }
+		if (data != null && data.isPresent()) {
+			ServiceData serviceData = data.get().getServiceData();
+			if (serviceData != null) {
+				log.info("Read MD-SAL ({}) data for [{}] ServiceData: {}", type, siid, serviceData);
+				serviceDataBuilder.setSdncRequestHeader(serviceData.getSdncRequestHeader());
+				serviceDataBuilder.setRequestInformation(serviceData.getRequestInformation());
+				serviceDataBuilder.setServiceInformation(serviceData.getServiceInformation());
+				serviceDataBuilder.setServiceRequestInput(serviceData.getServiceRequestInput());
+				serviceDataBuilder.setServiceTopology(serviceData.getServiceTopology());
+				serviceDataBuilder.setServiceLevelOperStatus(serviceData.getServiceLevelOperStatus());
+				serviceDataBuilder.setNetworks(serviceData.getNetworks());
+				serviceDataBuilder.setVnfs(serviceData.getVnfs());
+				serviceDataBuilder.setProvidedAllottedResources(serviceData.getProvidedAllottedResources());
+				serviceDataBuilder.setConsumedAllottedResources(serviceData.getConsumedAllottedResources());
+				// service-instance-id needs to be set
+			} else {
+				log.info("No service-data found in MD-SAL ({}) for [{}]", type, siid);
+			}
+		} else {
+			log.info("No data found in MD-SAL ({}) for [{}]", type, siid);
+		}
+	}
 
+	private void getPreloadData(String vnf_name, String vnf_type, PreloadDataBuilder preloadDataBuilder) {
+		// default to config
+		getPreloadData(vnf_name, vnf_type, preloadDataBuilder, LogicalDatastoreType.CONFIGURATION);
+	}
 
-    private void getServiceData(String siid, ServiceDataBuilder serviceDataBuilder, LogicalDatastoreType type)
-    {
-        // See if any data exists yet for this siid, if so grab it.
-        InstanceIdentifier serviceInstanceIdentifier =
-                InstanceIdentifier.<Services>builder(Services.class)
-                .child(Service.class, new ServiceKey(siid)).build();
-        ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
-        Optional<Service> data = null;
-        try {
-            data = (Optional<Service>) readTx.read(type, serviceInstanceIdentifier).get();
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL ({}) data for [{}] ", type, siid, e);
-        }
+	private void getPreloadData(String preload_name, String preload_type, PreloadDataBuilder preloadDataBuilder,
+			LogicalDatastoreType type) {
+		// See if any data exists yet for this name/type, if so grab it.
+		InstanceIdentifier preloadInstanceIdentifier = InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
+				.child(VnfPreloadList.class, new VnfPreloadListKey(preload_name, preload_type)).build();
+		ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
+		Optional<VnfPreloadList> data = null;
+		try {
+			data = (Optional<VnfPreloadList>) readTx.read(type, preloadInstanceIdentifier).get();
+		} catch (InterruptedException | ExecutionException e) {
+			log.error("Caught Exception reading MD-SAL ({}) for [{},{}] ", type, preload_name, preload_type, e);
+		}
 
-        if (data != null && data.isPresent()) {
-            ServiceData serviceData = data.get().getServiceData();
-            if (serviceData != null) {
-                log.info("Read MD-SAL ({}) data for [{}] ServiceData: {}", type, siid, serviceData);
-                serviceDataBuilder.setSdncRequestHeader(serviceData.getSdncRequestHeader());
-                serviceDataBuilder.setRequestInformation(serviceData.getRequestInformation());
-                serviceDataBuilder.setServiceInformation(serviceData.getServiceInformation());
-                serviceDataBuilder.setServiceRequestInput(serviceData.getServiceRequestInput());
-                serviceDataBuilder.setServiceTopology(serviceData.getServiceTopology());
-                serviceDataBuilder.setServiceLevelOperStatus(serviceData.getServiceLevelOperStatus());
-                serviceDataBuilder.setNetworks(serviceData.getNetworks());
-                serviceDataBuilder.setVnfs(serviceData.getVnfs());
-                serviceDataBuilder.setProvidedAllottedResources(serviceData.getProvidedAllottedResources());
-                serviceDataBuilder.setConsumedAllottedResources(serviceData.getConsumedAllottedResources());
-                // service-instance-id needs to be set
-            } else {
-                log.info("No service-data found in MD-SAL ({}) for [{}]", type, siid);
-            }
-        } else {
-            log.info("No data found in MD-SAL ({}) for [{}]", type, siid);
-        }
-    }
+		if (data != null && data.isPresent()) {
+			PreloadData preloadData = data.get().getPreloadData();
+			if (preloadData != null) {
+				log.info("Read MD-SAL ({}) data for [{},{}] PreloadData: {}", type, preload_name, preload_type,
+						preloadData);
+				preloadDataBuilder.setVnfTopologyInformation(preloadData.getVnfTopologyInformation());
+				preloadDataBuilder.setNetworkTopologyInformation(preloadData.getNetworkTopologyInformation());
+				preloadDataBuilder.setOperStatus(preloadData.getOperStatus());
+			} else {
+				log.info("No preload-data found in MD-SAL ({}) for [{},{}] ", type, preload_name, preload_type);
+			}
+		} else {
+			log.info("No data found in MD-SAL ({}) for [{},{}] ", type, preload_name, preload_type);
+		}
+	}
 
-    private void getPreloadData(String vnf_name, String vnf_type, PreloadDataBuilder preloadDataBuilder)
-    {
-        // default to config
-        getPreloadData(vnf_name, vnf_type ,preloadDataBuilder, LogicalDatastoreType.CONFIGURATION);
-    }
+	private void saveService(final Service entry, boolean merge, LogicalDatastoreType storeType)
+			throws IllegalStateException {
+		// Each entry will be identifiable by a unique key, we have to create that
+		// identifier
+		InstanceIdentifier.InstanceIdentifierBuilder<Service> serviceBuilder = InstanceIdentifier
+				.<Services>builder(Services.class).child(Service.class, entry.getKey());
+		InstanceIdentifier<Service> path = serviceBuilder.build();
 
-    private void getPreloadData(String preload_name, String preload_type, PreloadDataBuilder preloadDataBuilder, LogicalDatastoreType type)
-    {
-        // See if any data exists yet for this name/type, if so grab it.
-        InstanceIdentifier preloadInstanceIdentifier = InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
-                .child(VnfPreloadList.class, new VnfPreloadListKey(preload_name, preload_type)).build();
-        ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
-        Optional<VnfPreloadList> data = null;
-        try {
-            data = (Optional<VnfPreloadList>) readTx.read(type, preloadInstanceIdentifier).get();
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL ({}) for [{},{}] ", type, preload_name, preload_type, e);
-        }
+		int tries = 2;
+		while (true) {
+			try {
+				WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+				if (merge) {
+					tx.merge(storeType, path, entry);
+				} else {
+					tx.put(storeType, path, entry);
+				}
+				tx.submit().checkedGet();
+				log.debug("Update DataStore succeeded");
+				break;
+			} catch (final TransactionCommitFailedException e) {
+				if (e instanceof OptimisticLockFailedException) {
+					if (--tries <= 0) {
+						log.debug("Got OptimisticLockFailedException on last try - failing ");
+						throw new IllegalStateException(e);
+					}
+					log.debug("Got OptimisticLockFailedException - trying again ");
+				} else {
+					log.debug("Update DataStore failed");
+					throw new IllegalStateException(e);
+				}
+			}
+		}
+	}
 
-        if (data != null && data.isPresent()) {
-            PreloadData preloadData = data.get().getPreloadData();
-            if (preloadData != null) {
-                log.info("Read MD-SAL ({}) data for [{},{}] PreloadData: {}",
-                    type, preload_name, preload_type, preloadData);
-                preloadDataBuilder.setVnfTopologyInformation(preloadData.getVnfTopologyInformation());
-                preloadDataBuilder.setNetworkTopologyInformation(preloadData.getNetworkTopologyInformation());
-                preloadDataBuilder.setOperStatus(preloadData.getOperStatus());
-            } else {
-                log.info("No preload-data found in MD-SAL ({}) for [{},{}] ", type, preload_name, preload_type);
-            }
-        } else {
-            log.info("No data found in MD-SAL ({}) for [{},{}] ", type, preload_name, preload_type);
-        }
-    }
+	private void deleteService(final Service entry, LogicalDatastoreType storeType) throws IllegalStateException {
+		// Each entry will be identifiable by a unique key, we have to create
+		// that identifier
+		InstanceIdentifier.InstanceIdentifierBuilder<Service> serviceListIdBuilder = InstanceIdentifier
+				.<Services>builder(Services.class).child(Service.class, entry.getKey());
+		InstanceIdentifier<Service> path = serviceListIdBuilder.build();
 
-    private void saveService(final Service entry, boolean merge, LogicalDatastoreType storeType) throws IllegalStateException {
-        // Each entry will be identifiable by a unique key, we have to create that identifier
-        InstanceIdentifier.InstanceIdentifierBuilder<Service> serviceBuilder =
-                InstanceIdentifier.<Services>builder(Services.class)
-                .child(Service.class, entry.getKey());
-        InstanceIdentifier<Service> path = serviceBuilder.build();
+		int tries = 2;
+		while (true) {
+			try {
+				WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+				tx.delete(storeType, path);
+				tx.submit().checkedGet();
+				log.debug("DataStore delete succeeded");
+				break;
+			} catch (final TransactionCommitFailedException e) {
+				if (e instanceof OptimisticLockFailedException) {
+					if (--tries <= 0) {
+						log.debug("Got OptimisticLockFailedException on last try - failing ");
+						throw new IllegalStateException(e);
+					}
+					log.debug("Got OptimisticLockFailedException - trying again ");
+				} else {
+					log.debug("Update DataStore failed");
+					throw new IllegalStateException(e);
+				}
+			}
+		}
+	}
 
-        int tries = 2;
-        while(true) {
-            try {
-                WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                if (merge) {
-                    tx.merge(storeType, path, entry);
-                } else {
-                    tx.put(storeType, path, entry);
-                }
-                tx.submit().checkedGet();
-                log.debug("Update DataStore succeeded");
-                break;
-            } catch (final TransactionCommitFailedException e) {
-                if(e instanceof OptimisticLockFailedException) {
-                    if(--tries <= 0) {
-                        log.debug("Got OptimisticLockFailedException on last try - failing ");
-                        throw new IllegalStateException(e);
-                    }
-                    log.debug("Got OptimisticLockFailedException - trying again ");
-                } else {
-                    log.debug("Update DataStore failed");
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
-    }
+	private void savePreloadList(final VnfPreloadList entry, boolean merge, LogicalDatastoreType storeType)
+			throws IllegalStateException {
 
-    private void deleteService(final Service entry, LogicalDatastoreType storeType) throws IllegalStateException {
-        // Each entry will be identifiable by a unique key, we have to create
-        // that identifier
-        InstanceIdentifier.InstanceIdentifierBuilder<Service> serviceListIdBuilder = InstanceIdentifier.<Services> builder(Services.class).child(Service.class, entry.getKey());
-        InstanceIdentifier<Service> path = serviceListIdBuilder.build();
-
-        int tries = 2;
-        while (true) {
-            try {
-                WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                tx.delete(storeType, path);
-                tx.submit().checkedGet();
-                log.debug("DataStore delete succeeded");
-                break;
-            } catch (final TransactionCommitFailedException e) {
-                if (e instanceof OptimisticLockFailedException) {
-                    if (--tries <= 0) {
-                        log.debug("Got OptimisticLockFailedException on last try - failing ");
-                        throw new IllegalStateException(e);
-                    }
-                    log.debug("Got OptimisticLockFailedException - trying again ");
-                } else {
-                    log.debug("Update DataStore failed");
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
-    }
-
-    private void savePreloadList(final VnfPreloadList entry, boolean merge, LogicalDatastoreType storeType) throws IllegalStateException{
-
-        // Each entry will be identifiable by a unique key, we have to create that identifier
-        InstanceIdentifier.InstanceIdentifierBuilder<VnfPreloadList> vnfPreloadListBuilder =
-                InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
-                .child(VnfPreloadList.class, entry.getKey());
-        InstanceIdentifier<VnfPreloadList> path = vnfPreloadListBuilder.build();
-        int tries = 2;
-        while(true) {
-            try {
-                WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                if (merge) {
-                    tx.merge(storeType, path, entry);
-                } else {
-                    tx.put(storeType, path, entry);
-                }
-                tx.submit().checkedGet();
-                log.debug("Update DataStore succeeded");
-                break;
-            } catch (final TransactionCommitFailedException e) {
-                if(e instanceof OptimisticLockFailedException) {
-                    if(--tries <= 0) {
-                        log.debug("Got OptimisticLockFailedException on last try - failing ");
-                        throw new IllegalStateException(e);
-                    }
-                    log.debug("Got OptimisticLockFailedException - trying again ");
-                } else {
-                    log.debug("Update DataStore failed");
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
-    }
+		// Each entry will be identifiable by a unique key, we have to create that
+		// identifier
+		InstanceIdentifier.InstanceIdentifierBuilder<VnfPreloadList> vnfPreloadListBuilder = InstanceIdentifier
+				.<PreloadVnfs>builder(PreloadVnfs.class).child(VnfPreloadList.class, entry.getKey());
+		InstanceIdentifier<VnfPreloadList> path = vnfPreloadListBuilder.build();
+		int tries = 2;
+		while (true) {
+			try {
+				WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+				if (merge) {
+					tx.merge(storeType, path, entry);
+				} else {
+					tx.put(storeType, path, entry);
+				}
+				tx.submit().checkedGet();
+				log.debug("Update DataStore succeeded");
+				break;
+			} catch (final TransactionCommitFailedException e) {
+				if (e instanceof OptimisticLockFailedException) {
+					if (--tries <= 0) {
+						log.debug("Got OptimisticLockFailedException on last try - failing ");
+						throw new IllegalStateException(e);
+					}
+					log.debug("Got OptimisticLockFailedException - trying again ");
+				} else {
+					log.debug("Update DataStore failed");
+					throw new IllegalStateException(e);
+				}
+			}
+		}
+	}
 
 	@Override
 	public Future<RpcResult<ServiceTopologyOperationOutput>> serviceTopologyOperation(
@@ -489,21 +476,19 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
-		log.info("{} called.",SVC_OPERATION);
+		log.info("{} called.", SVC_OPERATION);
 		// create a new response object
 		ServiceTopologyOperationOutputBuilder responseBuilder = new ServiceTopologyOperationOutputBuilder();
 
-		if(input == null ||
-            input.getServiceInformation() == null ||
-                input.getServiceInformation().getServiceInstanceId() == null ||
-                    input.getServiceInformation().getServiceInstanceId().length() == 0)
-        {
+		if (input == null || input.getServiceInformation() == null
+				|| input.getServiceInformation().getServiceInstanceId() == null
+				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
 			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<ServiceTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<ServiceTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<ServiceTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
@@ -515,85 +500,72 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		}
 
 		ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
-		getServiceData(siid,serviceDataBuilder);
+		getServiceData(siid, serviceDataBuilder);
 
 		ServiceDataBuilder operDataBuilder = new ServiceDataBuilder();
-		getServiceData(siid,operDataBuilder, LogicalDatastoreType.OPERATIONAL );
+		getServiceData(siid, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
 		// Set the serviceStatus based on input
 		setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
 		setServiceStatus(serviceStatusBuilder, input.getRequestInformation());
 
 		/*
-		// setup a service-data object builder
-		// ACTION service-topology-operation
-		// INPUT:
-		//  USES uses service-operation-information
-		// OUTPUT:
-		//  uses topology-response-common;
-        //  uses service-response-information;
-        */
+		 * // setup a service-data object builder // ACTION service-topology-operation
+		 * // INPUT: // USES uses service-operation-information // OUTPUT: // uses
+		 * topology-response-common; // uses service-response-information;
+		 */
 
 		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
 		ServiceTopologyOperationInputBuilder inputBuilder = new ServiceTopologyOperationInputBuilder(input);
 		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
-		log.info("Adding OPERATIONAL data for {} [{}] operational-data: {}", SVC_OPERATION, siid, operDataBuilder.build());
+		log.info("Adding OPERATIONAL data for {} [{}] operational-data: {}", SVC_OPERATION, siid,
+				operDataBuilder.build());
 		GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
 
 		// Call SLI sync method
 		// Get SvcLogicService reference
 
-		GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
 		Properties respProps = null;
 
 		String errorCode = "200";
 		String errorMessage = null;
 		String ackFinal = "Y";
-        String serviceObjectPath = null;
+		String serviceObjectPath = null;
 
-		try
-		{
-			if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
-			{
+		try {
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
-				try
-				{
+				try {
 					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
-				}
-				catch (Exception e)
-				{
+				} catch (Exception e) {
 					log.error("Caught exception executing service logic for {} ", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
 			} else {
-				errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
+				errorMessage = "No service logic active for " + appName + ": '" + SVC_OPERATION + "'";
 				errorCode = "503";
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			errorCode = "500";
 			errorMessage = e.getMessage();
 			log.error("Caught exception looking for service logic", e);
 		}
 
-
-		if (respProps != null)
-		{
+		if (respProps != null) {
 			errorCode = respProps.getProperty("error-code");
 			errorMessage = respProps.getProperty("error-message");
 			ackFinal = respProps.getProperty("ack-final", "Y");
-            serviceObjectPath = respProps.getProperty("service-object-path");
+			serviceObjectPath = respProps.getProperty("service-object-path");
 		}
 
-		setServiceStatus(serviceStatusBuilder,errorCode, errorMessage, ackFinal);
+		setServiceStatus(serviceStatusBuilder, errorCode, errorMessage, ackFinal);
 		serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
-		//serviceStatusBuilder.setRpcName(RpcName.ServiceTopologyOperation);
+		// serviceStatusBuilder.setRpcName(RpcName.ServiceTopologyOperation);
 		serviceStatusBuilder.setRpcName(SVC_OPERATION);
 
-		if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+		if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
 			responseBuilder.setResponseCode(errorCode);
 			responseBuilder.setResponseMessage(errorMessage);
 			responseBuilder.setAckFinalIndicator(ackFinal);
@@ -607,8 +579,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 				log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
 			}
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-			RpcResult<ServiceTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<ServiceTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<ServiceTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
@@ -624,51 +596,47 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
-			{
+			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
 				// Only update operational tree on delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete))
-				{
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete)) {
 					log.info("Delete from both CONFIGURATION and OPERATIONAL tree.");
-	                deleteService(serviceBuilder.build(), LogicalDatastoreType.OPERATIONAL);
-	                deleteService(serviceBuilder.build(), LogicalDatastoreType.CONFIGURATION);
+					deleteService(serviceBuilder.build(), LogicalDatastoreType.OPERATIONAL);
+					deleteService(serviceBuilder.build(), LogicalDatastoreType.CONFIGURATION);
 				}
 			}
 
-            ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
-            serviceResponseInformationBuilder.setInstanceId(siid);
-            serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
-            responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
+			ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
+			serviceResponseInformationBuilder.setInstanceId(siid);
+			serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
+			responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
 
 		} catch (Exception e) {
-			log.error("Caught Exception updating MD-SAL for {} [{}] \n",SVC_OPERATION, siid, e);
+			log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
 			responseBuilder.setResponseCode("500");
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-			RpcResult<ServiceTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<ServiceTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<ServiceTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
 		// Update succeeded
 		responseBuilder.setResponseCode(errorCode);
 		responseBuilder.setAckFinalIndicator(ackFinal);
-		if (errorMessage != null)
-		{
+		if (errorMessage != null) {
 			responseBuilder.setResponseMessage(errorMessage);
 		}
 		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
 		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-		RpcResult<ServiceTopologyOperationOutput> rpcResult =
-            RpcResultBuilder.<ServiceTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+		RpcResult<ServiceTopologyOperationOutput> rpcResult = RpcResultBuilder
+				.<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 		return Futures.immediateFuture(rpcResult);
 	}
 
 	@Override
-	public Future<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(
-			VnfTopologyOperationInput input) {
+	public Future<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(VnfTopologyOperationInput input) {
 
 		final String SVC_OPERATION = "vnf-topology-operation";
 		ServiceData serviceData;
@@ -679,17 +647,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// create a new response object
 		VnfTopologyOperationOutputBuilder responseBuilder = new VnfTopologyOperationOutputBuilder();
 
-		if(input == null ||
-            input.getServiceInformation() == null ||
-                input.getServiceInformation().getServiceInstanceId() == null ||
-                    input.getServiceInformation().getServiceInstanceId().length() == 0)
-        {
+		if (input == null || input.getServiceInformation() == null
+				|| input.getServiceInformation().getServiceInstanceId() == null
+				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
 			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<VnfTopologyOperationOutput> rpcResult =
-					RpcResultBuilder.<VnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<VnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<VnfTopologyOperationOutput>status(true)
+					.withResult(responseBuilder.build()).build();
 			// return error
 			return Futures.immediateFuture(rpcResult);
 		}
@@ -701,46 +667,40 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
 		}
 
-		if(input.getVnfInformation() == null ||
-                input.getVnfInformation().getVnfId() == null ||
-                    input.getVnfInformation().getVnfId().length() == 0)
-        {
+		if (input.getVnfInformation() == null || input.getVnfInformation().getVnfId() == null
+				|| input.getVnfInformation().getVnfId().length() == 0) {
 			log.debug("exiting {} because of null or empty vnf-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty vnf-id");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<VnfTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<VnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<VnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<VnfTopologyOperationOutput>status(true)
+					.withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
-        /* Mobility wont use vipr intf in 1707
-
-		String preload_name  = null;
-		String preload_type = null;
-        if (input.getVnfRequestInput() != null &&
-                input.getVnfRequestInput().getVnfName() != null && input.getVnfRequestInput().getVnfName().length() != 0) {
-            preload_name  = input.getVnfRequestInput().getVnfName();
-        }
-        if (input.getVnfInformation().getVnfType() != null &&
-                input.getVnfInformation().getVnfType().length() != 0) {
-		    preload_type = input.getVnfInformation().getVnfType();
-        }
-
-		PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
-        if (preload_name != null && preload_type != null) {
-		    getPreloadData(preload_name, preload_type, preloadDataBuilder);
-        }
-        else {
-            log.info("vnf-name and vnf-type not present in the request");
-        }
-        */
+		/*
+		 * Mobility wont use vipr intf in 1707
+		 *
+		 * String preload_name = null; String preload_type = null; if
+		 * (input.getVnfRequestInput() != null &&
+		 * input.getVnfRequestInput().getVnfName() != null &&
+		 * input.getVnfRequestInput().getVnfName().length() != 0) { preload_name =
+		 * input.getVnfRequestInput().getVnfName(); } if
+		 * (input.getVnfInformation().getVnfType() != null &&
+		 * input.getVnfInformation().getVnfType().length() != 0) { preload_type =
+		 * input.getVnfInformation().getVnfType(); }
+		 *
+		 * PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder(); if
+		 * (preload_name != null && preload_type != null) { getPreloadData(preload_name,
+		 * preload_type, preloadDataBuilder); } else {
+		 * log.info("vnf-name and vnf-type not present in the request"); }
+		 */
 
 		ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
-		getServiceData(siid,serviceDataBuilder);
+		getServiceData(siid, serviceDataBuilder);
 
 		ServiceDataBuilder operDataBuilder = new ServiceDataBuilder();
-		getServiceData(siid,operDataBuilder, LogicalDatastoreType.OPERATIONAL );
+		getServiceData(siid, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
 		// Set the serviceStatus based on input
 		setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
@@ -750,83 +710,77 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// setup a service-data object builder
 		// ACTION vnf-topology-operation
 		// INPUT:
-		//  USES sdnc-request-header;
-		//  USES request-information;
-		//  USES service-information;
-		//  USES vnf-request-information
+		// USES sdnc-request-header;
+		// USES request-information;
+		// USES service-information;
+		// USES vnf-request-information
 		// OUTPUT:
-		//  USES vnf-topology-response-body;
-		//  USES vnf-information
-		//  USES service-information
+		// USES vnf-topology-response-body;
+		// USES vnf-information
+		// USES service-information
 		//
 		// container service-data
-        //   uses vnf-configuration-information;
-        //   uses oper-status;
+		// uses vnf-configuration-information;
+		// uses oper-status;
 
 		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
 		VnfTopologyOperationInputBuilder inputBuilder = new VnfTopologyOperationInputBuilder(input);
 		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
-		log.info("Adding OPERATIONAL data for {} [{}] operational-data: {}", SVC_OPERATION, siid, operDataBuilder.build());
+		log.info("Adding OPERATIONAL data for {} [{}] operational-data: {}", SVC_OPERATION, siid,
+				operDataBuilder.build());
 		GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
 
-        /*
-		log.info("Adding CONFIG data for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] preload-data: " + preloadDataBuilder.build());
-		GenericResourceApiUtil.toProperties(parms, "preload-data", preloadDataBuilder);
-        */
+		/*
+		 * log.info("Adding CONFIG data for "+SVC_OPERATION+" ["+preload_name+","+
+		 * preload_type+"] preload-data: " + preloadDataBuilder.build());
+		 * GenericResourceApiUtil.toProperties(parms, "preload-data",
+		 * preloadDataBuilder);
+		 */
 
 		// Call SLI sync method
 		// Get SvcLogicService reference
 
-		GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
 		Properties respProps = null;
 
 		String errorCode = "200";
 		String errorMessage = null;
 		String ackFinal = "Y";
-        String serviceObjectPath = null;
+		String serviceObjectPath = null;
 
-		try
-		{
-			if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
-			{
+		try {
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
-				try
-				{
+				try {
 					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
-				}
-				catch (Exception e)
-				{
+				} catch (Exception e) {
 					log.error("Caught exception executing service logic for {} ", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
 			} else {
-				errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
+				errorMessage = "No service logic active for " + appName + ": '" + SVC_OPERATION + "'";
 				errorCode = "503";
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			errorCode = "500";
 			errorMessage = e.getMessage();
 			log.error("Caught exception looking for service logic", e);
 		}
 
-		if (respProps != null)
-		{
+		if (respProps != null) {
 			errorCode = respProps.getProperty("error-code");
 			errorMessage = respProps.getProperty("error-message");
 			ackFinal = respProps.getProperty("ack-final", "Y");
-            serviceObjectPath = respProps.getProperty("vnf-object-path");
+			serviceObjectPath = respProps.getProperty("vnf-object-path");
 		}
 
-		setServiceStatus(serviceStatusBuilder,errorCode, errorMessage, ackFinal);
+		setServiceStatus(serviceStatusBuilder, errorCode, errorMessage, ackFinal);
 		serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
-		//serviceStatusBuilder.setRpcName(RpcName.VnfTopologyOperation);
+		// serviceStatusBuilder.setRpcName(RpcName.VnfTopologyOperation);
 		serviceStatusBuilder.setRpcName(SVC_OPERATION);
 
-		if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+		if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
 			responseBuilder.setResponseCode(errorCode);
 			responseBuilder.setResponseMessage(errorMessage);
 			responseBuilder.setAckFinalIndicator(ackFinal);
@@ -836,12 +790,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			try {
 				saveService(serviceBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
-				if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
-				{
+				if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
 					// Only update operational tree on activate or delete
-					if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) ||
-							input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
-					{
+					if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete)
+							|| input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
 						log.info("Updating OPERATIONAL tree.");
 						saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 					}
@@ -850,8 +802,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 				log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
 			}
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-			RpcResult<VnfTopologyOperationOutput> rpcResult =
-			    RpcResultBuilder.<VnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<VnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<VnfTopologyOperationOutput>status(true)
+					.withResult(responseBuilder.build()).build();
 			// return error
 			return Futures.immediateFuture(rpcResult);
 		}
@@ -868,20 +820,18 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
-			{
+			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
 				// Only update operational tree on Assign
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
-				{
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
 					log.info("Updating OPERATIONAL tree.");
 					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 				}
 			}
 
-            ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
-            serviceResponseInformationBuilder.setInstanceId(siid);
-            serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
-            responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
+			ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
+			serviceResponseInformationBuilder.setInstanceId(siid);
+			serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
+			responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
 
 		} catch (Exception e) {
 			log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
@@ -889,272 +839,251 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-			RpcResult<VnfTopologyOperationOutput> rpcResult =
-			    RpcResultBuilder.<VnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<VnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<VnfTopologyOperationOutput>status(true)
+					.withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
 		// Update succeeded
 		responseBuilder.setResponseCode(errorCode);
 		responseBuilder.setAckFinalIndicator(ackFinal);
-		if (errorMessage != null)
-		{
+		if (errorMessage != null) {
 			responseBuilder.setResponseMessage(errorMessage);
 		}
 		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
 		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-		RpcResult<VnfTopologyOperationOutput> rpcResult =
-		    RpcResultBuilder.<VnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+		RpcResult<VnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<VnfTopologyOperationOutput>status(true)
+				.withResult(responseBuilder.build()).build();
 		// return success
 		return Futures.immediateFuture(rpcResult);
 	}
 
-    @Override
-    public Future<RpcResult<VfModuleTopologyOperationOutput>> vfModuleTopologyOperation(
-            VfModuleTopologyOperationInput input) {
+	@Override
+	public Future<RpcResult<VfModuleTopologyOperationOutput>> vfModuleTopologyOperation(
+			VfModuleTopologyOperationInput input) {
 
-        final String SVC_OPERATION = "vf-module-topology-operation";
-        ServiceData serviceData;
-        ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
-        Properties parms = new Properties();
+		final String SVC_OPERATION = "vf-module-topology-operation";
+		ServiceData serviceData;
+		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
+		Properties parms = new Properties();
 
-        log.info("{} called.", SVC_OPERATION);
-        // create a new response object
-        VfModuleTopologyOperationOutputBuilder responseBuilder = new VfModuleTopologyOperationOutputBuilder();
+		log.info("{} called.", SVC_OPERATION);
+		// create a new response object
+		VfModuleTopologyOperationOutputBuilder responseBuilder = new VfModuleTopologyOperationOutputBuilder();
 
-        if(input == null ||
-            input.getServiceInformation() == null ||
-                input.getServiceInformation().getServiceInstanceId() == null ||
-                    input.getServiceInformation().getServiceInstanceId().length() == 0)
-        {
-            log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
-            responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
-            responseBuilder.setAckFinalIndicator("Y");
-            RpcResult<VfModuleTopologyOperationOutput> rpcResult =
-                    RpcResultBuilder.<VfModuleTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-            // return error
-            return Futures.immediateFuture(rpcResult);
-        }
+		if (input == null || input.getServiceInformation() == null
+				|| input.getServiceInformation().getServiceInstanceId() == null
+				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
+			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
+			responseBuilder.setResponseCode("403");
+			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			// return error
+			return Futures.immediateFuture(rpcResult);
+		}
 
-        if(input.getVnfInformation() == null ||
-                input.getVnfInformation().getVnfId() == null ||
-                    input.getVnfInformation().getVnfId().length() == 0)
-        {
-            log.debug("exiting {} because of null or empty vnf-id", SVC_OPERATION);
-            responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, null or empty vnf-id");
-            responseBuilder.setAckFinalIndicator("Y");
-            RpcResult<VfModuleTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<VfModuleTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-            return Futures.immediateFuture(rpcResult);
-        }
+		if (input.getVnfInformation() == null || input.getVnfInformation().getVnfId() == null
+				|| input.getVnfInformation().getVnfId().length() == 0) {
+			log.debug("exiting {} because of null or empty vnf-id", SVC_OPERATION);
+			responseBuilder.setResponseCode("403");
+			responseBuilder.setResponseMessage("invalid input, null or empty vnf-id");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
-        if(input.getVfModuleInformation() == null ||
-                input.getVfModuleInformation().getVfModuleId() == null ||
-                    input.getVfModuleInformation().getVfModuleId().length() == 0)
-        {
-            log.debug("exiting {} because of null or empty vf-module-id", SVC_OPERATION);
-            responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, vf-module-id is null or empty");
-            responseBuilder.setAckFinalIndicator("Y");
-            RpcResult<VfModuleTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<VfModuleTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-            return Futures.immediateFuture(rpcResult);
-        }
+		if (input.getVfModuleInformation() == null || input.getVfModuleInformation().getVfModuleId() == null
+				|| input.getVfModuleInformation().getVfModuleId().length() == 0) {
+			log.debug("exiting {} because of null or empty vf-module-id", SVC_OPERATION);
+			responseBuilder.setResponseCode("403");
+			responseBuilder.setResponseMessage("invalid input, vf-module-id is null or empty");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
-        // Grab the service instance ID from the input buffer
-        String siid = input.getServiceInformation().getServiceInstanceId();
+		// Grab the service instance ID from the input buffer
+		String siid = input.getServiceInformation().getServiceInstanceId();
 
-        if (input.getSdncRequestHeader() != null) {
-            responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-        }
+		if (input.getSdncRequestHeader() != null) {
+			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+		}
 
-        /*
-        String preload_name  = null;
-        String preload_type = null;
+		/*
+		 * String preload_name = null; String preload_type = null;
+		 *
+		 * preload_name = input.getVfModuleRequestInput().getVfModuleName();
+		 *
+		 * if(input.getVfModuleInformation().getVfModuleType() != null &&
+		 * input.getVfModuleInformation().getVfModuleType().length() != 0) {
+		 * preload_type = input.getVfModuleInformation().getVfModuleType(); }
+		 *
+		 * PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder(); if
+		 * (preload_name != null && preload_type != null) { getPreloadData(preload_name,
+		 * preload_type, preloadDataBuilder); } else {
+		 * log.debug("vf-module-name and vf-module-type not present in the request."); }
+		 */
 
-        preload_name  = input.getVfModuleRequestInput().getVfModuleName();
+		ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+		getServiceData(siid, serviceDataBuilder);
 
-        if(input.getVfModuleInformation().getVfModuleType() != null &&
-                    input.getVfModuleInformation().getVfModuleType().length() != 0) {
-            preload_type = input.getVfModuleInformation().getVfModuleType();
-        }
+		ServiceDataBuilder operDataBuilder = new ServiceDataBuilder();
+		getServiceData(siid, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
-        PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
-        if (preload_name != null && preload_type != null) {
-            getPreloadData(preload_name, preload_type, preloadDataBuilder);
-        }
-        else {
-            log.debug("vf-module-name and vf-module-type not present in the request.");
-        }
-        */
+		// Set the serviceStatus based on input
+		setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
+		setServiceStatus(serviceStatusBuilder, input.getRequestInformation());
 
-        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
-        getServiceData(siid,serviceDataBuilder);
+		//
+		// setup a service-data object builder
+		// ACTION vnf-topology-operation
+		// INPUT:
+		// USES sdnc-request-header;
+		// USES request-information;
+		// USES service-information;
+		// USES vnf-request-information
+		// OUTPUT:
+		// USES vnf-topology-response-body;
+		// USES vnf-information
+		// USES service-information
+		//
+		// container service-data
+		// uses vnf-configuration-information;
+		// uses oper-status;
 
-        ServiceDataBuilder operDataBuilder = new ServiceDataBuilder();
-        getServiceData(siid,operDataBuilder, LogicalDatastoreType.OPERATIONAL );
+		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
+		VfModuleTopologyOperationInputBuilder inputBuilder = new VfModuleTopologyOperationInputBuilder(input);
+		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
-        // Set the serviceStatus based on input
-        setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
-        setServiceStatus(serviceStatusBuilder, input.getRequestInformation());
+		log.info("Adding OPERATIONAL data for {} [{}] operational-data: {}", SVC_OPERATION, siid,
+				operDataBuilder.build());
+		GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
 
-        //
-        // setup a service-data object builder
-        // ACTION vnf-topology-operation
-        // INPUT:
-        //  USES sdnc-request-header;
-        //  USES request-information;
-        //  USES service-information;
-        //  USES vnf-request-information
-        // OUTPUT:
-        //  USES vnf-topology-response-body;
-        //  USES vnf-information
-        //  USES service-information
-        //
-        // container service-data
-        //   uses vnf-configuration-information;
-        //   uses oper-status;
+		/*
+		 * log.info("Adding CONFIG data for "+SVC_OPERATION+" ["+preload_name+","+
+		 * preload_type+"] preload-data: " +preloadDataBuilder.build());
+		 * GenericResourceApiUtil.toProperties(parms, "preload-data",
+		 * preloadDataBuilder);
+		 */
 
-        log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
-        VfModuleTopologyOperationInputBuilder inputBuilder = new VfModuleTopologyOperationInputBuilder(input);
-        GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+		// Call SLI sync method
+		// Get SvcLogicService reference
 
-        log.info("Adding OPERATIONAL data for {} [{}] operational-data: {}", SVC_OPERATION, siid, operDataBuilder.build());
-        GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
+		Properties respProps = null;
 
-        /*
-        log.info("Adding CONFIG data for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] preload-data: " +preloadDataBuilder.build());
-        GenericResourceApiUtil.toProperties(parms, "preload-data", preloadDataBuilder);
-        */
+		String errorCode = "200";
+		String errorMessage = null;
+		String ackFinal = "Y";
+		String serviceObjectPath = null;
 
-        // Call SLI sync method
-        // Get SvcLogicService reference
+		try {
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
-        GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
-        Properties respProps = null;
+				try {
+					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
+				} catch (Exception e) {
+					log.error("Caught exception executing service logic for " + SVC_OPERATION, e);
+					errorMessage = e.getMessage();
+					errorCode = "500";
+				}
+			} else {
+				errorMessage = "No service logic active for " + appName + ": '" + SVC_OPERATION + "'";
+				errorCode = "503";
+			}
+		} catch (Exception e) {
+			errorCode = "500";
+			errorMessage = e.getMessage();
+			log.error("Caught exception looking for service logic", e);
+		}
 
-        String errorCode = "200";
-        String errorMessage = null;
-        String ackFinal = "Y";
-        String serviceObjectPath = null;
+		if (respProps != null) {
+			errorCode = respProps.getProperty("error-code");
+			errorMessage = respProps.getProperty("error-message");
+			ackFinal = respProps.getProperty("ack-final", "Y");
+			serviceObjectPath = respProps.getProperty("vf-module-object-path");
+		}
 
-        try
-        {
-            if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
-            {
+		setServiceStatus(serviceStatusBuilder, errorCode, errorMessage, ackFinal);
+		serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
+		serviceStatusBuilder.setRpcName(SVC_OPERATION);
 
-                try
-                {
-                    respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
-                }
-                catch (Exception e)
-                {
-                    log.error("Caught exception executing service logic for "+ SVC_OPERATION, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
-            } else {
-                errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
-                errorCode = "503";
-            }
-        }
-        catch (Exception e)
-        {
-            errorCode = "500";
-            errorMessage = e.getMessage();
-            log.error("Caught exception looking for service logic", e);
-        }
+		if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
+			responseBuilder.setResponseCode(errorCode);
+			responseBuilder.setResponseMessage(errorMessage);
+			responseBuilder.setAckFinalIndicator(ackFinal);
 
-        if (respProps != null)
-        {
-            errorCode = respProps.getProperty("error-code");
-            errorMessage = respProps.getProperty("error-message");
-            ackFinal = respProps.getProperty("ack-final", "Y");
-            serviceObjectPath = respProps.getProperty("vf-module-object-path");
-        }
+			ServiceBuilder serviceBuilder = new ServiceBuilder();
+			serviceBuilder.setServiceInstanceId(siid);
+			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+			try {
+				saveService(serviceBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
+			} catch (Exception e) {
+				log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
+			}
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
+			RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			// return error
+			return Futures.immediateFuture(rpcResult);
+		}
 
-        setServiceStatus(serviceStatusBuilder,errorCode, errorMessage, ackFinal);
-        serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
-        serviceStatusBuilder.setRpcName(SVC_OPERATION);
+		// Got success from SLI
+		try {
+			serviceData = serviceDataBuilder.build();
+			log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
 
-        if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
-            responseBuilder.setResponseCode(errorCode);
-            responseBuilder.setResponseMessage(errorMessage);
-            responseBuilder.setAckFinalIndicator(ackFinal);
+			// service object
+			ServiceBuilder serviceBuilder = new ServiceBuilder();
+			serviceBuilder.setServiceData(serviceData);
+			// serviceBuilder.setServiceInstanceId(serviceData.getServiceTopology().getServiceTopologyIdentifier().getServiceInstanceId());
+			serviceBuilder.setServiceInstanceId(siid);
+			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-            ServiceBuilder serviceBuilder = new ServiceBuilder();
-            serviceBuilder.setServiceInstanceId(siid);
-            serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-            try {
-                saveService(serviceBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
-            } catch (Exception e) {
-                log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
-            }
-            log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-            RpcResult<VfModuleTopologyOperationOutput> rpcResult =
-                    RpcResultBuilder.<VfModuleTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-            // return error
-            return Futures.immediateFuture(rpcResult);
-        }
-
-        // Got success from SLI
-        try {
-            serviceData = serviceDataBuilder.build();
-            log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
-
-            // service object
-            ServiceBuilder serviceBuilder = new ServiceBuilder();
-            serviceBuilder.setServiceData(serviceData);
-            //serviceBuilder.setServiceInstanceId(serviceData.getServiceTopology().getServiceTopologyIdentifier().getServiceInstanceId());
-            serviceBuilder.setServiceInstanceId(siid);
-            serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-            saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
-			{
+			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
 				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
-						input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
-				{
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
+						|| input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
 					log.info("Updating OPERATIONAL tree.");
 					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 				}
 			}
 
-            ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
-            serviceResponseInformationBuilder.setInstanceId(siid);
-            serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
-            responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
+			ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
+			serviceResponseInformationBuilder.setInstanceId(siid);
+			serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
+			responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
 
-        } catch (Exception e) {
-            log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
-            responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
-            responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-            RpcResult<VfModuleTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<VfModuleTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-            return Futures.immediateFuture(rpcResult);
-        }
+		} catch (Exception e) {
+			log.error("Caught Exception updating MD-SAL for {} [{}] \n", SVC_OPERATION, siid, e);
+			responseBuilder.setResponseCode("500");
+			responseBuilder.setResponseMessage(e.toString());
+			responseBuilder.setAckFinalIndicator("Y");
+			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
+			RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
-        // Update succeeded
-        responseBuilder.setResponseCode(errorCode);
-        responseBuilder.setAckFinalIndicator(ackFinal);
-        if (errorMessage != null)
-        {
-            responseBuilder.setResponseMessage(errorMessage);
-        }
-        log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
-        log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
+		// Update succeeded
+		responseBuilder.setResponseCode(errorCode);
+		responseBuilder.setAckFinalIndicator(ackFinal);
+		if (errorMessage != null) {
+			responseBuilder.setResponseMessage(errorMessage);
+		}
+		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
+		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-        RpcResult<VfModuleTopologyOperationOutput> rpcResult =
-            RpcResultBuilder.<VfModuleTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-        // return success
-        return Futures.immediateFuture(rpcResult);
-    }
+		RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
+				.<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+		// return success
+		return Futures.immediateFuture(rpcResult);
+	}
 
 	@Override
 	public Future<RpcResult<NetworkTopologyOperationOutput>> networkTopologyOperation(
@@ -1165,70 +1094,61 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
 		Properties parms = new Properties();
 
-		log.info("{} called.", SVC_OPERATION );
+		log.info("{} called.", SVC_OPERATION);
 		// create a new response object
 		NetworkTopologyOperationOutputBuilder responseBuilder = new NetworkTopologyOperationOutputBuilder();
 
-		if(input == null ||
-            input.getServiceInformation() == null ||
-                input.getServiceInformation().getServiceInstanceId() == null ||
-                    input.getServiceInformation().getServiceInstanceId().length() == 0)
-        {
+		if (input == null || input.getServiceInformation() == null
+				|| input.getServiceInformation().getServiceInstanceId() == null
+				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
 			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<NetworkTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<NetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
-        String siid = input.getServiceInformation().getServiceInstanceId();
+		String siid = input.getServiceInformation().getServiceInstanceId();
 
-        // Get the service-instance service data from MD-SAL
-        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
-        getServiceData(siid,serviceDataBuilder);
+		// Get the service-instance service data from MD-SAL
+		ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+		getServiceData(siid, serviceDataBuilder);
 
 		if (input.getSdncRequestHeader() != null) {
 			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
 		}
 
-        ServiceData sd = serviceDataBuilder.build();
-        if (sd == null || sd.getServiceLevelOperStatus() == null)
-        {
+		ServiceData sd = serviceDataBuilder.build();
+		if (sd == null || sd.getServiceLevelOperStatus() == null) {
 			log.debug("exiting {} because the service-instance does not have any service data in SDNC", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
-			responseBuilder.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
+			responseBuilder
+					.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<NetworkTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<NetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
-
-       /*
-		//String preload_name  = null;
-		//String preload_type = null;
-        // If both network-name and network-type are present in request, get the preload network from MD-SAL
-        if (input.getNetworkRequestInput() != null &&
-                input.getNetworkRequestInput().getNetworkName() != null &&
-                    input.getNetworkRequestInput().getNetworkName().length() != 0) {
-            preload_name = input.getNetworkRequestInput().getNetworkName();
-        }
-        if (input.getNetworkInformation() != null &&
-                input.getNetworkInformation().getNetworkType() != null &&
-                    input.getNetworkInformation().getNetworkType().length() != 0) {
-            preload_type = input.getNetworkInformation().getNetworkType();
-        }
-
-		PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
-        if (preload_name != null && preload_type != null) {
-		    getPreloadData(preload_name, preload_type, preloadDataBuilder);
-        }
-        else {
-			log.debug("network-name and network-type not present in request");
-        }
-        */
+		/*
+		 * //String preload_name = null; //String preload_type = null; // If both
+		 * network-name and network-type are present in request, get the preload network
+		 * from MD-SAL if (input.getNetworkRequestInput() != null &&
+		 * input.getNetworkRequestInput().getNetworkName() != null &&
+		 * input.getNetworkRequestInput().getNetworkName().length() != 0) { preload_name
+		 * = input.getNetworkRequestInput().getNetworkName(); } if
+		 * (input.getNetworkInformation() != null &&
+		 * input.getNetworkInformation().getNetworkType() != null &&
+		 * input.getNetworkInformation().getNetworkType().length() != 0) { preload_type
+		 * = input.getNetworkInformation().getNetworkType(); }
+		 *
+		 * PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder(); if
+		 * (preload_name != null && preload_type != null) { getPreloadData(preload_name,
+		 * preload_type, preloadDataBuilder); } else {
+		 * log.debug("network-name and network-type not present in request"); }
+		 */
 
 		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
 		NetworkTopologyOperationInputBuilder inputBuilder = new NetworkTopologyOperationInputBuilder(input);
@@ -1237,46 +1157,36 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Call SLI sync method
 		// Get SvcLogicService reference
 
-		GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
 		Properties respProps = null;
 
 		String errorCode = "200";
 		String errorMessage = null;
 		String ackFinal = "Y";
 		String networkId = "error";
-        String serviceObjectPath = null;
-        String networkObjectPath = null;
+		String serviceObjectPath = null;
+		String networkObjectPath = null;
 
-		try
-		{
-			if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
-			{
+		try {
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
-				try
-				{
+				try {
 					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
-				}
-				catch (Exception e)
-				{
+				} catch (Exception e) {
 					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
 			} else {
-				errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
+				errorMessage = "No service logic active for " + appName + ": '" + SVC_OPERATION + "'";
 				errorCode = "503";
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			errorCode = "500";
 			errorMessage = e.getMessage();
 			log.error("Caught exception looking for service logic", e);
 		}
 
-
-		if (respProps != null)
-		{
+		if (respProps != null) {
 			errorCode = respProps.getProperty("error-code");
 			errorMessage = respProps.getProperty("error-message");
 			ackFinal = respProps.getProperty("ack-final", "Y");
@@ -1285,15 +1195,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			networkObjectPath = respProps.getProperty("network-object-path");
 		}
 
-		if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+		if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
 			responseBuilder.setResponseCode(errorCode);
 			responseBuilder.setResponseMessage(errorMessage);
 			responseBuilder.setAckFinalIndicator(ackFinal);
 
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-			RpcResult<NetworkTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<NetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
@@ -1310,11 +1220,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
-			{
+			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
 				// Only update operational tree on Activate
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
-                {
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
 					log.info("Updating OPERATIONAL tree.");
 					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 				}
@@ -1336,23 +1244,22 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-			RpcResult<NetworkTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<NetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
 		// Update succeeded
 		responseBuilder.setResponseCode(errorCode);
 		responseBuilder.setAckFinalIndicator(ackFinal);
-		if (errorMessage != null)
-		{
+		if (errorMessage != null) {
 			responseBuilder.setResponseMessage(errorMessage);
 		}
 		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
 		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-		RpcResult<NetworkTopologyOperationOutput> rpcResult =
-            RpcResultBuilder.<NetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+		RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+				.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 		return Futures.immediateFuture(rpcResult);
 	}
 
@@ -1369,89 +1276,77 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// create a new response object
 		ContrailRouteTopologyOperationOutputBuilder responseBuilder = new ContrailRouteTopologyOperationOutputBuilder();
 
-		if(input == null ||
-            input.getServiceInformation() == null ||
-                input.getServiceInformation().getServiceInstanceId() == null ||
-                    input.getServiceInformation().getServiceInstanceId().length() == 0)
-        {
+		if (input == null || input.getServiceInformation() == null
+				|| input.getServiceInformation().getServiceInstanceId() == null
+				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
 			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<ContrailRouteTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
-        String siid = input.getServiceInformation().getServiceInstanceId();
+		String siid = input.getServiceInformation().getServiceInstanceId();
 
-        // Get the service-instance service data from MD-SAL
-        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
-        getServiceData(siid,serviceDataBuilder);
+		// Get the service-instance service data from MD-SAL
+		ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+		getServiceData(siid, serviceDataBuilder);
 
 		if (input.getSdncRequestHeader() != null) {
 			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
 		}
 
-        ServiceData sd = serviceDataBuilder.build();
-        if (sd == null || sd.getServiceLevelOperStatus() == null)
-        {
+		ServiceData sd = serviceDataBuilder.build();
+		if (sd == null || sd.getServiceLevelOperStatus() == null) {
 			log.debug("exiting {} because the service-instance does not have any service data in SDNC", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
-			responseBuilder.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
+			responseBuilder
+					.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<ContrailRouteTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
-		log.info("Adding INPUT data for "+SVC_OPERATION+" ["+siid+"] input: " + input);
+		log.info("Adding INPUT data for " + SVC_OPERATION + " [" + siid + "] input: " + input);
 		ContrailRouteTopologyOperationInputBuilder inputBuilder = new ContrailRouteTopologyOperationInputBuilder(input);
 		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
 		// Call SLI sync method
 		// Get SvcLogicService reference
 
-		GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
 		Properties respProps = null;
 
 		String errorCode = "200";
 		String errorMessage = null;
 		String ackFinal = "Y";
 		String allottedResourceId = "error";
-        String serviceObjectPath = null;
-        String contrailRouteObjectPath = null;
+		String serviceObjectPath = null;
+		String contrailRouteObjectPath = null;
 
-		try
-		{
-			if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
-			{
+		try {
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
-				try
-				{
+				try {
 					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
-				}
-				catch (Exception e)
-				{
+				} catch (Exception e) {
 					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
 			} else {
-				errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
+				errorMessage = "No service logic active for " + appName + ": '" + SVC_OPERATION + "'";
 				errorCode = "503";
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			errorCode = "500";
 			errorMessage = e.getMessage();
 			log.error("Caught exception looking for service logic", e);
 		}
 
-
-		if (respProps != null)
-		{
+		if (respProps != null) {
 			errorCode = respProps.getProperty("error-code");
 			errorMessage = respProps.getProperty("error-message");
 			ackFinal = respProps.getProperty("ack-final", "Y");
@@ -1460,15 +1355,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			contrailRouteObjectPath = respProps.getProperty("contrail-route-object-path");
 		}
 
-		if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+		if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
 			responseBuilder.setResponseCode(errorCode);
 			responseBuilder.setResponseMessage(errorMessage);
 			responseBuilder.setAckFinalIndicator(ackFinal);
 
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<ContrailRouteTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
@@ -1485,12 +1380,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
-			{
+			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
 				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
-						input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
-				{
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
+						|| input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
 					log.info("Updating OPERATIONAL tree.");
 					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 				}
@@ -1512,23 +1405,22 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<ContrailRouteTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
 		// Update succeeded
 		responseBuilder.setResponseCode(errorCode);
 		responseBuilder.setAckFinalIndicator(ackFinal);
-		if (errorMessage != null)
-		{
+		if (errorMessage != null) {
 			responseBuilder.setResponseMessage(errorMessage);
 		}
 		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
 		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-		RpcResult<ContrailRouteTopologyOperationOutput> rpcResult =
-            RpcResultBuilder.<ContrailRouteTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+		RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
+				.<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 		return Futures.immediateFuture(rpcResult);
 	}
 
@@ -1545,39 +1437,37 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// create a new response object
 		SecurityZoneTopologyOperationOutputBuilder responseBuilder = new SecurityZoneTopologyOperationOutputBuilder();
 
-		if(input == null ||
-            input.getServiceInformation() == null ||
-                input.getServiceInformation().getServiceInstanceId() == null ||
-                    input.getServiceInformation().getServiceInstanceId().length() == 0)
-        {
+		if (input == null || input.getServiceInformation() == null
+				|| input.getServiceInformation().getServiceInstanceId() == null
+				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
 			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<SecurityZoneTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
-        String siid = input.getServiceInformation().getServiceInstanceId();
+		String siid = input.getServiceInformation().getServiceInstanceId();
 
-        // Get the service-instance service data from MD-SAL
-        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
-        getServiceData(siid,serviceDataBuilder);
+		// Get the service-instance service data from MD-SAL
+		ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+		getServiceData(siid, serviceDataBuilder);
 
 		if (input.getSdncRequestHeader() != null) {
 			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
 		}
 
-        ServiceData sd = serviceDataBuilder.build();
-        if (sd == null || sd.getServiceLevelOperStatus() == null)
-        {
+		ServiceData sd = serviceDataBuilder.build();
+		if (sd == null || sd.getServiceLevelOperStatus() == null) {
 			log.debug("exiting {} because the service-instance does not have any service data in SDNC", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
-			responseBuilder.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
+			responseBuilder
+					.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<SecurityZoneTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
@@ -1588,46 +1478,36 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Call SLI sync method
 		// Get SvcLogicService reference
 
-		GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
 		Properties respProps = null;
 
 		String errorCode = "200";
 		String errorMessage = null;
 		String ackFinal = "Y";
 		String allottedResourceId = "error";
-        String serviceObjectPath = null;
-        String securityZoneObjectPath = null;
+		String serviceObjectPath = null;
+		String securityZoneObjectPath = null;
 
-		try
-		{
-			if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
-			{
+		try {
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
-				try
-				{
+				try {
 					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
-				}
-				catch (Exception e)
-				{
+				} catch (Exception e) {
 					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
 			} else {
-				errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
+				errorMessage = "No service logic active for " + appName + ": '" + SVC_OPERATION + "'";
 				errorCode = "503";
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			errorCode = "500";
 			errorMessage = e.getMessage();
 			log.error("Caught exception looking for service logic", e);
 		}
 
-
-		if (respProps != null)
-		{
+		if (respProps != null) {
 			errorCode = respProps.getProperty("error-code");
 			errorMessage = respProps.getProperty("error-message");
 			ackFinal = respProps.getProperty("ack-final", "Y");
@@ -1636,15 +1516,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			securityZoneObjectPath = respProps.getProperty("security-zone-object-path");
 		}
 
-		if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+		if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
 			responseBuilder.setResponseCode(errorCode);
 			responseBuilder.setResponseMessage(errorMessage);
 			responseBuilder.setAckFinalIndicator(ackFinal);
 
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<SecurityZoneTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
@@ -1661,12 +1541,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
-			{
+			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
 				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
-						input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
-				{
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
+						|| input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
 					log.info("Updating OPERATIONAL tree.");
 					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 				}
@@ -1688,23 +1566,22 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<SecurityZoneTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
 		// Update succeeded
 		responseBuilder.setResponseCode(errorCode);
 		responseBuilder.setAckFinalIndicator(ackFinal);
-		if (errorMessage != null)
-		{
+		if (errorMessage != null) {
 			responseBuilder.setResponseMessage(errorMessage);
 		}
 		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
 		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-		RpcResult<SecurityZoneTopologyOperationOutput> rpcResult =
-            RpcResultBuilder.<SecurityZoneTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+		RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
+				.<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 		return Futures.immediateFuture(rpcResult);
 	}
 
@@ -1721,39 +1598,37 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// create a new response object
 		TunnelxconnTopologyOperationOutputBuilder responseBuilder = new TunnelxconnTopologyOperationOutputBuilder();
 
-		if(input == null ||
-            input.getServiceInformation() == null ||
-                input.getServiceInformation().getServiceInstanceId() == null ||
-                    input.getServiceInformation().getServiceInstanceId().length() == 0)
-        {
+		if (input == null || input.getServiceInformation() == null
+				|| input.getServiceInformation().getServiceInstanceId() == null
+				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
 			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<TunnelxconnTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
-        String siid = input.getServiceInformation().getServiceInstanceId();
+		String siid = input.getServiceInformation().getServiceInstanceId();
 
-        // Get the service-instance service data from MD-SAL
-        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
-        getServiceData(siid,serviceDataBuilder);
+		// Get the service-instance service data from MD-SAL
+		ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+		getServiceData(siid, serviceDataBuilder);
 
 		if (input.getSdncRequestHeader() != null) {
 			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
 		}
 
-        ServiceData sd = serviceDataBuilder.build();
-        if (sd == null || sd.getServiceLevelOperStatus() == null)
-        {
+		ServiceData sd = serviceDataBuilder.build();
+		if (sd == null || sd.getServiceLevelOperStatus() == null) {
 			log.debug("exiting {} because the service-instance does not have any service data in SDNC", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
-			responseBuilder.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
+			responseBuilder
+					.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<TunnelxconnTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
@@ -1764,46 +1639,36 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Call SLI sync method
 		// Get SvcLogicService reference
 
-		GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
 		Properties respProps = null;
 
 		String errorCode = "200";
 		String errorMessage = null;
 		String ackFinal = "Y";
 		String allottedResourceId = "error";
-        String serviceObjectPath = null;
-        String tunnelxconnObjectPath = null;
+		String serviceObjectPath = null;
+		String tunnelxconnObjectPath = null;
 
-		try
-		{
-			if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
-			{
+		try {
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
-				try
-				{
+				try {
 					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
-				}
-				catch (Exception e)
-				{
+				} catch (Exception e) {
 					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
 			} else {
-				errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
+				errorMessage = "No service logic active for " + appName + ": '" + SVC_OPERATION + "'";
 				errorCode = "503";
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			errorCode = "500";
 			errorMessage = e.getMessage();
 			log.error("Caught exception looking for service logic", e);
 		}
 
-
-		if (respProps != null)
-		{
+		if (respProps != null) {
 			errorCode = respProps.getProperty("error-code");
 			errorMessage = respProps.getProperty("error-message");
 			ackFinal = respProps.getProperty("ack-final", "Y");
@@ -1812,15 +1677,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			tunnelxconnObjectPath = respProps.getProperty("tunnelxconn-object-path");
 		}
 
-		if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+		if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
 			responseBuilder.setResponseCode(errorCode);
 			responseBuilder.setResponseMessage(errorMessage);
 			responseBuilder.setAckFinalIndicator(ackFinal);
 
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<TunnelxconnTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
@@ -1837,12 +1702,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
-			{
+			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
 				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
-						input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
-				{
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
+						|| input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
 					log.info("Updating OPERATIONAL tree.");
 					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 				}
@@ -1864,23 +1727,22 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<TunnelxconnTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
 		// Update succeeded
 		responseBuilder.setResponseCode(errorCode);
 		responseBuilder.setAckFinalIndicator(ackFinal);
-		if (errorMessage != null)
-		{
+		if (errorMessage != null) {
 			responseBuilder.setResponseMessage(errorMessage);
 		}
 		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
 		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-		RpcResult<TunnelxconnTopologyOperationOutput> rpcResult =
-            RpcResultBuilder.<TunnelxconnTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+		RpcResult<TunnelxconnTopologyOperationOutput> rpcResult = RpcResultBuilder
+				.<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 		return Futures.immediateFuture(rpcResult);
 	}
 
@@ -1895,39 +1757,37 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// create a new response object
 		BrgTopologyOperationOutputBuilder responseBuilder = new BrgTopologyOperationOutputBuilder();
 
-		if(input == null ||
-            input.getServiceInformation() == null ||
-                input.getServiceInformation().getServiceInstanceId() == null ||
-                    input.getServiceInformation().getServiceInstanceId().length() == 0)
-        {
+		if (input == null || input.getServiceInformation() == null
+				|| input.getServiceInformation().getServiceInstanceId() == null
+				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
 			log.debug("exiting {} because of null or empty service-instance-id", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<BrgTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<BrgTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<BrgTopologyOperationOutput> rpcResult = RpcResultBuilder.<BrgTopologyOperationOutput>status(true)
+					.withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
-        String siid = input.getServiceInformation().getServiceInstanceId();
+		String siid = input.getServiceInformation().getServiceInstanceId();
 
-        // Get the service-instance service data from MD-SAL
-        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
-        getServiceData(siid,serviceDataBuilder);
+		// Get the service-instance service data from MD-SAL
+		ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+		getServiceData(siid, serviceDataBuilder);
 
 		if (input.getSdncRequestHeader() != null) {
 			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
 		}
 
-        ServiceData sd = serviceDataBuilder.build();
-        if (sd == null || sd.getServiceLevelOperStatus() == null)
-        {
+		ServiceData sd = serviceDataBuilder.build();
+		if (sd == null || sd.getServiceLevelOperStatus() == null) {
 			log.debug("exiting {} because the service-instance does not have any service data in SDNC", SVC_OPERATION);
 			responseBuilder.setResponseCode("404");
-			responseBuilder.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
+			responseBuilder
+					.setResponseMessage("invalid input: the service-instance does not have any service data in SDNC");
 			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<BrgTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<BrgTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<BrgTopologyOperationOutput> rpcResult = RpcResultBuilder.<BrgTopologyOperationOutput>status(true)
+					.withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
@@ -1938,46 +1798,36 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Call SLI sync method
 		// Get SvcLogicService reference
 
-		GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
 		Properties respProps = null;
 
 		String errorCode = "200";
 		String errorMessage = null;
 		String ackFinal = "Y";
 		String allottedResourceId = "error";
-        String serviceObjectPath = null;
-        String brgObjectPath = null;
+		String serviceObjectPath = null;
+		String brgObjectPath = null;
 
-		try
-		{
-			if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
-			{
+		try {
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
-				try
-				{
+				try {
 					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
-				}
-				catch (Exception e)
-				{
+				} catch (Exception e) {
 					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
 					errorCode = "500";
 				}
 			} else {
-				errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
+				errorMessage = "No service logic active for " + appName + ": '" + SVC_OPERATION + "'";
 				errorCode = "503";
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			errorCode = "500";
 			errorMessage = e.getMessage();
 			log.error("Caught exception looking for service logic", e);
 		}
 
-
-		if (respProps != null)
-		{
+		if (respProps != null) {
 			errorCode = respProps.getProperty("error-code");
 			errorMessage = respProps.getProperty("error-message");
 			ackFinal = respProps.getProperty("ack-final", "Y");
@@ -1986,15 +1836,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			brgObjectPath = respProps.getProperty("brg-object-path");
 		}
 
-		if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+		if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
 			responseBuilder.setResponseCode(errorCode);
 			responseBuilder.setResponseMessage(errorMessage);
 			responseBuilder.setAckFinalIndicator(ackFinal);
 
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-			RpcResult<BrgTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<BrgTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<BrgTopologyOperationOutput> rpcResult = RpcResultBuilder.<BrgTopologyOperationOutput>status(true)
+					.withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
@@ -2011,12 +1861,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null)
-			{
+			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
 				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
-						input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))
-				{
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
+						|| input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
 					log.info("Updating OPERATIONAL tree.");
 					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 				}
@@ -2038,402 +1886,377 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
 			log.error("Returned FAILED for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
-			RpcResult<BrgTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<BrgTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+			RpcResult<BrgTopologyOperationOutput> rpcResult = RpcResultBuilder.<BrgTopologyOperationOutput>status(true)
+					.withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
 		}
 
 		// Update succeeded
 		responseBuilder.setResponseCode(errorCode);
 		responseBuilder.setAckFinalIndicator(ackFinal);
-		if (errorMessage != null)
-		{
+		if (errorMessage != null) {
 			responseBuilder.setResponseMessage(errorMessage);
 		}
 		log.info("Updated MD-SAL for {} [{}]", SVC_OPERATION, siid);
 		log.info("Returned SUCCESS for {} [{}] {}", SVC_OPERATION, siid, responseBuilder.build());
 
-		RpcResult<BrgTopologyOperationOutput> rpcResult =
-            RpcResultBuilder.<BrgTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
+		RpcResult<BrgTopologyOperationOutput> rpcResult = RpcResultBuilder.<BrgTopologyOperationOutput>status(true)
+				.withResult(responseBuilder.build()).build();
 		return Futures.immediateFuture(rpcResult);
 	}
 
-    @Override
-    public Future<RpcResult<PreloadVnfTopologyOperationOutput>> preloadVnfTopologyOperation(
-            PreloadVnfTopologyOperationInput input) {
+	@Override
+	public Future<RpcResult<PreloadVnfTopologyOperationOutput>> preloadVnfTopologyOperation(
+			PreloadVnfTopologyOperationInput input) {
 
-        final String SVC_OPERATION = "preload-vnf-topology-operation";
-        PreloadData preloadData;
-        Properties parms = new Properties();
+		final String SVC_OPERATION = "preload-vnf-topology-operation";
+		PreloadData preloadData;
+		Properties parms = new Properties();
 
-        log.info("{} called.", SVC_OPERATION);
-        // create a new response object
-        PreloadVnfTopologyOperationOutputBuilder responseBuilder = new PreloadVnfTopologyOperationOutputBuilder();
+		log.info("{} called.", SVC_OPERATION);
+		// create a new response object
+		PreloadVnfTopologyOperationOutputBuilder responseBuilder = new PreloadVnfTopologyOperationOutputBuilder();
 
-        // Result from savePreloadData
-        final SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
+		// Result from savePreloadData
+		final SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
 
-        if(input == null || input.getVnfTopologyInformation() == null ||
-            input.getVnfTopologyInformation().getVnfTopologyIdentifier() == null) {
-                log.debug("exiting {} because of null input", SVC_OPERATION);
-                responseBuilder.setResponseCode("403");
-                responseBuilder.setResponseMessage("invalid input: input is null");
-                responseBuilder.setAckFinalIndicator("Y");
-                RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
-                    RpcResultBuilder.<PreloadVnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-                return Futures.immediateFuture(rpcResult);
-        }
+		if (input == null || input.getVnfTopologyInformation() == null
+				|| input.getVnfTopologyInformation().getVnfTopologyIdentifier() == null) {
+			log.debug("exiting {} because of null input", SVC_OPERATION);
+			responseBuilder.setResponseCode("403");
+			responseBuilder.setResponseMessage("invalid input: input is null");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<PreloadVnfTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
-        // Grab the name and type from the input buffer
-        String preload_name = input.getVnfTopologyInformation().getVnfTopologyIdentifier().getVnfName();
-        String preload_type = input.getVnfTopologyInformation().getVnfTopologyIdentifier().getVnfType();
+		// Grab the name and type from the input buffer
+		String preload_name = input.getVnfTopologyInformation().getVnfTopologyIdentifier().getVnfName();
+		String preload_type = input.getVnfTopologyInformation().getVnfTopologyIdentifier().getVnfType();
 
-        // Make sure we have a preload_name and preload_type
-        if(preload_name == null || preload_name.length() == 0 || preload_type == null || preload_type.length() == 0 ) {
-            log.debug("exiting {} vnf-name or vnf-type is null or empty", SVC_OPERATION);
-            responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input: vnf-name or vnf-type is null or empty");
-            responseBuilder.setAckFinalIndicator("Y");
-            RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<PreloadVnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-            return Futures.immediateFuture(rpcResult);
-        }
+		// Make sure we have a preload_name and preload_type
+		if (preload_name == null || preload_name.length() == 0 || preload_type == null || preload_type.length() == 0) {
+			log.debug("exiting {} vnf-name or vnf-type is null or empty", SVC_OPERATION);
+			responseBuilder.setResponseCode("403");
+			responseBuilder.setResponseMessage("invalid input: vnf-name or vnf-type is null or empty");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<PreloadVnfTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
-        if (input.getSdncRequestHeader() != null) {
-            responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-        }
+		if (input.getSdncRequestHeader() != null) {
+			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+		}
 
-        PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
-        getPreloadData(preload_name, preload_type, preloadDataBuilder);
+		PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
+		getPreloadData(preload_name, preload_type, preloadDataBuilder);
 
-        PreloadDataBuilder operDataBuilder = new PreloadDataBuilder();
-        getPreloadData(preload_name, preload_type, operDataBuilder, LogicalDatastoreType.OPERATIONAL );
+		PreloadDataBuilder operDataBuilder = new PreloadDataBuilder();
+		getPreloadData(preload_name, preload_type, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
-        // setup a preload-data object builder
-        // ACTION preload-vnf-topology-operation
-        // INPUT:
-        //  USES sdnc-request-header;
-        //  USES request-information;
-        //  uses vnf-topology-information;
-        // OUTPUT:
-        //  USES vnf-topology-response-body;
-        //
-        // container preload-data
-        //   uses vnf-topology-information;
-        //   uses network-topology-information;
-        //   uses oper-status;
+		// setup a preload-data object builder
+		// ACTION preload-vnf-topology-operation
+		// INPUT:
+		// USES sdnc-request-header;
+		// USES request-information;
+		// uses vnf-topology-information;
+		// OUTPUT:
+		// USES vnf-topology-response-body;
+		//
+		// container preload-data
+		// uses vnf-topology-information;
+		// uses network-topology-information;
+		// uses oper-status;
 
-        log.info("Adding INPUT data for {} [{},{}] input: {}", SVC_OPERATION, preload_name, preload_type, input);
-        PreloadVnfTopologyOperationInputBuilder inputBuilder = new PreloadVnfTopologyOperationInputBuilder(input);
-        GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
-        log.info("Adding OPERATIONAL data for {} [{},{}] operational-data: {}",
-            SVC_OPERATION, preload_name, preload_type, operDataBuilder.build());
-        GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
+		log.info("Adding INPUT data for {} [{},{}] input: {}", SVC_OPERATION, preload_name, preload_type, input);
+		PreloadVnfTopologyOperationInputBuilder inputBuilder = new PreloadVnfTopologyOperationInputBuilder(input);
+		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+		log.info("Adding OPERATIONAL data for {} [{},{}] operational-data: {}", SVC_OPERATION, preload_name,
+				preload_type, operDataBuilder.build());
+		GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
 
-        // Call SLI sync method
-        // Get SvcLogicService reference
+		// Call SLI sync method
+		// Get SvcLogicService reference
 
-        GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
-        Properties respProps = null;
+		Properties respProps = null;
 
-        String errorCode = "200";
-        String errorMessage = null;
-        String ackFinal = "Y";
+		String errorCode = "200";
+		String errorMessage = null;
+		String ackFinal = "Y";
 
+		try {
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
-        try
-        {
-            if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
-            {
+				try {
+					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", preloadDataBuilder, parms);
+				} catch (Exception e) {
+					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
+					errorMessage = e.getMessage();
+					errorCode = "500";
+				}
+			} else {
+				errorMessage = "No service logic active for " + appName + ": '" + SVC_OPERATION + "'";
+				errorCode = "503";
+			}
+		} catch (Exception e) {
+			errorCode = "500";
+			errorMessage = e.getMessage();
+			log.error("Caught exception looking for service logic", e);
+		}
 
-                try
-                {
-                    respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", preloadDataBuilder, parms);
-                }
-                catch (Exception e)
-                {
-                    log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
-            } else {
-                errorMessage = "No service logic active for "+ appName + ": '" + SVC_OPERATION + "'";
-                errorCode = "503";
-            }
-        }
-        catch (Exception e)
-        {
-            errorCode = "500";
-            errorMessage = e.getMessage();
-            log.error("Caught exception looking for service logic", e);
-        }
+		if (respProps != null) {
+			errorCode = respProps.getProperty("error-code");
+			errorMessage = respProps.getProperty("error-message");
+			ackFinal = respProps.getProperty("ack-final", "Y");
+			// internalError = respProps.getProperty("internal-error", "false");
+		}
 
+		if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
 
-        if (respProps != null)
-        {
-            errorCode = respProps.getProperty("error-code");
-            errorMessage = respProps.getProperty("error-message");
-            ackFinal = respProps.getProperty("ack-final", "Y");
-            // internalError = respProps.getProperty("internal-error", "false");
-        }
+			responseBuilder.setResponseCode(errorCode);
+			responseBuilder.setResponseMessage(errorMessage);
+			responseBuilder.setAckFinalIndicator(ackFinal);
 
-        if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+			VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
+			preloadVnfListBuilder.setVnfName(preload_name);
+			preloadVnfListBuilder.setVnfType(preload_type);
+			preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
+			log.error("Returned FAILED for {} [{},{}] error code: '{}', Reason: '{}'", SVC_OPERATION, preload_name,
+					preload_type, errorCode, errorMessage);
+			try {
+				savePreloadList(preloadVnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
+			} catch (Exception e) {
+				log.error("Caught Exception updating MD-SAL for {} [{},{}] \n", SVC_OPERATION, preload_name,
+						preload_type, e);
+			}
+			log.debug("Sending Success rpc result due to external error");
+			RpcResult<PreloadVnfTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
-            responseBuilder.setResponseCode(errorCode);
-            responseBuilder.setResponseMessage(errorMessage);
-            responseBuilder.setAckFinalIndicator(ackFinal);
+		// Got success from SLI
+		try {
+			preloadData = preloadDataBuilder.build();
+			log.info("Updating MD-SAL for {} [{},{}] preloadData: {}", SVC_OPERATION, preload_name, preload_type,
+					preloadData);
+			// svc-configuration-list
+			VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
+			preloadVnfListBuilder.setVnfName(preload_name);
+			preloadVnfListBuilder.setVnfType(preload_type);
+			preloadVnfListBuilder.setPreloadData(preloadData);
 
-            VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
-            preloadVnfListBuilder.setVnfName(preload_name);
-            preloadVnfListBuilder.setVnfType(preload_type);
-            preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
-            log.error("Returned FAILED for {} [{},{}] error code: '{}', Reason: '{}'",
-                SVC_OPERATION, preload_name, preload_type, errorCode, errorMessage);
-            try {
-                savePreloadList(preloadVnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
-            } catch (Exception e) {
-                log.error("Caught Exception updating MD-SAL for {} [{},{}] \n",
-                    SVC_OPERATION, preload_name, preload_type, e);
-            }
-            log.debug("Sending Success rpc result due to external error");
-            RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<PreloadVnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-            return Futures.immediateFuture(rpcResult);
-        }
+			// merge flag sets to false to allow it to be overwritten (not appended)
+			savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+			log.info("Updating OPERATIONAL tree.");
+			savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+		} catch (Exception e) {
+			log.error("Caught Exception updating MD-SAL for {} [{},{}] \n", SVC_OPERATION, preload_name, preload_type,
+					e);
+			responseBuilder.setResponseCode("500");
+			responseBuilder.setResponseMessage(e.toString());
+			responseBuilder.setAckFinalIndicator("Y");
+			log.error("Returned FAILED for {} [{},{}] {}", SVC_OPERATION, preload_name, preload_type,
+					responseBuilder.build());
+			RpcResult<PreloadVnfTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<PreloadVnfTopologyOperationOutput>status(false).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
-        // Got success from SLI
-        try {
-            preloadData = preloadDataBuilder.build();
-            log.info("Updating MD-SAL for {} [{},{}] preloadData: {}",
-                SVC_OPERATION, preload_name, preload_type, preloadData);
-            // svc-configuration-list
-            VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
-            preloadVnfListBuilder.setVnfName(preload_name);
-            preloadVnfListBuilder.setVnfType(preload_type);
-            preloadVnfListBuilder.setPreloadData(preloadData);
+		// Update succeeded
+		responseBuilder.setResponseCode(errorCode);
+		responseBuilder.setAckFinalIndicator(ackFinal);
+		if (errorMessage != null) {
+			responseBuilder.setResponseMessage(errorMessage);
+		}
+		log.info("Updated MD-SAL for {} [{},{}]", SVC_OPERATION, preload_name, preload_type);
+		log.info("Returned SUCCESS for {} [{},{}] {}", SVC_OPERATION, preload_name, preload_type,
+				responseBuilder.build());
 
-            // merge flag sets to false to allow it to be overwritten (not appended)
-            savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-            log.info("Updating OPERATIONAL tree.");
-            savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
-        } catch (Exception e) {
-            log.error("Caught Exception updating MD-SAL for {} [{},{}] \n",
-                SVC_OPERATION, preload_name, preload_type, e);
-            responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
-            responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for {} [{},{}] {}",
-                SVC_OPERATION, preload_name, preload_type, responseBuilder.build());
-            RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<PreloadVnfTopologyOperationOutput> status(false).withResult(responseBuilder.build()).build();
-            return Futures.immediateFuture(rpcResult);
-        }
+		RpcResult<PreloadVnfTopologyOperationOutput> rpcResult = RpcResultBuilder
+				.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+		return Futures.immediateFuture(rpcResult);
+	}
 
-        // Update succeeded
-        responseBuilder.setResponseCode(errorCode);
-        responseBuilder.setAckFinalIndicator(ackFinal);
-        if (errorMessage != null)
-        {
-            responseBuilder.setResponseMessage(errorMessage);
-        }
-        log.info("Updated MD-SAL for {} [{},{}]", SVC_OPERATION, preload_name, preload_type);
-        log.info("Returned SUCCESS for {} [{},{}] {}", SVC_OPERATION, preload_name, preload_type, responseBuilder.build());
+	@Override
+	public Future<RpcResult<PreloadNetworkTopologyOperationOutput>> preloadNetworkTopologyOperation(
+			PreloadNetworkTopologyOperationInput input) {
 
-        RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<PreloadVnfTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-        return Futures.immediateFuture(rpcResult);
-    }
+		final String SVC_OPERATION = "preload-network-topology-operation";
+		PreloadData preloadData;
+		Properties parms = new Properties();
 
+		log.info("{} called.", SVC_OPERATION);
+		// create a new response object
+		PreloadNetworkTopologyOperationOutputBuilder responseBuilder = new PreloadNetworkTopologyOperationOutputBuilder();
 
-    @Override
-    public Future<RpcResult<PreloadNetworkTopologyOperationOutput>> preloadNetworkTopologyOperation(
-            PreloadNetworkTopologyOperationInput input) {
+		// Result from savePreloadData
+		final SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
 
-        final String SVC_OPERATION = "preload-network-topology-operation";
-        PreloadData preloadData;
-        Properties parms = new Properties();
+		if (input == null || input.getNetworkTopologyInformation() == null
+				|| input.getNetworkTopologyInformation().getNetworkTopologyIdentifier() == null) {
 
-        log.info("{} called.", SVC_OPERATION);
-        // create a new response object
-        PreloadNetworkTopologyOperationOutputBuilder responseBuilder = new PreloadNetworkTopologyOperationOutputBuilder();
+			log.debug("exiting {} because of null input", SVC_OPERATION);
+			responseBuilder.setResponseCode("403");
+			responseBuilder.setResponseMessage("input is null");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
-        // Result from savePreloadData
-        final SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
+		// Grab the name and type from the input buffer
+		String preload_name = input.getNetworkTopologyInformation().getNetworkTopologyIdentifier().getNetworkName();
+		String preload_type = input.getNetworkTopologyInformation().getNetworkTopologyIdentifier().getNetworkType();
 
-        if(input == null || input.getNetworkTopologyInformation() == null ||
-            input.getNetworkTopologyInformation().getNetworkTopologyIdentifier() == null) {
+		// Make sure we have a preload_name and preload_type
+		if (preload_name == null || preload_name.length() == 0 || preload_type == null || preload_type.length() == 0) {
+			log.debug("exiting {} because of invalid preload-name", SVC_OPERATION);
+			responseBuilder.setResponseCode("403");
+			responseBuilder.setResponseMessage("input, invalid preload-name");
+			responseBuilder.setAckFinalIndicator("Y");
+			RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
-            log.debug("exiting {} because of null input", SVC_OPERATION);
-            responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("input is null");
-            responseBuilder.setAckFinalIndicator("Y");
-            RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<PreloadNetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-            return Futures.immediateFuture(rpcResult);
-        }
+		if (input.getSdncRequestHeader() != null) {
+			responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+		}
 
-        // Grab the name and type from the input buffer
-        String preload_name = input.getNetworkTopologyInformation().getNetworkTopologyIdentifier().getNetworkName();
-        String preload_type = input.getNetworkTopologyInformation().getNetworkTopologyIdentifier().getNetworkType();
+		PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
+		getPreloadData(preload_name, preload_type, preloadDataBuilder);
 
-        // Make sure we have a preload_name and preload_type
-        if(preload_name == null || preload_name.length() == 0 || preload_type == null || preload_type.length() == 0 ) {
-            log.debug("exiting {} because of invalid preload-name", SVC_OPERATION);
-            responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("input, invalid preload-name");
-            responseBuilder.setAckFinalIndicator("Y");
-            RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<PreloadNetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-            return Futures.immediateFuture(rpcResult);
-        }
+		PreloadDataBuilder operDataBuilder = new PreloadDataBuilder();
+		getPreloadData(preload_name, preload_type, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
-        if (input.getSdncRequestHeader() != null) {
-            responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
-        }
+		//
+		// setup a preload-data object builder
+		// ACTION preload-network-topology-operation
+		// INPUT:
+		// USES sdnc-request-header;
+		// USES request-information;
+		// uses network-topology-information;
+		// OUTPUT:
+		// USES vnf-topology-response-body;
+		//
+		// container preload-data
+		// uses vnf-topology-information;
+		// uses network-topology-information;
+		// uses oper-status;
 
-        PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
-        getPreloadData(preload_name, preload_type, preloadDataBuilder);
+		log.info("Adding INPUT data for {} [{},{}] input: {}", SVC_OPERATION, preload_name, preload_type, input);
+		PreloadNetworkTopologyOperationInputBuilder inputBuilder = new PreloadNetworkTopologyOperationInputBuilder(
+				input);
+		GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+		log.info("Adding OPERATIONAL data for {} [{},{}] operational-data: {}", SVC_OPERATION, preload_name,
+				preload_type, operDataBuilder.build());
+		GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
 
-        PreloadDataBuilder operDataBuilder = new PreloadDataBuilder();
-        getPreloadData(preload_name, preload_type, operDataBuilder, LogicalDatastoreType.OPERATIONAL );
+		// Call SLI sync method
+		// Get SvcLogicService reference
 
-        //
-        // setup a preload-data object builder
-        // ACTION preload-network-topology-operation
-        // INPUT:
-        //  USES sdnc-request-header;
-        //  USES request-information;
-        //  uses network-topology-information;
-        // OUTPUT:
-        //  USES vnf-topology-response-body;
-        //
-        // container preload-data
-        //   uses vnf-topology-information;
-        //   uses network-topology-information;
-        //   uses oper-status;
+		Properties respProps = null;
 
+		String errorCode = "200";
+		String errorMessage = null;
+		String ackFinal = "Y";
 
-        log.info("Adding INPUT data for {} [{},{}] input: {}", SVC_OPERATION, preload_name, preload_type, input);
-        PreloadNetworkTopologyOperationInputBuilder inputBuilder = new PreloadNetworkTopologyOperationInputBuilder(input);
-        GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
-        log.info("Adding OPERATIONAL data for {} [{},{}] operational-data: {}",
-            SVC_OPERATION, preload_name, preload_type, operDataBuilder.build());
-        GenericResourceApiUtil.toProperties(parms, "operational-data", operDataBuilder);
+		try {
+			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
-        // Call SLI sync method
-        // Get SvcLogicService reference
+				try {
+					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", preloadDataBuilder, parms);
+				} catch (Exception e) {
+					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
+					errorMessage = e.getMessage();
+					errorCode = "500";
+				}
+			} else {
+				errorMessage = "No service logic active for " + appName + ": '" + SVC_OPERATION + "'";
+				errorCode = "503";
+			}
+		} catch (Exception e) {
+			errorCode = "500";
+			errorMessage = e.getMessage();
+			log.error("Caught exception looking for service logic", e);
+		}
 
-        GenericResourceApiSvcLogicServiceClient svcLogicClient = new GenericResourceApiSvcLogicServiceClient();
-        Properties respProps = null;
+		if (respProps != null) {
+			errorCode = respProps.getProperty("error-code");
+			errorMessage = respProps.getProperty("error-message");
+			ackFinal = respProps.getProperty("ack-final", "Y");
+			// internalError = respProps.getProperty("internal-error", "false");
+		}
 
-        String errorCode = "200";
-        String errorMessage = null;
-        String ackFinal = "Y";
+		if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
 
+			responseBuilder.setResponseCode(errorCode);
+			responseBuilder.setResponseMessage(errorMessage);
+			responseBuilder.setAckFinalIndicator(ackFinal);
 
-        try
-        {
-            if (svcLogicClient.hasGraph(appName, SVC_OPERATION , null, "sync"))
-            {
+			VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
+			preloadVnfListBuilder.setVnfName(preload_name);
+			preloadVnfListBuilder.setVnfType(preload_type);
+			preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
+			log.error("Returned FAILED for {} [{},{}] error code: '{}', Reason: '{}'", SVC_OPERATION, preload_name,
+					preload_type, errorCode, errorMessage);
+			try {
+				savePreloadList(preloadVnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
+			} catch (Exception e) {
+				log.error("Caught Exception updating MD-SAL for {} [{},{}] \n", SVC_OPERATION, preload_name,
+						preload_type, e);
 
-                try
-                {
-                    respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", preloadDataBuilder, parms);
-                }
-                catch (Exception e)
-                {
-                    log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
-            } else {
-                errorMessage = "No service logic active for "+ appName +": '" + SVC_OPERATION + "'";
-                errorCode = "503";
-            }
-        }
-        catch (Exception e)
-        {
-            errorCode = "500";
-            errorMessage = e.getMessage();
-            log.error("Caught exception looking for service logic", e);
-        }
+			}
+			log.debug("Sending Success rpc result due to external error");
+			RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
+		// Got success from SLI
+		try {
+			preloadData = preloadDataBuilder.build();
+			log.info("Updating MD-SAL for {} [{},{}] preloadData: {}", SVC_OPERATION, preload_name, preload_type,
+					preloadData);
+			// svc-configuration-list
+			VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
+			preloadVnfListBuilder.setVnfName(preload_name);
+			preloadVnfListBuilder.setVnfType(preload_type);
+			preloadVnfListBuilder.setPreloadData(preloadData);
 
-        if (respProps != null)
-        {
-            errorCode = respProps.getProperty("error-code");
-            errorMessage = respProps.getProperty("error-message");
-            ackFinal = respProps.getProperty("ack-final", "Y");
-            // internalError = respProps.getProperty("internal-error", "false");
-        }
+			// merge flag sets to false to allow it to be overwritten (not appended)
+			savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+			log.info("Updating OPERATIONAL tree.");
+			savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+		} catch (Exception e) {
+			log.error("Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
+					+ "] \n", e);
+			responseBuilder.setResponseCode("500");
+			responseBuilder.setResponseMessage(e.toString());
+			responseBuilder.setAckFinalIndicator("Y");
+			log.error("Returned FAILED for {} [{},{}] {}", SVC_OPERATION, preload_name, preload_type,
+					responseBuilder.build());
+			RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+					.<PreloadNetworkTopologyOperationOutput>status(false).withResult(responseBuilder.build()).build();
+			return Futures.immediateFuture(rpcResult);
+		}
 
-        if ( errorCode != null && errorCode.length() != 0 && !( errorCode.equals("0")|| errorCode.equals("200"))) {
+		// Update succeeded
+		responseBuilder.setResponseCode(errorCode);
+		responseBuilder.setAckFinalIndicator(ackFinal);
+		if (errorMessage != null) {
+			responseBuilder.setResponseMessage(errorMessage);
+		}
+		log.info("Updated MD-SAL for {} [{},{}]", SVC_OPERATION, preload_name, preload_type);
+		log.info("Returned SUCCESS for {} [{},{}] {}", SVC_OPERATION, preload_name, preload_type,
+				responseBuilder.build());
 
-            responseBuilder.setResponseCode(errorCode);
-            responseBuilder.setResponseMessage(errorMessage);
-            responseBuilder.setAckFinalIndicator(ackFinal);
-
-            VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
-            preloadVnfListBuilder.setVnfName(preload_name);
-            preloadVnfListBuilder.setVnfType(preload_type);
-            preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
-            log.error("Returned FAILED for {} [{},{}] error code: '{}', Reason: '{}'",
-                SVC_OPERATION, preload_name, preload_type, errorCode, errorMessage);
-            try {
-                savePreloadList(preloadVnfListBuilder.build(),true, LogicalDatastoreType.CONFIGURATION);
-            } catch (Exception e) {
-                log.error("Caught Exception updating MD-SAL for {} [{},{}] \n",
-                    SVC_OPERATION, preload_name, preload_type, e);
-
-            }
-            log.debug("Sending Success rpc result due to external error");
-            RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<PreloadNetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-            return Futures.immediateFuture(rpcResult);
-        }
-
-        // Got success from SLI
-        try {
-            preloadData = preloadDataBuilder.build();
-            log.info("Updating MD-SAL for {} [{},{}] preloadData: {}",
-                SVC_OPERATION, preload_name, preload_type, preloadData);
-            // svc-configuration-list
-            VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
-            preloadVnfListBuilder.setVnfName(preload_name);
-            preloadVnfListBuilder.setVnfType(preload_type);
-            preloadVnfListBuilder.setPreloadData(preloadData);
-
-            // merge flag sets to false to allow it to be overwritten (not appended)
-            savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-            log.info("Updating OPERATIONAL tree.");
-            savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
-        } catch (Exception e) {
-            log.error("Caught Exception updating MD-SAL for "+SVC_OPERATION+" ["+preload_name+","+preload_type+"] \n",e);
-            responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
-            responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for {} [{},{}] {}",
-                SVC_OPERATION, preload_name, preload_type, responseBuilder.build());
-            RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<PreloadNetworkTopologyOperationOutput> status(false).withResult(responseBuilder.build()).build();
-            return Futures.immediateFuture(rpcResult);
-        }
-
-        // Update succeeded
-        responseBuilder.setResponseCode(errorCode);
-        responseBuilder.setAckFinalIndicator(ackFinal);
-        if (errorMessage != null)
-        {
-            responseBuilder.setResponseMessage(errorMessage);
-        }
-        log.info("Updated MD-SAL for {} [{},{}]", SVC_OPERATION, preload_name, preload_type);
-        log.info("Returned SUCCESS for {} [{},{}] {}",
-            SVC_OPERATION, preload_name, preload_type, responseBuilder.build());
-
-        RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
-                RpcResultBuilder.<PreloadNetworkTopologyOperationOutput> status(true).withResult(responseBuilder.build()).build();
-        return Futures.immediateFuture(rpcResult);
-    }
-
+		RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+				.<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+		return Futures.immediateFuture(rpcResult);
+	}
 
 }
