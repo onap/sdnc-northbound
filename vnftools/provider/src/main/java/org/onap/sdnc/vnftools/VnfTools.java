@@ -48,10 +48,8 @@ public class VnfTools implements SvcLogicJavaPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(VnfTools.class);
 
-    public VnfTools(Properties props) {
-        if (props != null) {
-            LOG.debug("props is not null.");
-        }
+    public VnfTools() {
+
     }
 
     public void checkIfActivateReady(Map<String, String> parameters, SvcLogicContext ctx) throws SvcLogicException {

@@ -42,14 +42,12 @@ public class VnfToolsTest {
 
     @Before
     public void setUp() throws Exception {
-        vnfTools = new VnfTools(null);
+        vnfTools = new VnfTools();
     }
 
     @Test
     public void testConstructor() throws Exception {
-        VnfTools vTools = new VnfTools(null);
-        Assert.assertTrue("Should have no impact with null property", vTools != null);
-        vTools = new VnfTools(new Properties());
+        VnfTools vTools = new VnfTools();
         Assert.assertTrue("Should have created", vTools != null);
     }
 
@@ -171,7 +169,7 @@ public class VnfToolsTest {
     @Test
     public void testPrintContext() throws Exception {
         Map<String, String> parameters = new HashMap<>();
-        parameters.put(VnfTools.FILENAME, "abc");
+        parameters.put(VnfTools.FILENAME, "target/testPrintContext.out");
         vnfTools.printContext(parameters, mockSvcLogicContext);
     }
 

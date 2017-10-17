@@ -77,7 +77,7 @@
                     <instructions>
                         <Bundle-SymbolicName>org.onap.sdnc.vnftools</Bundle-SymbolicName>
                         <Export-Package>org.onap.sdnc.vnftools.*</Export-Package>
-                        <Import-Package>org.onap.sdnc.*,org.osgi.framework.*,org.slf4j.*,java.net.*,org.apache.commons.*</Import-Package>
+                        <Import-Package>org.onap.sdnc.*,org.onap.ccsdk.*,org.osgi.framework.*,org.slf4j.*,java.net.*,org.apache.commons.*</Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;artifactId=!sli-common|org.eclipse.osgi|mysql-connector-java|slf4j-api|jcl-over-slf4j|xml-apis|InetAddress|commons-lang3</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
