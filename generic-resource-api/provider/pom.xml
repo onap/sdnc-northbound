@@ -104,7 +104,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package>org.opendaylight.controller.config.yang.config.generic-resource-api_provider.impl</Export-Package>
+						<Export-Package>!*</Export-Package>
 						<Import-Package>*</Import-Package>
 					</instructions>
 				</configuration>

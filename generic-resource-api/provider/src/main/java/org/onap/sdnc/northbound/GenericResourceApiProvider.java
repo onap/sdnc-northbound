@@ -146,15 +146,19 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 	protected RpcProviderRegistry rpcRegistry;
 	protected BindingAwareBroker.RpcRegistration<GENERICRESOURCEAPIService> rpcRegistration;
 
-	private GenericResourceApiSvcLogicServiceClient svcLogicClient;
+	private final GenericResourceApiSvcLogicServiceClient svcLogicClient;
 
-	public GenericResourceApiProvider(DataBroker dataBroker2, NotificationPublishService notificationPublishService,
-			RpcProviderRegistry rpcProviderRegistry, GenericResourceApiSvcLogicServiceClient client) {
+	public GenericResourceApiProvider(
+			DataBroker dataBroker,
+			NotificationPublishService notificationPublishService,
+			RpcProviderRegistry rpcProviderRegistry,
+			GenericResourceApiSvcLogicServiceClient client
+	) {
 		log.info("Creating provider for {}", appName);
 		executor = Executors.newFixedThreadPool(1);
-		dataBroker = dataBroker2;
-		notificationService = notificationPublishService;
-		rpcRegistry = rpcProviderRegistry;
+		setDataBroker(dataBroker);
+		setNotificationService(notificationPublishService);
+		setRpcRegistry(rpcProviderRegistry);
 		svcLogicClient = client;
 		initialize();
 
