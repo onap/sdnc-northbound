@@ -131,6 +131,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModifiedNodeDoesNotExistException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -778,16 +779,21 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 tx.submit().checkedGet();
                 log.debug("DataStore delete succeeded");
                 break;
-            } catch (final TransactionCommitFailedException e) {
+            } catch (final TransactionCommitFailedException  e) {
                 if (e instanceof OptimisticLockFailedException) {
                     if (--tries <= 0) {
                         log.debug("Got OptimisticLockFailedException on last try - failing ");
                         throw new IllegalStateException(e);
                     }
                     log.debug("Got OptimisticLockFailedException - trying again ");
-                } else {
-                    log.debug("Delete DataStore failed");
-                    throw new IllegalStateException(e);
+                }
+                else {
+                		if (e.getCause() instanceof ModifiedNodeDoesNotExistException) {
+                			log.debug("Ignoring MpdifiedNodeDoesNotExistException");
+                		} else {
+                			log.debug("Delete DataStore failed");
+                			throw new IllegalStateException(e);
+                		}
                 }
             }
         }

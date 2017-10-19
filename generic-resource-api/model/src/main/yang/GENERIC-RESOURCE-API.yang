@@ -829,7 +829,7 @@ module GENERIC-RESOURCE-API {
            description "The Network Controller will look up the vgmux bearer ip from the vgmux vf module";
            type inet:ip-address;
        }
-       leaf vgmux-lan-up {
+       leaf vgmux-lan-ip {
            description "The Network Controller will look up the vgmux lan ip from the vgmux vg module";
            type inet:ip-address;
        }
