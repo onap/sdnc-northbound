@@ -21,27 +21,25 @@
 
 package org.onap.sdnc.northbound.util;
 
-import com.google.common.base.Optional;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.Services;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.information.NetworkInformationBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.response.information.NetworkResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeaderBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceDataBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.information.ServiceInformationBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.model.infrastructure.Service;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.level.oper.status.ServiceLevelOperStatusBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.model.infrastructure.ServiceBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.model.infrastructure.ServiceKey;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.response.information.ServiceResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatusBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 
@@ -108,51 +106,40 @@ public class MDSALUtil {
 
     public static ServiceStatusBuilder serviceStatus(){return new ServiceStatusBuilder();}
 
+    public static NetworkInformationBuilder networkInformation(){return new NetworkInformationBuilder();}
+
+    public static NetworkTopologyOperationInputBuilder networkTopologyOperationInput() {return new NetworkTopologyOperationInputBuilder();}
+
+    public static NetworkTopologyOperationOutputBuilder networkTopologyOperationOutput() {return new NetworkTopologyOperationOutputBuilder();}
+
+    public static NetworkResponseInformationBuilder networkResponseInformation(){return new NetworkResponseInformationBuilder();}
+
+    public static ServiceLevelOperStatusBuilder serviceLevelOperStatus() {return new ServiceLevelOperStatusBuilder();}
+
     public static <P> P build(Builder<P> b) {
         return b == null? null :b.build();
     }
 
-    public static <O> O result(Future<RpcResult<O>> future, Function<RpcResult<O>,O> function)  throws Exception {
-        return function.apply(future.get());
-    }
-
-    public static <I,O> O rpc(Function<I,Future<RpcResult<O>>> rpc,Function<RpcResult<O>,O> function,I input)  throws Exception {
-        Future<RpcResult<O>> future = rpc.apply(input);
-        return function.apply(future.get());
-    }
-
-
-
-    /** @return Service - the Service object read from the DataBroker or null if none was found */
-    public static Service read(DataBroker dataBroker,String serviceKey, LogicalDatastoreType logicalDatastoreType) throws Exception {
-        InstanceIdentifier serviceInstanceIdentifier = InstanceIdentifier.<Services>builder(Services.class)
-                .child(Service.class, new ServiceKey(serviceKey)).build();
-        ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
-        Optional<Service> data = (Optional<Service>) readTx.read(logicalDatastoreType, serviceInstanceIdentifier).get();
-        if(!data.isPresent()){
+    public static <P,B extends Builder<P>> P build(Function<P,B> builderConstructor,P sourceDataObject){
+        if(sourceDataObject == null){
             return null;
         }
-
-
-        //The toString() value from a Service object returned form data.get() is different than the toString() value
-        //from a Service Object constructed from a Builder. This makes it difficult to compare deltas when doing a
-        // assertEquals.  That why we rebuild it her to solve that problem.
-        Service service = data.get();
-        return build(
-                (new ServiceBuilder(service))
-                        .setServiceStatus(build(
-                                service.getServiceStatus() == null ? null : new ServiceStatusBuilder(service.getServiceStatus())
-                        ))
-                        .setServiceData(build(
-                                service.getServiceData() == null ? null : new ServiceDataBuilder(service.getServiceData())
-                        ))
-        );
+        B bp = builderConstructor.apply(sourceDataObject);
+        return bp.build();
     }
 
+    public static <P,B extends Builder<P>> P build(Function<P,B> builderConstructor,P sourceDataObject,Consumer<B> builder){
+        if(sourceDataObject == null){
+            return null;
+        }
+        B bp = builderConstructor.apply(sourceDataObject);
+        builder.accept(bp);
+        return bp.build();
+    }
 
-
-
-
-
+    public static <I,O> O exec(Function<I,Future<RpcResult<O>>> rpc,I rpcParameter,Function<RpcResult<O>,O> rpcResult)  throws Exception {
+        Future<RpcResult<O>> future = rpc.apply(rpcParameter);
+        return rpcResult.apply(future.get());
+    }
 
 }

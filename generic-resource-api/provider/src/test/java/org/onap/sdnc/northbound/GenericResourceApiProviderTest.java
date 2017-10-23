@@ -23,6 +23,7 @@ package org.onap.sdnc.northbound;
 
 import org.junit.Before;
 import org.mockito.Mock;
+import org.onap.sdnc.northbound.util.DataBrokerUtil;
 import org.onap.sdnc.northbound.util.GenericResourceApiSvcLogicServiceClientMockUtil;
 import org.onap.sdnc.northbound.util.PropBuilder;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -43,14 +44,15 @@ public class GenericResourceApiProviderTest extends AbstractConcurrentDataBroker
     protected static final Logger LOG = LoggerFactory.getLogger(GenericResourceApiProvider.class);
 
 
+    protected DataBrokerUtil db;
     protected GenericResourceApiSvcLogicServiceClientMockUtil svcClient;
 
 
     @Before
     public void setUp() throws Exception {
         svcClient = new GenericResourceApiSvcLogicServiceClientMockUtil(mockGenericResourceApiSvcLogicServiceClient);
-
         dataBroker = getDataBroker();
+        db = new DataBrokerUtil(dataBroker);
          try {
             genericResourceApiProvider = new GenericResourceApiProvider(
                     dataBroker,

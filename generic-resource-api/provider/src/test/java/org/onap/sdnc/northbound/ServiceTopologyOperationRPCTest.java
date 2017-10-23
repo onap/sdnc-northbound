@@ -31,7 +31,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation.RequestAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader.SvcAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.information.ServiceInformation;
@@ -41,9 +40,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 
 import static org.junit.Assert.assertEquals;
 import static org.onap.sdnc.northbound.util.MDSALUtil.build;
-import static org.onap.sdnc.northbound.util.MDSALUtil.read;
+import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
-import static org.onap.sdnc.northbound.util.MDSALUtil.rpc;
 import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
 import static org.onap.sdnc.northbound.util.MDSALUtil.service;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceData;
@@ -85,13 +83,13 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
         svcClient.mockExecute(svcResultProp);
 
         // create the ServiceTopologyOperationInput from the template
-        ServiceTopologyOperationInput serviceTopologyOperationInput = createSTOI(RequestAction.CreateServiceInstance);
+        ServiceTopologyOperationInput serviceTopologyOperationInput = createSTOI();
 
-        //execute the mdsal rpc
-        ServiceTopologyOperationOutput actualServiceTopologyOperationOutput = rpc(
+        //execute the mdsal exec
+        ServiceTopologyOperationOutput actualServiceTopologyOperationOutput = exec(
                 genericResourceApiProvider::serviceTopologyOperation
-                , RpcResult::getResult
                 , serviceTopologyOperationInput
+                , RpcResult::getResult
         );
 
 
@@ -101,7 +99,7 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
 
 
         //verify the persisted Service
-        Service actualService = read(dataBroker,serviceTopologyOperationInput.getServiceInformation().getServiceInstanceId(), LogicalDatastoreType.CONFIGURATION);
+        Service actualService = db.read(serviceTopologyOperationInput.getServiceInformation().getServiceInstanceId(), LogicalDatastoreType.CONFIGURATION);
         Service expectedService = createExpectedService(
                 expectedServiceTopologyOperationOutput,
                 serviceTopologyOperationInput,
@@ -113,7 +111,7 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
 
 
 
-    private ServiceTopologyOperationInput createSTOI(RequestAction requestAction)
+    private ServiceTopologyOperationInput createSTOI()
     {
 
         return build(

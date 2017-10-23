@@ -50,6 +50,9 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
     public final String errorMessage = "error-message";
     public final String ackFinal = "ack-final";
     public final String serviceObjectPath = "service-object-path";
+    public final String networkObjectPath = "network-object-path";
+    public final String networkId = "networkId";
+
 
     private final GenericResourceApiSvcLogicServiceClient mockGenericResourceApiSvcLogicServiceClient;
 
@@ -94,7 +97,10 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
                 .set(errorCode,"200")
                 .set(errorMessage,"OK")
                 .set(ackFinal,"Y")
-                .set(serviceObjectPath,"XYZ");
+                .set(serviceObjectPath,"serviceObjectPath: XYZ")
+                .set(networkObjectPath,"networkObjectPath: XYZ")
+                .set(networkId,"networkId: XYZ");
+
     }
 
 
