@@ -6,3 +6,5 @@ Offered APIs
 .. toctree::
    :maxdepth: 1
 
+   apis/genericresource.rst
+   apis/vnfapi.rst
