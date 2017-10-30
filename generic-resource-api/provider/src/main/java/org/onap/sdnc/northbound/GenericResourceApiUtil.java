@@ -14,7 +14,7 @@ public class GenericResourceApiUtil extends MdsalHelper {
 
 	private static final Logger LOG = LoggerFactory.getLogger(GenericResourceApiUtil.class);
 
-	public static final String PROPERTIES_FILE="/opt/bvc/controller/configuration/generic-resource-api.properties";
+	public static final String PROPERTIES_FILE="/opt/opendaylight/current/configuration/generic-resource-api.properties";
 	private static Properties properties;
 
 

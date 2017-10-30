@@ -1685,7 +1685,7 @@ module GENERIC-RESOURCE-API {
            uses allotted-resource-status;
        }
    }
-   container brg-allotted-respources {
+   container brg-allotted-resources {
        list brg-allotted-resource {
            key "allotted-resource-id";
            leaf allotted-resource-id {
