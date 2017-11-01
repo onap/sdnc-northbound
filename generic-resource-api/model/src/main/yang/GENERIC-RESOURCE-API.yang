@@ -821,18 +821,24 @@ module GENERIC-RESOURCE-API {
        }
    }
    grouping tunnelxconn-assignments {
-       leaf vni {
-           description "The Network Controller will assign a VNI value from the associated vGMUX VNI pool";
-           type string;
-       }
-       leaf vgmux-bearer-ip {
-           description "The Network Controller will look up the vgmux bearer ip from the vgmux vf module";
-           type inet:ip-address;
-       }
-       leaf vgmux-lan-ip {
-           description "The Network Controller will look up the vgmux lan ip from the vgmux vg module";
-           type inet:ip-address;
-       }
+	   container tunnelxconn-assignments {
+	       leaf vni {
+	           description "The Network Controller will assign a VNI value from the associated vGMUX VNI pool";
+	           type string;
+	       }
+	       leaf vgmux-bearer-ip {
+	           description "The Network Controller will look up the vgmux bearer ip from the vgmux vf module";
+	           type inet:ip-address;
+	       }
+	       leaf vgmux-lan-ip {
+	           description "The Network Controller will look up the vgmux lan ip from the vgmux vg module";
+	           type inet:ip-address;
+	       }
+	       leaf vg-ip {
+	           description "The Network Controller will assign the VG IP address from local inventory";
+	           type inet:ip-address;
+	       }
+	   }
    }
    grouping brg-operation-information {
        uses sdnc-request-header;
@@ -863,9 +869,11 @@ module GENERIC-RESOURCE-API {
        }
    }
    grouping brg-assignments {
-       leaf vbrg-wan-ip {
-           type inet:ip-address;
-       }
+	   container brg-assignments {
+	       leaf vbrg-wan-ip {
+	           type inet:ip-address;
+	       }
+	   }
    }
    grouping allotted-resource-information {
       container allotted-resource-information {
