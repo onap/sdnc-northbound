@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a4e6583_1ae2c903",
+        "filename": "generic-resource-api/model/src/main/yang/GENERIC-RESOURCE-API.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 667
+      },
+      "writtenOn": "2017-11-03T21:59:07Z",
+      "side": 1,
+      "message": "Dan, this change raises the questions I was having earlier about the brg-wan-ip-address. If this is now brg-wan-mac-address, do we have a way to look up brg-wan-ip-address in AAI, or some way to generate or know it in SDNC?",
+      "range": {
+        "startLine": 861,
+        "startChar": 16,
+        "endLine": 861,
+        "endChar": 35
+      },
+      "revId": "d4d2912f5b8c7f12176ff3304ebbb8f30059f402",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
