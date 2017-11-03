@@ -1,17 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "1.0.0",
-    "title" : "Generic Resource API",
-    "description" : "Generic Resource API",
-    "contact" : {
-        "name" : "ONAP SDNC team",
-        "email" : "onap-discuss@lists.onap.org",
-        "url" : "https://gerrit.onap.org/r/#/admin./projects/sdnc/sli/northbound"
-    }
+    "version": "1.0.0"
   },
   "basePath": "/restconf",
-  "schemes" : [ "http" ],
   "paths": {
     "/config": {
       "post": {
@@ -58,10 +50,10 @@
           },
           {
             "in": "body",
-            "name": "**(config)brg-allotted-respources",
+            "name": "**(config)brg-allotted-resources",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-respources-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-resources-TOP"
             }
           },
           {
@@ -84,7 +76,7 @@
         "operationId": "POST-GENERIC-RESOURCE-API_module"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources": {
       "delete": {
         "produces": [
           "application/json",
@@ -95,7 +87,7 @@
             "description": "No response was specified"
           }
         },
-        "operationId": "DELETE-brg-allotted-respources"
+        "operationId": "DELETE-brg-allotted-resources"
       },
       "get": {
         "produces": [
@@ -106,11 +98,11 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/(config)brg-allotted-respources"
+              "$ref": "#/definitions/(config)brg-allotted-resources"
             }
           }
         },
-        "operationId": "GET-brg-allotted-respources"
+        "operationId": "GET-brg-allotted-resources"
       },
       "post": {
         "consumes": [
@@ -127,7 +119,7 @@
             "name": "**(config)brg-allotted-resource",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources(config)brg-allotted-resource-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources(config)brg-allotted-resource-TOP"
             }
           }
         ],
@@ -135,11 +127,11 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/(config)brg-allotted-respourcesPOST"
+              "$ref": "#/definitions/(config)brg-allotted-resourcesPOST"
             }
           }
         },
-        "operationId": "POST-brg-allotted-respources"
+        "operationId": "POST-brg-allotted-resources"
       },
       "put": {
         "consumes": [
@@ -153,10 +145,10 @@
         "parameters": [
           {
             "in": "body",
-            "name": "(config)brg-allotted-respources",
+            "name": "(config)brg-allotted-resources",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-respources-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-resources-TOP"
             }
           }
         ],
@@ -164,14 +156,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-respources-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-resources-TOP"
             }
           }
         },
-        "operationId": "PUT-brg-allotted-respources"
+        "operationId": "PUT-brg-allotted-resources"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}": {
       "delete": {
         "produces": [
           "application/json",
@@ -236,7 +228,7 @@
             "name": "**(config)allotted-resource-data",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-data-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-data-TOP"
             }
           },
           {
@@ -244,7 +236,7 @@
             "name": "**(config)allotted-resource-status",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-status-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-status-TOP"
             }
           }
         ],
@@ -279,7 +271,7 @@
             "name": "(config)brg-allotted-resource",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources(config)brg-allotted-resource-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources(config)brg-allotted-resource-TOP"
             }
           }
         ],
@@ -287,14 +279,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources(config)brg-allotted-resource-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources(config)brg-allotted-resource-TOP"
             }
           }
         },
         "operationId": "PUT-brg-allotted-resource"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data": {
       "delete": {
         "produces": [
           "application/json",
@@ -359,7 +351,7 @@
             "name": "**(config)allotted-resource-operation-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information-TOP"
             }
           },
           {
@@ -367,7 +359,7 @@
             "name": "**(config)brg-topology",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-topology-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-topology-TOP"
             }
           },
           {
@@ -375,7 +367,7 @@
             "name": "**(config)brg-parameters",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-parameters-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-parameters-TOP"
             }
           },
           {
@@ -383,7 +375,7 @@
             "name": "**(config)allotted-resource-oper-status",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status-TOP"
             }
           }
         ],
@@ -418,7 +410,7 @@
             "name": "(config)allotted-resource-data",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-data-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-data-TOP"
             }
           }
         ],
@@ -426,14 +418,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-data-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-data-TOP"
             }
           }
         },
         "operationId": "PUT-allotted-resource-data"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-oper-status": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-oper-status": {
       "delete": {
         "produces": [
           "application/json",
@@ -498,7 +490,7 @@
             "name": "(config)allotted-resource-oper-status",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status-TOP"
             }
           }
         ],
@@ -506,14 +498,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status-TOP"
             }
           }
         },
         "operationId": "PUT-allotted-resource-oper-status"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information": {
       "delete": {
         "produces": [
           "application/json",
@@ -578,7 +570,7 @@
             "name": "**(config)request-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP"
             }
           },
           {
@@ -586,15 +578,7 @@
             "name": "**(config)sdnc-request-header",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP"
-            }
-          },
-          {
-            "in": "body",
-            "name": "**(config)service-information",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP"
             }
           },
           {
@@ -602,7 +586,15 @@
             "name": "**(config)allotted-resource-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)service-information",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP"
             }
           }
         ],
@@ -637,7 +629,7 @@
             "name": "(config)allotted-resource-operation-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information-TOP"
             }
           }
         ],
@@ -645,14 +637,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information-TOP"
             }
           }
         },
         "operationId": "PUT-allotted-resource-operation-information"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information": {
       "delete": {
         "produces": [
           "application/json",
@@ -717,7 +709,7 @@
             "name": "**(config)onap-model-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information-TOP"
             }
           }
         ],
@@ -752,7 +744,7 @@
             "name": "(config)allotted-resource-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information-TOP"
             }
           }
         ],
@@ -760,14 +752,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information-TOP"
             }
           }
         },
         "operationId": "PUT-allotted-resource-information"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information/onap-model-information": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information/onap-model-information": {
       "delete": {
         "produces": [
           "application/json",
@@ -832,7 +824,7 @@
             "name": "(config)onap-model-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information-TOP"
             }
           }
         ],
@@ -840,14 +832,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information-TOP"
             }
           }
         },
         "operationId": "PUT-onap-model-information"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/request-information": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/request-information": {
       "delete": {
         "produces": [
           "application/json",
@@ -912,7 +904,7 @@
             "name": "(config)request-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP"
             }
           }
         ],
@@ -920,14 +912,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP"
             }
           }
         },
         "operationId": "PUT-request-information"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/sdnc-request-header": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/sdnc-request-header": {
       "delete": {
         "produces": [
           "application/json",
@@ -992,7 +984,7 @@
             "name": "(config)sdnc-request-header",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP"
             }
           }
         ],
@@ -1000,14 +992,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP"
             }
           }
         },
         "operationId": "PUT-sdnc-request-header"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/service-information": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/service-information": {
       "delete": {
         "produces": [
           "application/json",
@@ -1072,7 +1064,7 @@
             "name": "**(config)onap-model-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information-TOP"
             }
           }
         ],
@@ -1107,7 +1099,7 @@
             "name": "(config)service-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP"
             }
           }
         ],
@@ -1115,14 +1107,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP"
             }
           }
         },
         "operationId": "PUT-service-information"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/service-information/onap-model-information": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/service-information/onap-model-information": {
       "delete": {
         "produces": [
           "application/json",
@@ -1187,7 +1179,7 @@
             "name": "(config)onap-model-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information-TOP"
             }
           }
         ],
@@ -1195,14 +1187,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information-TOP"
             }
           }
         },
         "operationId": "PUT-onap-model-information"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-parameters": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-parameters": {
       "delete": {
         "produces": [
           "application/json",
@@ -1267,7 +1259,7 @@
             "name": "**(config)param",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param-TOP"
             }
           }
         ],
@@ -1302,7 +1294,7 @@
             "name": "(config)brg-parameters",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-parameters-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-parameters-TOP"
             }
           }
         ],
@@ -1310,14 +1302,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-parameters-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-parameters-TOP"
             }
           }
         },
         "operationId": "PUT-brg-parameters"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-parameters/param/{name}": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-parameters/param/{name}": {
       "delete": {
         "produces": [
           "application/json",
@@ -1400,7 +1392,7 @@
             "name": "(config)param",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param-TOP"
             }
           }
         ],
@@ -1408,14 +1400,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param-TOP"
             }
           }
         },
         "operationId": "PUT-param"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology": {
       "delete": {
         "produces": [
           "application/json",
@@ -1480,7 +1472,7 @@
             "name": "**(config)brg-parameters",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters-TOP"
             }
           },
           {
@@ -1488,7 +1480,7 @@
             "name": "**(config)allotted-resource-identifiers",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers-TOP"
             }
           },
           {
@@ -1496,7 +1488,15 @@
             "name": "**(config)onap-model-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)brg-assignments",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-assignments-TOP"
             }
           }
         ],
@@ -1531,7 +1531,7 @@
             "name": "(config)brg-topology",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-topology-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-topology-TOP"
             }
           }
         ],
@@ -1539,14 +1539,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-topology-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-topology-TOP"
             }
           }
         },
         "operationId": "PUT-brg-topology"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology/allotted-resource-identifiers": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology/allotted-resource-identifiers": {
       "delete": {
         "produces": [
           "application/json",
@@ -1611,7 +1611,7 @@
             "name": "(config)allotted-resource-identifiers",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers-TOP"
             }
           }
         ],
@@ -1619,14 +1619,94 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers-TOP"
             }
           }
         },
         "operationId": "PUT-allotted-resource-identifiers"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology/brg-parameters": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology/brg-assignments": {
+      "delete": {
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "operationId": "DELETE-brg-assignments"
+      },
+      "get": {
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified",
+            "schema": {
+              "$ref": "#/definitions/(config)brg-assignments"
+            }
+          }
+        },
+        "operationId": "GET-brg-assignments"
+      },
+      "put": {
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "(config)brg-assignments",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-assignments-TOP"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified",
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-assignments-TOP"
+            }
+          }
+        },
+        "operationId": "PUT-brg-assignments"
+      }
+    },
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology/brg-parameters": {
       "delete": {
         "produces": [
           "application/json",
@@ -1691,7 +1771,7 @@
             "name": "**(config)param",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param-TOP"
             }
           }
         ],
@@ -1726,7 +1806,7 @@
             "name": "(config)brg-parameters",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters-TOP"
             }
           }
         ],
@@ -1734,14 +1814,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters-TOP"
             }
           }
         },
         "operationId": "PUT-brg-parameters"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology/brg-parameters/param/{name}": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology/brg-parameters/param/{name}": {
       "delete": {
         "produces": [
           "application/json",
@@ -1824,7 +1904,7 @@
             "name": "(config)param",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param-TOP"
             }
           }
         ],
@@ -1832,14 +1912,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param-TOP"
             }
           }
         },
         "operationId": "PUT-param"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology/onap-model-information": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/brg-topology/onap-model-information": {
       "delete": {
         "produces": [
           "application/json",
@@ -1904,7 +1984,7 @@
             "name": "(config)onap-model-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information-TOP"
             }
           }
         ],
@@ -1912,14 +1992,14 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information-TOP"
             }
           }
         },
         "operationId": "PUT-onap-model-information"
       }
     },
-    "/config/GENERIC-RESOURCE-API:brg-allotted-respources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-status": {
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-status": {
       "delete": {
         "produces": [
           "application/json",
@@ -1984,7 +2064,7 @@
             "name": "(config)allotted-resource-status",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-status-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-status-TOP"
             }
           }
         ],
@@ -1992,7 +2072,7 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-status-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-status-TOP"
             }
           }
         },
@@ -2482,14 +2562,6 @@
           },
           {
             "in": "body",
-            "name": "**(config)sdnc-request-header",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)request-information",
             "required": false,
             "schema": {
@@ -2498,10 +2570,10 @@
           },
           {
             "in": "body",
-            "name": "**(config)service-information",
+            "name": "**(config)sdnc-request-header",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP"
             }
           },
           {
@@ -2510,6 +2582,14 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)contrail-route-request-input-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)service-information",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP"
             }
           },
           {
@@ -5163,6 +5243,14 @@
           },
           {
             "in": "body",
+            "name": "**(config)network-topology-identifier",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/network-topology-information(config)network-topology-identifier-TOP"
+            }
+          },
+          {
+            "in": "body",
             "name": "**(config)network-policy",
             "required": false,
             "schema": {
@@ -5175,14 +5263,6 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/network-topology-information(config)route-table-reference-TOP"
-            }
-          },
-          {
-            "in": "body",
-            "name": "**(config)network-topology-identifier",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/network-topology-information(config)network-topology-identifier-TOP"
             }
           },
           {
@@ -6030,18 +6110,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)vnf-topology-identifier",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information(config)vnf-topology-identifier-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)vnf-parameters",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information(config)vnf-parameters-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)vnf-topology-identifier",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information(config)vnf-topology-identifier-TOP"
             }
           },
           {
@@ -9885,18 +9965,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)onap-model-information",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/security-zone-allotted-resources/security-zone-allotted-resource/allotted-resource-data/security-zone-topology(config)onap-model-information-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)security-zone-assignments",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/security-zone-allotted-resources/security-zone-allotted-resource/allotted-resource-data/security-zone-topology(config)security-zone-assignments-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)onap-model-information",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/security-zone-allotted-resources/security-zone-allotted-resource/allotted-resource-data/security-zone-topology(config)onap-model-information-TOP"
             }
           }
         ],
@@ -10790,14 +10870,6 @@
           },
           {
             "in": "body",
-            "name": "**(config)service-level-oper-status",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data(config)service-level-oper-status-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)service-topology",
             "required": false,
             "schema": {
@@ -10806,10 +10878,10 @@
           },
           {
             "in": "body",
-            "name": "**(config)sdnc-request-header",
+            "name": "**(config)service-level-oper-status",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data(config)sdnc-request-header-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data(config)service-level-oper-status-TOP"
             }
           },
           {
@@ -10818,6 +10890,14 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data(config)request-information-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)sdnc-request-header",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data(config)sdnc-request-header-TOP"
             }
           },
           {
@@ -11473,14 +11553,6 @@
           },
           {
             "in": "body",
-            "name": "**(config)sdnc-request-header",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)sdnc-request-header-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)request-information",
             "required": false,
             "schema": {
@@ -11489,10 +11561,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)network-information",
+            "name": "**(config)sdnc-request-header",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)network-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)sdnc-request-header-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)service-information",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)service-information-TOP"
             }
           },
           {
@@ -11505,10 +11585,10 @@
           },
           {
             "in": "body",
-            "name": "**(config)service-information",
+            "name": "**(config)network-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)service-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)network-information-TOP"
             }
           }
         ],
@@ -12507,6 +12587,14 @@
           },
           {
             "in": "body",
+            "name": "**(config)network-parameters",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data/network-topology(config)network-parameters-TOP"
+            }
+          },
+          {
+            "in": "body",
             "name": "**(config)network-topology-identifier-structure",
             "required": false,
             "schema": {
@@ -12519,14 +12607,6 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data/network-topology(config)network-assignments-TOP"
-            }
-          },
-          {
-            "in": "body",
-            "name": "**(config)network-parameters",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data/network-topology(config)network-parameters-TOP"
             }
           }
         ],
@@ -14677,18 +14757,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)service-parameters",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/service-topology(config)service-parameters-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)service-topology-identifier",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/service-topology(config)service-topology-identifier-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)service-parameters",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/service-topology(config)service-parameters-TOP"
             }
           },
           {
@@ -15585,6 +15665,14 @@
           },
           {
             "in": "body",
+            "name": "**(config)vnf-topology",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data(config)vnf-topology-TOP"
+            }
+          },
+          {
+            "in": "body",
             "name": "**(config)request-information",
             "required": false,
             "schema": {
@@ -15601,6 +15689,14 @@
           },
           {
             "in": "body",
+            "name": "**(config)vnf-information",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data(config)vnf-information-TOP"
+            }
+          },
+          {
+            "in": "body",
             "name": "**(config)service-information",
             "required": false,
             "schema": {
@@ -15613,22 +15709,6 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data(config)vnf-request-input-TOP"
-            }
-          },
-          {
-            "in": "body",
-            "name": "**(config)vnf-information",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data(config)vnf-information-TOP"
-            }
-          },
-          {
-            "in": "body",
-            "name": "**(config)vnf-topology",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data(config)vnf-topology-TOP"
             }
           }
         ],
@@ -16550,6 +16630,14 @@
           },
           {
             "in": "body",
+            "name": "**(config)request-information",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data(config)request-information-TOP"
+            }
+          },
+          {
+            "in": "body",
             "name": "**(config)sdnc-request-header",
             "required": false,
             "schema": {
@@ -16558,10 +16646,10 @@
           },
           {
             "in": "body",
-            "name": "**(config)request-information",
+            "name": "**(config)service-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data(config)request-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data(config)service-information-TOP"
             }
           },
           {
@@ -16578,14 +16666,6 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data(config)vf-module-request-input-TOP"
-            }
-          },
-          {
-            "in": "body",
-            "name": "**(config)service-information",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data(config)service-information-TOP"
             }
           },
           {
@@ -18173,18 +18253,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)vf-module-topology-identifier",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data/vf-module-topology(config)vf-module-topology-identifier-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)onap-model-information",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data/vf-module-topology(config)onap-model-information-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)vf-module-topology-identifier",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data/vf-module-topology(config)vf-module-topology-identifier-TOP"
             }
           },
           {
@@ -25830,18 +25910,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)allotted-resource-information",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)service-information",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)allotted-resource-information",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information-TOP"
             }
           }
         ],
@@ -26724,6 +26804,14 @@
           },
           {
             "in": "body",
+            "name": "**(config)allotted-resource-identifiers",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)allotted-resource-identifiers-TOP"
+            }
+          },
+          {
+            "in": "body",
             "name": "**(config)onap-model-information",
             "required": false,
             "schema": {
@@ -26732,10 +26820,10 @@
           },
           {
             "in": "body",
-            "name": "**(config)allotted-resource-identifiers",
+            "name": "**(config)tunnelxconn-assignments",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)allotted-resource-identifiers-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-assignments-TOP"
             }
           }
         ],
@@ -26943,6 +27031,86 @@
           }
         },
         "operationId": "PUT-onap-model-information"
+      }
+    },
+    "/config/GENERIC-RESOURCE-API:tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/{allotted-resource-id}/allotted-resource-data/tunnelxconn-topology/tunnelxconn-assignments": {
+      "delete": {
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "operationId": "DELETE-tunnelxconn-assignments"
+      },
+      "get": {
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified",
+            "schema": {
+              "$ref": "#/definitions/(config)tunnelxconn-assignments"
+            }
+          }
+        },
+        "operationId": "GET-tunnelxconn-assignments"
+      },
+      "put": {
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "(config)tunnelxconn-assignments",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-assignments-TOP"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified",
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-assignments-TOP"
+            }
+          }
+        },
+        "operationId": "PUT-tunnelxconn-assignments"
       }
     },
     "/config/GENERIC-RESOURCE-API:tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/{allotted-resource-id}/allotted-resource-data/tunnelxconn-topology/tunnelxconn-parameters": {
@@ -27238,7 +27406,7 @@
         "operationId": "PUT-allotted-resource-status"
       }
     },
-    "/operational/GENERIC-RESOURCE-API:brg-allotted-respources": {
+    "/operational/GENERIC-RESOURCE-API:brg-allotted-resources": {
       "get": {
         "produces": [
           "application/json",
@@ -27248,11 +27416,11 @@
           "200": {
             "description": "No response was specified",
             "schema": {
-              "$ref": "#/definitions/(operational)brg-allotted-respources"
+              "$ref": "#/definitions/(operational)brg-allotted-resources"
             }
           }
         },
-        "operationId": "GET-brg-allotted-respources"
+        "operationId": "GET-brg-allotted-resources"
       }
     },
     "/operational/GENERIC-RESOURCE-API:contrail-route-allotted-resources": {
@@ -27661,10 +27829,10 @@
           "type": "object"
         },
         "GENERIC-RESOURCE-API:brg-wan-ip-address": {
-          "$ref": "#/definitions/0.4.5.4",
+          "$ref": "#/definitions/0.3.56.0%p",
           "enum": [
-            "0.4.5.4",
-            "d5c:"
+            "0.3.56.0%p",
+            "5cB:e8b%LpL}pp"
           ]
         },
         "GENERIC-RESOURCE-API:request-information": {
@@ -27686,10 +27854,10 @@
           "type": "object"
         },
         "GENERIC-RESOURCE-API:vgmux-bearer-ip": {
-          "$ref": "#/definitions/1.0.1.1",
+          "$ref": "#/definitions/1.0.21.6",
           "enum": [
-            "1.0.1.1",
-            "A:D:B0ba"
+            "1.0.21.6",
+            ":"
           ]
         },
         "GENERIC-RESOURCE-API:vni": {
@@ -27755,9 +27923,9 @@
     },
     "(config)GENERIC-RESOURCE-API_modulePOST": {
       "properties": {
-        "brg-allotted-respources": {
+        "brg-allotted-resources": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-respources"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-resources"
           },
           "type": "object"
         },
@@ -27798,25 +27966,25 @@
       "properties": {
         "allotted-resource-oper-status": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status"
           },
           "type": "object"
         },
         "allotted-resource-operation-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information"
           },
           "type": "object"
         },
         "brg-parameters": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-parameters"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-parameters"
           },
           "type": "object"
         },
         "brg-topology": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-topology"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-topology"
           },
           "type": "object"
         }
@@ -27947,40 +28115,40 @@
       "properties": {
         "allotted-resource-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information"
           },
           "type": "object"
         },
         "brg-wan-ip-address": {
-          "$ref": "#/definitions/1.1.62.1%NN",
+          "$ref": "#/definitions/27.0.29.2",
           "enum": [
-            "1.1.62.1%NN",
-            "5:"
+            "27.0.29.2",
+            ":50%{p"
           ]
         },
         "request-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information"
           },
           "type": "object"
         },
         "sdnc-request-header": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header"
           },
           "type": "object"
         },
         "service-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information"
           },
           "type": "object"
         },
         "vgmux-bearer-ip": {
-          "$ref": "#/definitions/114.2.0.2",
+          "$ref": "#/definitions/2.0.0.0%N{",
           "enum": [
-            "114.2.0.2",
-            "ceC:"
+            "2.0.0.0%N{",
+            "D::D%NN"
           ]
         },
         "vni": {
@@ -28063,7 +28231,7 @@
       "properties": {
         "allotted-resource-data": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-data"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-data"
           },
           "type": "object"
         },
@@ -28072,7 +28240,7 @@
         },
         "allotted-resource-status": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-status"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-status"
           },
           "type": "object"
         }
@@ -28082,13 +28250,25 @@
       ],
       "type": "object"
     },
-    "(config)brg-allotted-respourcesPOST": {
+    "(config)brg-allotted-resourcesPOST": {
       "properties": {
         "brg-allotted-resource": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources(config)brg-allotted-resource"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources(config)brg-allotted-resource"
           },
           "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "(config)brg-assignmentsPOST": {
+      "properties": {
+        "vbrg-wan-ip": {
+          "$ref": "#/definitions/4.254.7.5%{L",
+          "enum": [
+            "4.254.7.5%{L",
+            "0a6:"
+          ]
         }
       },
       "type": "object"
@@ -28097,7 +28277,7 @@
       "properties": {
         "param": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param"
           },
           "type": "array"
         }
@@ -28120,28 +28300,27 @@
       "properties": {
         "allotted-resource-identifiers": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers"
+          },
+          "type": "object"
+        },
+        "brg-assignments": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-assignments"
           },
           "type": "object"
         },
         "brg-parameters": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters"
           },
           "type": "object"
         },
         "onap-model-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information"
           },
           "type": "object"
-        },
-        "vbrg-wan-ip": {
-          "$ref": "#/definitions/0.80.7.0%p",
-          "enum": [
-            "0.80.7.0%p",
-            "E:e"
-          ]
         }
       },
       "type": "object"
@@ -28387,11 +28566,11 @@
     "(config)interface-route-prefixesPOST": {
       "properties": {
         "interface-route-prefix": {
-          "$ref": "#/definitions/0.0.0.0%pNpN",
+          "$ref": "#/definitions/2.178.7.3%{",
           "description": "route prefixes (CIDRs) to be provided to MSO in vnf-topology as a list of static routes",
           "enum": [
-            "0.0.0.0%pNpN",
-            "aEF7:1"
+            "2.178.7.3%{",
+            ":%N"
           ]
         },
         "interface-route-prefix-cidr": {
@@ -28532,7 +28711,7 @@
     "(config)network-ips-v6POST": {
       "properties": {
         "ip-address-ipv6": {
-          "$ref": "#/definitions/Da:",
+          "$ref": "#/definitions/B:9",
           "description": "List of assigned ipv6 addresses on a network"
         }
       },
@@ -28541,11 +28720,11 @@
     "(config)network-ipsPOST": {
       "properties": {
         "ip-address": {
-          "$ref": "#/definitions/8.82.2.0%}N}",
+          "$ref": "#/definitions/3.1.2.4",
           "description": "List of assigned ipv4 addresses on a network",
           "enum": [
-            "8.82.2.0%}N}",
-            ":c%Lp"
+            "3.1.2.4",
+            "C8CE:"
           ]
         }
       },
@@ -29710,20 +29889,20 @@
           "$ref": "#/definitions/Some dhcp-start-address"
         },
         "gateway-address": {
-          "$ref": "#/definitions/0.155.242.17%{{",
+          "$ref": "#/definitions/1.7.0.5",
           "enum": [
-            "0.155.242.17%{{",
-            "c:A5"
+            "1.7.0.5",
+            ":B%}LLp"
           ]
         },
         "ip-version": {
           "$ref": "#/definitions/Some ip-version"
         },
         "start-address": {
-          "$ref": "#/definitions/1.0.3.2%}LpL",
+          "$ref": "#/definitions/0.0.7.0%{N{",
           "enum": [
-            "1.0.3.2%}LpL",
-            "2E:DEFe%Lp"
+            "0.0.7.0%{N{",
+            "dce4:::"
           ]
         },
         "subnet-name": {
@@ -29766,6 +29945,39 @@
       },
       "type": "object"
     },
+    "(config)tunnelxconn-assignmentsPOST": {
+      "properties": {
+        "vg-ip": {
+          "$ref": "#/definitions/255.148.0.1%{N",
+          "description": "The Network Controller will assign the VG IP address from local inventory",
+          "enum": [
+            "255.148.0.1%{N",
+            "f:"
+          ]
+        },
+        "vgmux-bearer-ip": {
+          "$ref": "#/definitions/16.46.115.1",
+          "description": "The Network Controller will look up the vgmux bearer ip from the vgmux vf module",
+          "enum": [
+            "16.46.115.1",
+            ":%{N"
+          ]
+        },
+        "vgmux-lan-ip": {
+          "$ref": "#/definitions/1.8.23.91%}pNLLpp",
+          "description": "The Network Controller will look up the vgmux lan ip from the vgmux vg module",
+          "enum": [
+            "1.8.23.91%}pNLLpp",
+            "Ac::"
+          ]
+        },
+        "vni": {
+          "$ref": "#/definitions/Some vni",
+          "description": "The Network Controller will assign a VNI value from the associated vGMUX VNI pool"
+        }
+      },
+      "type": "object"
+    },
     "(config)tunnelxconn-parametersPOST": {
       "properties": {
         "param": {
@@ -29803,31 +30015,17 @@
           },
           "type": "object"
         },
+        "tunnelxconn-assignments": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-assignments"
+          },
+          "type": "object"
+        },
         "tunnelxconn-parameters": {
           "items": {
             "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-parameters"
           },
           "type": "object"
-        },
-        "vgmux-bearer-ip": {
-          "$ref": "#/definitions/1.193.7.25%N",
-          "description": "The Network Controller will look up the vgmux bearer ip from the vgmux vf module",
-          "enum": [
-            "1.193.7.25%N",
-            "FF:27%N"
-          ]
-        },
-        "vgmux-lan-up": {
-          "$ref": "#/definitions/0.0.1.0%{{pNN}pNpL",
-          "description": "The Network Controller will look up the vgmux lan ip from the vgmux vg module",
-          "enum": [
-            "0.0.1.0%{{pNN}pNpL",
-            ":"
-          ]
-        },
-        "vni": {
-          "$ref": "#/definitions/Some vni",
-          "description": "The Network Controller will assign a VNI value from the associated vGMUX VNI pool"
         }
       },
       "type": "object"
@@ -30195,15 +30393,15 @@
     "(config)vm-networksPOST": {
       "properties": {
         "floating-ip": {
-          "$ref": "#/definitions/44.115.2.2%}{N{{",
+          "$ref": "#/definitions/0.0.0.7",
           "description": "Floating ipv4 for VMs of a given type on this network",
           "enum": [
-            "44.115.2.2%}{N{{",
-            "f0:"
+            "0.0.0.7",
+            ":"
           ]
         },
         "floating-ip-v6": {
-          "$ref": "#/definitions/7::%p",
+          "$ref": "#/definitions/:2",
           "description": "Floating ipv6 for VMs of a given type on this network"
         },
         "interface-route-prefixes": {
@@ -31652,22 +31850,22 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API(config)brg-allotted-respources": {
+    "GENERIC-RESOURCE-API(config)brg-allotted-resources": {
       "properties": {
         "GENERIC-RESOURCE-API:brg-allotted-resource": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources(config)brg-allotted-resource"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources(config)brg-allotted-resource"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API(config)brg-allotted-respources-TOP": {
+    "GENERIC-RESOURCE-API(config)brg-allotted-resources-TOP": {
       "properties": {
-        "GENERIC-RESOURCE-API:brg-allotted-respources": {
+        "GENERIC-RESOURCE-API:brg-allotted-resources": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-respources"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-resources"
           },
           "type": "object"
         }
@@ -32502,14 +32700,14 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API(operational)brg-allotted-respources": {
+    "GENERIC-RESOURCE-API(operational)brg-allotted-resources": {
       "type": "object"
     },
-    "GENERIC-RESOURCE-API(operational)brg-allotted-respources-TOP": {
+    "GENERIC-RESOURCE-API(operational)brg-allotted-resources-TOP": {
       "properties": {
-        "GENERIC-RESOURCE-API:brg-allotted-respources": {
+        "GENERIC-RESOURCE-API:brg-allotted-resources": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API(operational)brg-allotted-respources"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API(operational)brg-allotted-resources"
           },
           "type": "object"
         }
@@ -32620,11 +32818,11 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources(config)brg-allotted-resource": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources(config)brg-allotted-resource": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-data": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-data"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-data"
           },
           "type": "object"
         },
@@ -32633,7 +32831,7 @@
         },
         "GENERIC-RESOURCE-API:allotted-resource-status": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-status"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-status"
           },
           "type": "object"
         }
@@ -32643,58 +32841,58 @@
       ],
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources(config)brg-allotted-resource-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources(config)brg-allotted-resource-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:brg-allotted-resource": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources(config)brg-allotted-resource"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources(config)brg-allotted-resource"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-data": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-data": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-oper-status": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status"
           },
           "type": "object"
         },
         "GENERIC-RESOURCE-API:allotted-resource-operation-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information"
           },
           "type": "object"
         },
         "GENERIC-RESOURCE-API:brg-parameters": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-parameters"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-parameters"
           },
           "type": "object"
         },
         "GENERIC-RESOURCE-API:brg-topology": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-topology"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-topology"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-data-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-data-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-data": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-data"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-data"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-status": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-status": {
       "properties": {
         "GENERIC-RESOURCE-API:action": {
           "$ref": "#/definitions/Some action",
@@ -32738,18 +32936,18 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-status-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-status-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-status": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource(config)allotted-resource-status"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource(config)allotted-resource-status"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status": {
       "properties": {
         "GENERIC-RESOURCE-API:create-timestamp": {
           "$ref": "#/definitions/Some create-timestamp",
@@ -32823,55 +33021,55 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-oper-status": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-oper-status"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information"
           },
           "type": "object"
         },
         "GENERIC-RESOURCE-API:brg-wan-ip-address": {
-          "$ref": "#/definitions/24.0.1.23%N",
+          "$ref": "#/definitions/0.3.1.29",
           "enum": [
-            "24.0.1.23%N",
-            ":%}{"
+            "0.3.1.29",
+            "926d:"
           ]
         },
         "GENERIC-RESOURCE-API:request-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information"
           },
           "type": "object"
         },
         "GENERIC-RESOURCE-API:sdnc-request-header": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header"
           },
           "type": "object"
         },
         "GENERIC-RESOURCE-API:service-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information"
           },
           "type": "object"
         },
         "GENERIC-RESOURCE-API:vgmux-bearer-ip": {
-          "$ref": "#/definitions/22.1.0.99%{",
+          "$ref": "#/definitions/1.85.0.0",
           "enum": [
-            "22.1.0.99%{",
-            "6d:1:"
+            "1.85.0.0",
+            "be:"
           ]
         },
         "GENERIC-RESOURCE-API:vni": {
@@ -32880,81 +33078,80 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-operation-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)allotted-resource-operation-information"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-parameters": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-parameters": {
       "properties": {
         "GENERIC-RESOURCE-API:param": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-parameters-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-parameters-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:brg-parameters": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-parameters"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-parameters"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-topology": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-topology": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-identifiers": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers"
+          },
+          "type": "object"
+        },
+        "GENERIC-RESOURCE-API:brg-assignments": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-assignments"
           },
           "type": "object"
         },
         "GENERIC-RESOURCE-API:brg-parameters": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters"
           },
           "type": "object"
         },
         "GENERIC-RESOURCE-API:onap-model-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information"
           },
           "type": "object"
-        },
-        "GENERIC-RESOURCE-API:vbrg-wan-ip": {
-          "$ref": "#/definitions/0.250.2.12",
-          "enum": [
-            "0.250.2.12",
-            "d:"
-          ]
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-topology-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-topology-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:brg-topology": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data(config)brg-topology"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data(config)brg-topology"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-id": {
           "$ref": "#/definitions/Some allotted-resource-id"
@@ -32965,7 +33162,7 @@
         },
         "GENERIC-RESOURCE-API:onap-model-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information"
           },
           "type": "object"
         },
@@ -32976,18 +33173,18 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)allotted-resource-information"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information": {
       "properties": {
         "GENERIC-RESOURCE-API:notification-url": {
           "$ref": "#/definitions/Some notification-url"
@@ -33031,18 +33228,18 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:request-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header": {
       "properties": {
         "GENERIC-RESOURCE-API:svc-action": {
           "$ref": "#/definitions/reserve",
@@ -33071,18 +33268,18 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:sdnc-request-header": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information": {
       "properties": {
         "GENERIC-RESOURCE-API:global-customer-id": {
           "$ref": "#/definitions/Some global-customer-id",
@@ -33090,7 +33287,7 @@
         },
         "GENERIC-RESOURCE-API:onap-model-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information"
           },
           "type": "object"
         },
@@ -33112,18 +33309,18 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:service-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information": {
       "properties": {
         "GENERIC-RESOURCE-API:model-customization-uuid": {
           "$ref": "#/definitions/Some model-customization-uuid",
@@ -33146,18 +33343,18 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:onap-model-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/allotted-resource-information(config)onap-model-information"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information": {
       "properties": {
         "GENERIC-RESOURCE-API:model-customization-uuid": {
           "$ref": "#/definitions/Some model-customization-uuid",
@@ -33180,18 +33377,18 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:onap-model-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information/service-information(config)onap-model-information"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param": {
       "properties": {
         "GENERIC-RESOURCE-API:name": {
           "$ref": "#/definitions/Some name"
@@ -33202,18 +33399,18 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:param": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-id": {
           "$ref": "#/definitions/Some allotted-resource-id"
@@ -33237,40 +33434,63 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:allotted-resource-identifiers": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)allotted-resource-identifiers"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-assignments": {
+      "properties": {
+        "GENERIC-RESOURCE-API:vbrg-wan-ip": {
+          "$ref": "#/definitions/1.2.0.2",
+          "enum": [
+            "1.2.0.2",
+            "8Cad:8df9"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-assignments-TOP": {
+      "properties": {
+        "GENERIC-RESOURCE-API:brg-assignments": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-assignments"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters": {
       "properties": {
         "GENERIC-RESOURCE-API:param": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:brg-parameters": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-parameters"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information": {
       "properties": {
         "GENERIC-RESOURCE-API:model-customization-uuid": {
           "$ref": "#/definitions/Some model-customization-uuid",
@@ -33293,18 +33513,18 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:onap-model-information": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)onap-model-information"
           },
           "type": "object"
         }
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param": {
       "properties": {
         "GENERIC-RESOURCE-API:name": {
           "$ref": "#/definitions/Some name"
@@ -33315,11 +33535,11 @@
       },
       "type": "object"
     },
-    "GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param-TOP": {
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param-TOP": {
       "properties": {
         "GENERIC-RESOURCE-API:param": {
           "items": {
-            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-respources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param"
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology/brg-parameters(config)param"
           },
           "type": "array"
         }
@@ -34527,20 +34747,20 @@
           "$ref": "#/definitions/Some dhcp-start-address"
         },
         "GENERIC-RESOURCE-API:gateway-address": {
-          "$ref": "#/definitions/8.4.1.0",
+          "$ref": "#/definitions/21.184.2.0",
           "enum": [
-            "8.4.1.0",
-            "60:0"
+            "21.184.2.0",
+            "::%pN"
           ]
         },
         "GENERIC-RESOURCE-API:ip-version": {
           "$ref": "#/definitions/Some ip-version"
         },
         "GENERIC-RESOURCE-API:start-address": {
-          "$ref": "#/definitions/16.4.0.0%Lp",
+          "$ref": "#/definitions/252.2.183.0",
           "enum": [
-            "16.4.0.0%Lp",
-            "05A:"
+            "252.2.183.0",
+            "aA:d3"
           ]
         },
         "GENERIC-RESOURCE-API:subnet-name": {
@@ -34914,20 +35134,20 @@
           "$ref": "#/definitions/Some dhcp-start-address"
         },
         "GENERIC-RESOURCE-API:gateway-address": {
-          "$ref": "#/definitions/1.0.0.24%{ppL",
+          "$ref": "#/definitions/192.0.197.0",
           "enum": [
-            "1.0.0.24%{ppL",
-            "b:1"
+            "192.0.197.0",
+            "C::0"
           ]
         },
         "GENERIC-RESOURCE-API:ip-version": {
           "$ref": "#/definitions/Some ip-version"
         },
         "GENERIC-RESOURCE-API:start-address": {
-          "$ref": "#/definitions/4.0.11.0%N}{",
+          "$ref": "#/definitions/8.12.3.5%NL}",
           "enum": [
-            "4.0.11.0%N}{",
-            "0bdE:%N"
+            "8.12.3.5%NL}",
+            "fCe9:"
           ]
         },
         "GENERIC-RESOURCE-API:subnet-name": {
@@ -35229,15 +35449,15 @@
     "GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information/vnf-assignments/vnf-vms(config)vm-networks": {
       "properties": {
         "GENERIC-RESOURCE-API:floating-ip": {
-          "$ref": "#/definitions/21.0.9.0%NLLNp{",
+          "$ref": "#/definitions/0.9.254.2%LL",
           "description": "Floating ipv4 for VMs of a given type on this network",
           "enum": [
-            "21.0.9.0%NLLNp{",
-            "B62c:"
+            "0.9.254.2%LL",
+            ":"
           ]
         },
         "GENERIC-RESOURCE-API:floating-ip-v6": {
-          "$ref": "#/definitions/:",
+          "$ref": "#/definitions/3:1d",
           "description": "Floating ipv6 for VMs of a given type on this network"
         },
         "GENERIC-RESOURCE-API:interface-route-prefixes": {
@@ -35297,11 +35517,11 @@
     "GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)interface-route-prefixes": {
       "properties": {
         "GENERIC-RESOURCE-API:interface-route-prefix": {
-          "$ref": "#/definitions/12.1.1.27%L",
+          "$ref": "#/definitions/25.25.49.13%{N",
           "description": "route prefixes (CIDRs) to be provided to MSO in vnf-topology as a list of static routes",
           "enum": [
-            "12.1.1.27%L",
-            "CEee:25"
+            "25.25.49.13%{N",
+            "f58f:2%}}NppNLpL"
           ]
         },
         "GENERIC-RESOURCE-API:interface-route-prefix-cidr": {
@@ -35328,11 +35548,11 @@
     "GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)network-ips": {
       "properties": {
         "GENERIC-RESOURCE-API:ip-address": {
-          "$ref": "#/definitions/4.99.24.0%}",
+          "$ref": "#/definitions/1.0.4.243%LLLpL}p",
           "description": "List of assigned ipv4 addresses on a network",
           "enum": [
-            "4.99.24.0%}",
-            "D3eC:0D"
+            "1.0.4.243%LLLpL}p",
+            "d:7:Fb:"
           ]
         }
       },
@@ -35352,7 +35572,7 @@
     "GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)network-ips-v6": {
       "properties": {
         "GENERIC-RESOURCE-API:ip-address-ipv6": {
-          "$ref": "#/definitions/06C3:0",
+          "$ref": "#/definitions/Dc6b:",
           "description": "List of assigned ipv6 addresses on a network"
         }
       },
@@ -39197,10 +39417,10 @@
         "GENERIC-RESOURCE-API:floating-ip-v4": {
           "description": "Floating ipv4 for VMs of a given type on this network",
           "items": {
-            "$ref": "#/definitions/0.13.1.0%{N{}",
+            "$ref": "#/definitions/6.252.1.9%{LL",
             "enum": [
-              "0.13.1.0%{N{}",
-              "cfeF:a%L}Lp{NLN{"
+              "6.252.1.9%{LL",
+              "B:"
             ]
           },
           "type": "array"
@@ -39208,7 +39428,7 @@
         "GENERIC-RESOURCE-API:floating-ip-v6": {
           "description": "Floating ipv6 for VMs of a given type on this network",
           "items": {
-            "$ref": "#/definitions/:"
+            "$ref": "#/definitions/A9e6:2e"
           },
           "type": "array"
         }
@@ -40301,31 +40521,17 @@
           },
           "type": "object"
         },
+        "GENERIC-RESOURCE-API:tunnelxconn-assignments": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-assignments"
+          },
+          "type": "object"
+        },
         "GENERIC-RESOURCE-API:tunnelxconn-parameters": {
           "items": {
             "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-parameters"
           },
           "type": "object"
-        },
-        "GENERIC-RESOURCE-API:vgmux-bearer-ip": {
-          "$ref": "#/definitions/99.12.4.12",
-          "description": "The Network Controller will look up the vgmux bearer ip from the vgmux vf module",
-          "enum": [
-            "99.12.4.12",
-            "A9:"
-          ]
-        },
-        "GENERIC-RESOURCE-API:vgmux-lan-up": {
-          "$ref": "#/definitions/1.8.25.0%}",
-          "description": "The Network Controller will look up the vgmux lan ip from the vgmux vg module",
-          "enum": [
-            "1.8.25.0%}",
-            "f:02"
-          ]
-        },
-        "GENERIC-RESOURCE-API:vni": {
-          "$ref": "#/definitions/Some vni",
-          "description": "The Network Controller will assign a VNI value from the associated vGMUX VNI pool"
         }
       },
       "type": "object"
@@ -40663,6 +40869,50 @@
         "GENERIC-RESOURCE-API:onap-model-information": {
           "items": {
             "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)onap-model-information"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-assignments": {
+      "properties": {
+        "GENERIC-RESOURCE-API:vg-ip": {
+          "$ref": "#/definitions/22.80.15.0%L",
+          "description": "The Network Controller will assign the VG IP address from local inventory",
+          "enum": [
+            "22.80.15.0%L",
+            "bD4:ca"
+          ]
+        },
+        "GENERIC-RESOURCE-API:vgmux-bearer-ip": {
+          "$ref": "#/definitions/2.204.65.2",
+          "description": "The Network Controller will look up the vgmux bearer ip from the vgmux vf module",
+          "enum": [
+            "2.204.65.2",
+            "8ce::"
+          ]
+        },
+        "GENERIC-RESOURCE-API:vgmux-lan-ip": {
+          "$ref": "#/definitions/2.0.254.1%p",
+          "description": "The Network Controller will look up the vgmux lan ip from the vgmux vg module",
+          "enum": [
+            "2.0.254.1%p",
+            "FF3b:285"
+          ]
+        },
+        "GENERIC-RESOURCE-API:vni": {
+          "$ref": "#/definitions/Some vni",
+          "description": "The Network Controller will assign a VNI value from the associated vGMUX VNI pool"
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-assignments-TOP": {
+      "properties": {
+        "GENERIC-RESOURCE-API:tunnelxconn-assignments": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-assignments"
           },
           "type": "object"
         }
@@ -41239,15 +41489,15 @@
     "GENERIC-RESOURCE-API/vnf-topology-information/vnf-assignments/vnf-vms(config)vm-networks": {
       "properties": {
         "GENERIC-RESOURCE-API:floating-ip": {
-          "$ref": "#/definitions/0.44.25.29%}pLN",
+          "$ref": "#/definitions/1.25.3.1%L{N{pNLL}}{pL{Lpp}N",
           "description": "Floating ipv4 for VMs of a given type on this network",
           "enum": [
-            "0.44.25.29%}pLN",
-            ":"
+            "1.25.3.1%L{N{pNLL}}{pL{Lpp}N",
+            "3::08B3"
           ]
         },
         "GENERIC-RESOURCE-API:floating-ip-v6": {
-          "$ref": "#/definitions/BDff:E",
+          "$ref": "#/definitions/cEa:",
           "description": "Floating ipv6 for VMs of a given type on this network"
         },
         "GENERIC-RESOURCE-API:interface-route-prefixes": {
@@ -41307,11 +41557,11 @@
     "GENERIC-RESOURCE-API/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)interface-route-prefixes": {
       "properties": {
         "GENERIC-RESOURCE-API:interface-route-prefix": {
-          "$ref": "#/definitions/0.168.1.4",
+          "$ref": "#/definitions/3.209.0.0%N}p{",
           "description": "route prefixes (CIDRs) to be provided to MSO in vnf-topology as a list of static routes",
           "enum": [
-            "0.168.1.4",
-            "6f3f:b"
+            "3.209.0.0%N}p{",
+            ":2%L}"
           ]
         },
         "GENERIC-RESOURCE-API:interface-route-prefix-cidr": {
@@ -41338,11 +41588,11 @@
     "GENERIC-RESOURCE-API/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)network-ips": {
       "properties": {
         "GENERIC-RESOURCE-API:ip-address": {
-          "$ref": "#/definitions/2.0.253.0%}N}{N{}p}",
+          "$ref": "#/definitions/0.0.28.122%{",
           "description": "List of assigned ipv4 addresses on a network",
           "enum": [
-            "2.0.253.0%}N}{N{}p}",
-            ":2A3"
+            "0.0.28.122%{",
+            ":4%L}pL"
           ]
         }
       },
@@ -41362,7 +41612,7 @@
     "GENERIC-RESOURCE-API/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)network-ips-v6": {
       "properties": {
         "GENERIC-RESOURCE-API:ip-address-ipv6": {
-          "$ref": "#/definitions/1:61e%{",
+          "$ref": "#/definitions/:",
           "description": "List of assigned ipv6 addresses on a network"
         }
       },
