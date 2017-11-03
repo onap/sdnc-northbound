@@ -1,5 +1,5 @@
 /*-
- * ============LICENSE_START=======================================================
+z * ============LICENSE_START=======================================================
  * openECOMP : SDN-C
  * ================================================================================
  * Copyright (C) 2017 AT&T Intellectual Property. All rights
@@ -105,6 +105,21 @@ public class GenericResourceApiSvcLogicServiceClient {
 
         return respProps;
     }
+
+	public Properties execute(String module, String rpc, String version, String mode, Properties properties)
+			throws SvcLogicException {
+
+		printPropsDebugLogs(properties, "Parameters passed to SLI");
+
+		Properties respProps = svcLogic.execute(module, rpc, version, mode, properties);
+		printPropsDebugLogs(respProps, "Parameters returned by SLI");
+		if (respProps == null || FAILURE_RESULT.equalsIgnoreCase(respProps.getProperty(SVC_LOGIC_STATUS_KEY))) {
+			return (respProps);
+		}
+
+		return respProps;
+	}
+
 
     private void printPropsDebugLogs(Properties properties, String msg) {
         if (!LOG.isDebugEnabled()) {

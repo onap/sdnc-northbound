@@ -806,8 +806,11 @@ module GENERIC-RESOURCE-API {
        uses tunnelxconn-request-input;
    }
    grouping tunnelxconn-request-input {
-       leaf brg-wan-mac-address {
-           type string;
+
+       container tunnelxconn-request-input {
+           leaf brg-wan-mac-address {
+               type string;
+           }
        }
    }
    grouping tunnelxconn-topology {
@@ -848,14 +851,16 @@ module GENERIC-RESOURCE-API {
        uses brg-request-input;
    }
    grouping brg-request-input {
-       leaf vgmux-bearer-ip {
-           type inet:ip-address;
-       }
-       leaf vni {
-           type string;
-       }
-       leaf brg-wan-ip-address {
-           type inet:ip-address;
+       container brg-request-input {
+           leaf vgmux-bearer-ip {
+               type inet:ip-address;
+           }
+           leaf vni {
+               type string;
+           }
+           leaf brg-wan-mac-address {
+               type string;
+           }
        }
    }
    grouping brg-topology {
@@ -1031,6 +1036,10 @@ module GENERIC-RESOURCE-API {
                enum "DeleteSecurityZoneInstance";
                enum "ActivateDCINetworkInstance";
                enum "DeActivateDCINetworkInstance";
+               enum "CreateTunnelXConnInstance";
+               enum "DeleteTunnelXConnInstance";
+               enum "CreateBRGInstance";
+               enum "DeleteBRGInstance";
             }
          }
          leaf source {

@@ -1615,7 +1615,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		}
 
 		String siid = input.getServiceInformation().getServiceInstanceId();
-
+/*
 		// Get the service-instance service data from MD-SAL
 		ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
 		getServiceData(siid, serviceDataBuilder);
@@ -1634,7 +1634,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			RpcResult<TunnelxconnTopologyOperationOutput> rpcResult = RpcResultBuilder
 					.<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
-		}
+		}*/
 
 		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
 		TunnelxconnTopologyOperationInputBuilder inputBuilder = new TunnelxconnTopologyOperationInputBuilder(input);
@@ -1656,7 +1656,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
 				try {
-					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
+					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync",  parms);
 				} catch (Exception e) {
 					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
@@ -1696,24 +1696,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Got success from SLI
 		try {
 
-			serviceData = serviceDataBuilder.build();
-			log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
 
-			// service object
-			ServiceBuilder serviceBuilder = new ServiceBuilder();
-			serviceBuilder.setServiceData(serviceData);
-			serviceBuilder.setServiceInstanceId(siid);
-			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
-				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
-						|| input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
-					log.info("Updating OPERATIONAL tree.");
-					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
-				}
-			}
 
 			TunnelxconnResponseInformationBuilder tunnelxconnResponseInformationBuilder = new TunnelxconnResponseInformationBuilder();
 			tunnelxconnResponseInformationBuilder.setInstanceId(allottedResourceId);
@@ -1775,7 +1758,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 		String siid = input.getServiceInformation().getServiceInstanceId();
 
-		// Get the service-instance service data from MD-SAL
+/*		// Get the service-instance service data from MD-SAL
 		ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
 		getServiceData(siid, serviceDataBuilder);
 
@@ -1793,7 +1776,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			RpcResult<BrgTopologyOperationOutput> rpcResult = RpcResultBuilder.<BrgTopologyOperationOutput>status(true)
 					.withResult(responseBuilder.build()).build();
 			return Futures.immediateFuture(rpcResult);
-		}
+		}*/
 
 		log.info("Adding INPUT data for {} [{}] input: {}", SVC_OPERATION, siid, input);
 		BrgTopologyOperationInputBuilder inputBuilder = new BrgTopologyOperationInputBuilder(input);
@@ -1815,7 +1798,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			if (svcLogicClient.hasGraph(appName, SVC_OPERATION, null, "sync")) {
 
 				try {
-					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
+					respProps = svcLogicClient.execute(appName, SVC_OPERATION, null, "sync", parms);
 				} catch (Exception e) {
 					log.error("Caught exception executing service logic for {}", SVC_OPERATION, e);
 					errorMessage = e.getMessage();
@@ -1855,24 +1838,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Got success from SLI
 		try {
 
-			serviceData = serviceDataBuilder.build();
-			log.info("Updating MD-SAL for {} [{}] ServiceData: {}", SVC_OPERATION, siid, serviceData);
-
-			// service object
-			ServiceBuilder serviceBuilder = new ServiceBuilder();
-			serviceBuilder.setServiceData(serviceData);
-			serviceBuilder.setServiceInstanceId(siid);
-			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
-				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
-						|| input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
-					log.info("Updating OPERATIONAL tree.");
-					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
-				}
-			}
 
 			BrgResponseInformationBuilder brgResponseInformationBuilder = new BrgResponseInformationBuilder();
 			brgResponseInformationBuilder.setInstanceId(allottedResourceId);

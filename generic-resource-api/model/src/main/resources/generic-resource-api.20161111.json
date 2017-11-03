@@ -591,6 +591,14 @@
           },
           {
             "in": "body",
+            "name": "**(config)brg-request-input",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)brg-request-input-TOP"
+            }
+          },
+          {
+            "in": "body",
             "name": "**(config)service-information",
             "required": false,
             "schema": {
@@ -837,6 +845,86 @@
           }
         },
         "operationId": "PUT-onap-model-information"
+      }
+    },
+    "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/brg-request-input": {
+      "delete": {
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "operationId": "DELETE-brg-request-input"
+      },
+      "get": {
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified",
+            "schema": {
+              "$ref": "#/definitions/(config)brg-request-input"
+            }
+          }
+        },
+        "operationId": "GET-brg-request-input"
+      },
+      "put": {
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "(config)brg-request-input",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)brg-request-input-TOP"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified",
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)brg-request-input-TOP"
+            }
+          }
+        },
+        "operationId": "PUT-brg-request-input"
       }
     },
     "/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/request-information": {
@@ -2562,14 +2650,6 @@
           },
           {
             "in": "body",
-            "name": "**(config)request-information",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)sdnc-request-header",
             "required": false,
             "schema": {
@@ -2578,10 +2658,10 @@
           },
           {
             "in": "body",
-            "name": "**(config)contrail-route-request-input",
+            "name": "**(config)request-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)contrail-route-request-input-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP"
             }
           },
           {
@@ -2590,6 +2670,14 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)contrail-route-request-input",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)contrail-route-request-input-TOP"
             }
           },
           {
@@ -3859,18 +3947,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)allotted-resource-identifiers",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/contrail-route-topology(config)allotted-resource-identifiers-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)onap-model-information",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/contrail-route-topology(config)onap-model-information-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)allotted-resource-identifiers",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/contrail-route-allotted-resources/contrail-route-allotted-resource/allotted-resource-data/contrail-route-topology(config)allotted-resource-identifiers-TOP"
             }
           },
           {
@@ -5235,18 +5323,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)vpn-bindings",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/network-topology-information(config)vpn-bindings-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)network-topology-identifier",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/network-topology-information(config)network-topology-identifier-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)route-table-reference",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/network-topology-information(config)route-table-reference-TOP"
             }
           },
           {
@@ -5259,10 +5347,10 @@
           },
           {
             "in": "body",
-            "name": "**(config)route-table-reference",
+            "name": "**(config)vpn-bindings",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/network-topology-information(config)route-table-reference-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/network-topology-information(config)vpn-bindings-TOP"
             }
           },
           {
@@ -6110,18 +6198,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)vnf-parameters",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information(config)vnf-parameters-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)vnf-topology-identifier",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information(config)vnf-topology-identifier-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)vnf-parameters",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information(config)vnf-parameters-TOP"
             }
           },
           {
@@ -8711,18 +8799,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)request-information",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/security-zone-allotted-resources/security-zone-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)sdnc-request-header",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/security-zone-allotted-resources/security-zone-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)sdnc-request-header-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)request-information",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/security-zone-allotted-resources/security-zone-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information-TOP"
             }
           },
           {
@@ -10902,18 +10990,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)service-request-input",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data(config)service-request-input-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)service-information",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data(config)service-information-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)service-request-input",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data(config)service-request-input-TOP"
             }
           }
         ],
@@ -11553,14 +11641,6 @@
           },
           {
             "in": "body",
-            "name": "**(config)request-information",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)request-information-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)sdnc-request-header",
             "required": false,
             "schema": {
@@ -11569,10 +11649,10 @@
           },
           {
             "in": "body",
-            "name": "**(config)service-information",
+            "name": "**(config)request-information",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)service-information-TOP"
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)request-information-TOP"
             }
           },
           {
@@ -11581,6 +11661,14 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)network-request-input-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)service-information",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data(config)service-information-TOP"
             }
           },
           {
@@ -12595,18 +12683,18 @@
           },
           {
             "in": "body",
-            "name": "**(config)network-topology-identifier-structure",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data/network-topology(config)network-topology-identifier-structure-TOP"
-            }
-          },
-          {
-            "in": "body",
             "name": "**(config)network-assignments",
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data/network-topology(config)network-assignments-TOP"
+            }
+          },
+          {
+            "in": "body",
+            "name": "**(config)network-topology-identifier-structure",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/networks/network/network-data/network-topology(config)network-topology-identifier-structure-TOP"
             }
           }
         ],
@@ -16654,6 +16742,14 @@
           },
           {
             "in": "body",
+            "name": "**(config)vnf-information",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data(config)vnf-information-TOP"
+            }
+          },
+          {
+            "in": "body",
             "name": "**(config)vf-module-information",
             "required": false,
             "schema": {
@@ -16666,14 +16762,6 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data(config)vf-module-request-input-TOP"
-            }
-          },
-          {
-            "in": "body",
-            "name": "**(config)vnf-information",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/GENERIC-RESOURCE-API/services/service/service-data/vnfs/vnf/vnf-data/vf-modules/vf-module/vf-module-data(config)vnf-information-TOP"
             }
           },
           {
@@ -25894,6 +25982,14 @@
           },
           {
             "in": "body",
+            "name": "**(config)tunnelxconn-request-input",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)tunnelxconn-request-input-TOP"
+            }
+          },
+          {
+            "in": "body",
             "name": "**(config)request-information",
             "required": false,
             "schema": {
@@ -26519,6 +26615,86 @@
           }
         },
         "operationId": "PUT-onap-model-information"
+      }
+    },
+    "/config/GENERIC-RESOURCE-API:tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/{allotted-resource-id}/allotted-resource-data/allotted-resource-operation-information/tunnelxconn-request-input": {
+      "delete": {
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "operationId": "DELETE-tunnelxconn-request-input"
+      },
+      "get": {
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified",
+            "schema": {
+              "$ref": "#/definitions/(config)tunnelxconn-request-input"
+            }
+          }
+        },
+        "operationId": "GET-tunnelxconn-request-input"
+      },
+      "put": {
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allotted-resource-id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "(config)tunnelxconn-request-input",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)tunnelxconn-request-input-TOP"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified",
+            "schema": {
+              "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)tunnelxconn-request-input-TOP"
+            }
+          }
+        },
+        "operationId": "PUT-tunnelxconn-request-input"
       }
     },
     "/config/GENERIC-RESOURCE-API:tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/{allotted-resource-id}/allotted-resource-data/tunnelxconn-parameters": {
@@ -27828,12 +28004,11 @@
           },
           "type": "object"
         },
-        "GENERIC-RESOURCE-API:brg-wan-ip-address": {
-          "$ref": "#/definitions/0.3.56.0%p",
-          "enum": [
-            "0.3.56.0%p",
-            "5cB:e8b%LpL}pp"
-          ]
+        "GENERIC-RESOURCE-API:brg-request-input": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-request-input"
+          },
+          "type": "object"
         },
         "GENERIC-RESOURCE-API:request-information": {
           "items": {
@@ -27852,16 +28027,6 @@
             "$ref": "#/definitions/GENERIC-RESOURCE-API(config)service-information"
           },
           "type": "object"
-        },
-        "GENERIC-RESOURCE-API:vgmux-bearer-ip": {
-          "$ref": "#/definitions/1.0.21.6",
-          "enum": [
-            "1.0.21.6",
-            ":"
-          ]
-        },
-        "GENERIC-RESOURCE-API:vni": {
-          "$ref": "#/definitions/Some vni"
         }
       },
       "type": "object"
@@ -28119,12 +28284,11 @@
           },
           "type": "object"
         },
-        "brg-wan-ip-address": {
-          "$ref": "#/definitions/27.0.29.2",
-          "enum": [
-            "27.0.29.2",
-            ":50%{p"
-          ]
+        "brg-request-input": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)brg-request-input"
+          },
+          "type": "object"
         },
         "request-information": {
           "items": {
@@ -28143,16 +28307,6 @@
             "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information"
           },
           "type": "object"
-        },
-        "vgmux-bearer-ip": {
-          "$ref": "#/definitions/2.0.0.0%N{",
-          "enum": [
-            "2.0.0.0%N{",
-            "D::D%NN"
-          ]
-        },
-        "vni": {
-          "$ref": "#/definitions/Some vni"
         }
       },
       "type": "object"
@@ -28264,10 +28418,10 @@
     "(config)brg-assignmentsPOST": {
       "properties": {
         "vbrg-wan-ip": {
-          "$ref": "#/definitions/4.254.7.5%{L",
+          "$ref": "#/definitions/0.1.0.242",
           "enum": [
-            "4.254.7.5%{L",
-            "0a6:"
+            "0.1.0.242",
+            "dD1e:%pNL{"
           ]
         }
       },
@@ -28280,6 +28434,24 @@
             "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-parameters(config)param"
           },
           "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "(config)brg-request-inputPOST": {
+      "properties": {
+        "brg-wan-mac-address": {
+          "$ref": "#/definitions/Some brg-wan-mac-address"
+        },
+        "vgmux-bearer-ip": {
+          "$ref": "#/definitions/0.36.254.57",
+          "enum": [
+            "0.36.254.57",
+            "Df:b4%p{"
+          ]
+        },
+        "vni": {
+          "$ref": "#/definitions/Some vni"
         }
       },
       "type": "object"
@@ -28566,11 +28738,11 @@
     "(config)interface-route-prefixesPOST": {
       "properties": {
         "interface-route-prefix": {
-          "$ref": "#/definitions/2.178.7.3%{",
+          "$ref": "#/definitions/1.0.25.1%{",
           "description": "route prefixes (CIDRs) to be provided to MSO in vnf-topology as a list of static routes",
           "enum": [
-            "2.178.7.3%{",
-            ":%N"
+            "1.0.25.1%{",
+            ":%{{L{"
           ]
         },
         "interface-route-prefix-cidr": {
@@ -28711,7 +28883,7 @@
     "(config)network-ips-v6POST": {
       "properties": {
         "ip-address-ipv6": {
-          "$ref": "#/definitions/B:9",
+          "$ref": "#/definitions/c:a2",
           "description": "List of assigned ipv6 addresses on a network"
         }
       },
@@ -28720,11 +28892,11 @@
     "(config)network-ipsPOST": {
       "properties": {
         "ip-address": {
-          "$ref": "#/definitions/3.1.2.4",
+          "$ref": "#/definitions/0.52.68.25%}N",
           "description": "List of assigned ipv4 addresses on a network",
           "enum": [
-            "3.1.2.4",
-            "C8CE:"
+            "0.52.68.25%}N",
+            "EF::"
           ]
         }
       },
@@ -29239,7 +29411,11 @@
             "CreateSecurityZoneInstance",
             "DeleteSecurityZoneInstance",
             "ActivateDCINetworkInstance",
-            "DeActivateDCINetworkInstance"
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "request-id": {
@@ -29889,20 +30065,20 @@
           "$ref": "#/definitions/Some dhcp-start-address"
         },
         "gateway-address": {
-          "$ref": "#/definitions/1.7.0.5",
+          "$ref": "#/definitions/9.76.167.68%L{LL{pp{{",
           "enum": [
-            "1.7.0.5",
-            ":B%}LLp"
+            "9.76.167.68%L{LL{pp{{",
+            "12Fe:f"
           ]
         },
         "ip-version": {
           "$ref": "#/definitions/Some ip-version"
         },
         "start-address": {
-          "$ref": "#/definitions/0.0.7.0%{N{",
+          "$ref": "#/definitions/0.1.12.2",
           "enum": [
-            "0.0.7.0%{N{",
-            "dce4:::"
+            "0.1.12.2",
+            "::DC:2"
           ]
         },
         "subnet-name": {
@@ -29948,27 +30124,27 @@
     "(config)tunnelxconn-assignmentsPOST": {
       "properties": {
         "vg-ip": {
-          "$ref": "#/definitions/255.148.0.1%{N",
+          "$ref": "#/definitions/254.28.9.228",
           "description": "The Network Controller will assign the VG IP address from local inventory",
           "enum": [
-            "255.148.0.1%{N",
-            "f:"
+            "254.28.9.228",
+            "DF8C:%p"
           ]
         },
         "vgmux-bearer-ip": {
-          "$ref": "#/definitions/16.46.115.1",
+          "$ref": "#/definitions/3.209.28.4",
           "description": "The Network Controller will look up the vgmux bearer ip from the vgmux vf module",
           "enum": [
-            "16.46.115.1",
-            ":%{N"
+            "3.209.28.4",
+            "fB:%p"
           ]
         },
         "vgmux-lan-ip": {
-          "$ref": "#/definitions/1.8.23.91%}pNLLpp",
+          "$ref": "#/definitions/0.0.123.0",
           "description": "The Network Controller will look up the vgmux lan ip from the vgmux vg module",
           "enum": [
-            "1.8.23.91%}pNLLpp",
-            "Ac::"
+            "0.0.123.0",
+            ":"
           ]
         },
         "vni": {
@@ -29985,6 +30161,14 @@
             "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-parameters(config)param"
           },
           "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "(config)tunnelxconn-request-inputPOST": {
+      "properties": {
+        "brg-wan-mac-address": {
+          "$ref": "#/definitions/Some brg-wan-mac-address"
         }
       },
       "type": "object"
@@ -30393,15 +30577,15 @@
     "(config)vm-networksPOST": {
       "properties": {
         "floating-ip": {
-          "$ref": "#/definitions/0.0.0.7",
+          "$ref": "#/definitions/1.0.1.1%{{L",
           "description": "Floating ipv4 for VMs of a given type on this network",
           "enum": [
-            "0.0.0.7",
-            ":"
+            "1.0.1.1%{{L",
+            "Ad:2F:%p}N"
           ]
         },
         "floating-ip-v6": {
-          "$ref": "#/definitions/:2",
+          "$ref": "#/definitions/9:",
           "description": "Floating ipv6 for VMs of a given type on this network"
         },
         "interface-route-prefixes": {
@@ -31546,9 +31730,6 @@
           },
           "type": "object"
         },
-        "GENERIC-RESOURCE-API:brg-wan-mac-address": {
-          "$ref": "#/definitions/Some brg-wan-mac-address"
-        },
         "GENERIC-RESOURCE-API:request-information": {
           "items": {
             "$ref": "#/definitions/GENERIC-RESOURCE-API(config)request-information"
@@ -31564,6 +31745,12 @@
         "GENERIC-RESOURCE-API:service-information": {
           "items": {
             "$ref": "#/definitions/GENERIC-RESOURCE-API(config)service-information"
+          },
+          "type": "object"
+        },
+        "GENERIC-RESOURCE-API:tunnelxconn-request-input": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API(config)tunnelxconn-request-input"
           },
           "type": "object"
         }
@@ -31866,6 +32053,35 @@
         "GENERIC-RESOURCE-API:brg-allotted-resources": {
           "items": {
             "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-allotted-resources"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API(config)brg-request-input": {
+      "properties": {
+        "GENERIC-RESOURCE-API:brg-wan-mac-address": {
+          "$ref": "#/definitions/Some brg-wan-mac-address"
+        },
+        "GENERIC-RESOURCE-API:vgmux-bearer-ip": {
+          "$ref": "#/definitions/0.9.0.0%NNNpN{",
+          "enum": [
+            "0.9.0.0%NNNpN{",
+            "7:"
+          ]
+        },
+        "GENERIC-RESOURCE-API:vni": {
+          "$ref": "#/definitions/Some vni"
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API(config)brg-request-input-TOP": {
+      "properties": {
+        "GENERIC-RESOURCE-API:brg-request-input": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API(config)brg-request-input"
           },
           "type": "object"
         }
@@ -32178,7 +32394,11 @@
             "CreateSecurityZoneInstance",
             "DeleteSecurityZoneInstance",
             "ActivateDCINetworkInstance",
-            "DeActivateDCINetworkInstance"
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "GENERIC-RESOURCE-API:request-id": {
@@ -32447,6 +32667,25 @@
         "GENERIC-RESOURCE-API:tunnelxconn-allotted-resources": {
           "items": {
             "$ref": "#/definitions/GENERIC-RESOURCE-API(config)tunnelxconn-allotted-resources"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API(config)tunnelxconn-request-input": {
+      "properties": {
+        "GENERIC-RESOURCE-API:brg-wan-mac-address": {
+          "$ref": "#/definitions/Some brg-wan-mac-address"
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API(config)tunnelxconn-request-input-TOP": {
+      "properties": {
+        "GENERIC-RESOURCE-API:tunnelxconn-request-input": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API(config)tunnelxconn-request-input"
           },
           "type": "object"
         }
@@ -33040,12 +33279,11 @@
           },
           "type": "object"
         },
-        "GENERIC-RESOURCE-API:brg-wan-ip-address": {
-          "$ref": "#/definitions/0.3.1.29",
-          "enum": [
-            "0.3.1.29",
-            "926d:"
-          ]
+        "GENERIC-RESOURCE-API:brg-request-input": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)brg-request-input"
+          },
+          "type": "object"
         },
         "GENERIC-RESOURCE-API:request-information": {
           "items": {
@@ -33064,16 +33302,6 @@
             "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information"
           },
           "type": "object"
-        },
-        "GENERIC-RESOURCE-API:vgmux-bearer-ip": {
-          "$ref": "#/definitions/1.85.0.0",
-          "enum": [
-            "1.85.0.0",
-            "be:"
-          ]
-        },
-        "GENERIC-RESOURCE-API:vni": {
-          "$ref": "#/definitions/Some vni"
         }
       },
       "type": "object"
@@ -33184,6 +33412,35 @@
       },
       "type": "object"
     },
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)brg-request-input": {
+      "properties": {
+        "GENERIC-RESOURCE-API:brg-wan-mac-address": {
+          "$ref": "#/definitions/Some brg-wan-mac-address"
+        },
+        "GENERIC-RESOURCE-API:vgmux-bearer-ip": {
+          "$ref": "#/definitions/26.0.26.7",
+          "enum": [
+            "26.0.26.7",
+            "A9:cA7"
+          ]
+        },
+        "GENERIC-RESOURCE-API:vni": {
+          "$ref": "#/definitions/Some vni"
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)brg-request-input-TOP": {
+      "properties": {
+        "GENERIC-RESOURCE-API:brg-request-input": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)brg-request-input"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
     "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information": {
       "properties": {
         "GENERIC-RESOURCE-API:notification-url": {
@@ -33215,7 +33472,11 @@
             "CreateSecurityZoneInstance",
             "DeleteSecurityZoneInstance",
             "ActivateDCINetworkInstance",
-            "DeActivateDCINetworkInstance"
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "GENERIC-RESOURCE-API:request-id": {
@@ -33448,10 +33709,10 @@
     "GENERIC-RESOURCE-API/brg-allotted-resources/brg-allotted-resource/allotted-resource-data/brg-topology(config)brg-assignments": {
       "properties": {
         "GENERIC-RESOURCE-API:vbrg-wan-ip": {
-          "$ref": "#/definitions/1.2.0.2",
+          "$ref": "#/definitions/1.1.2.2%{{pN",
           "enum": [
-            "1.2.0.2",
-            "8Cad:8df9"
+            "1.1.2.2%{{pN",
+            "d2:b%ppLpNN"
           ]
         }
       },
@@ -33944,7 +34205,11 @@
             "CreateSecurityZoneInstance",
             "DeleteSecurityZoneInstance",
             "ActivateDCINetworkInstance",
-            "DeActivateDCINetworkInstance"
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "GENERIC-RESOURCE-API:request-id": {
@@ -34747,20 +35012,20 @@
           "$ref": "#/definitions/Some dhcp-start-address"
         },
         "GENERIC-RESOURCE-API:gateway-address": {
-          "$ref": "#/definitions/21.184.2.0",
+          "$ref": "#/definitions/3.16.94.1",
           "enum": [
-            "21.184.2.0",
-            "::%pN"
+            "3.16.94.1",
+            "DCA6:c"
           ]
         },
         "GENERIC-RESOURCE-API:ip-version": {
           "$ref": "#/definitions/Some ip-version"
         },
         "GENERIC-RESOURCE-API:start-address": {
-          "$ref": "#/definitions/252.2.183.0",
+          "$ref": "#/definitions/2.7.8.2",
           "enum": [
-            "252.2.183.0",
-            "aA:d3"
+            "2.7.8.2",
+            "3bcB:%L"
           ]
         },
         "GENERIC-RESOURCE-API:subnet-name": {
@@ -35134,20 +35399,20 @@
           "$ref": "#/definitions/Some dhcp-start-address"
         },
         "GENERIC-RESOURCE-API:gateway-address": {
-          "$ref": "#/definitions/192.0.197.0",
+          "$ref": "#/definitions/1.0.21.50%L",
           "enum": [
-            "192.0.197.0",
-            "C::0"
+            "1.0.21.50%L",
+            "c2Ed:9%N"
           ]
         },
         "GENERIC-RESOURCE-API:ip-version": {
           "$ref": "#/definitions/Some ip-version"
         },
         "GENERIC-RESOURCE-API:start-address": {
-          "$ref": "#/definitions/8.12.3.5%NL}",
+          "$ref": "#/definitions/119.2.170.2",
           "enum": [
-            "8.12.3.5%NL}",
-            "fCe9:"
+            "119.2.170.2",
+            ":"
           ]
         },
         "GENERIC-RESOURCE-API:subnet-name": {
@@ -35449,15 +35714,15 @@
     "GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information/vnf-assignments/vnf-vms(config)vm-networks": {
       "properties": {
         "GENERIC-RESOURCE-API:floating-ip": {
-          "$ref": "#/definitions/0.9.254.2%LL",
+          "$ref": "#/definitions/0.0.25.54%{NNNL}pLp}",
           "description": "Floating ipv4 for VMs of a given type on this network",
           "enum": [
-            "0.9.254.2%LL",
-            ":"
+            "0.0.25.54%{NNNL}pLp}",
+            ":%p{L"
           ]
         },
         "GENERIC-RESOURCE-API:floating-ip-v6": {
-          "$ref": "#/definitions/3:1d",
+          "$ref": "#/definitions/DB8:",
           "description": "Floating ipv6 for VMs of a given type on this network"
         },
         "GENERIC-RESOURCE-API:interface-route-prefixes": {
@@ -35517,11 +35782,11 @@
     "GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)interface-route-prefixes": {
       "properties": {
         "GENERIC-RESOURCE-API:interface-route-prefix": {
-          "$ref": "#/definitions/25.25.49.13%{N",
+          "$ref": "#/definitions/84.59.6.1%pN{",
           "description": "route prefixes (CIDRs) to be provided to MSO in vnf-topology as a list of static routes",
           "enum": [
-            "25.25.49.13%{N",
-            "f58f:2%}}NppNLpL"
+            "84.59.6.1%pN{",
+            "5aFf::"
           ]
         },
         "GENERIC-RESOURCE-API:interface-route-prefix-cidr": {
@@ -35548,11 +35813,11 @@
     "GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)network-ips": {
       "properties": {
         "GENERIC-RESOURCE-API:ip-address": {
-          "$ref": "#/definitions/1.0.4.243%LLLpL}p",
+          "$ref": "#/definitions/221.2.45.0%}{}",
           "description": "List of assigned ipv4 addresses on a network",
           "enum": [
-            "1.0.4.243%LLLpL}p",
-            "d:7:Fb:"
+            "221.2.45.0%}{}",
+            "ddAF:C"
           ]
         }
       },
@@ -35572,7 +35837,7 @@
     "GENERIC-RESOURCE-API/preload-vnfs/vnf-preload-list/preload-data/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)network-ips-v6": {
       "properties": {
         "GENERIC-RESOURCE-API:ip-address-ipv6": {
-          "$ref": "#/definitions/Dc6b:",
+          "$ref": "#/definitions/:",
           "description": "List of assigned ipv6 addresses on a network"
         }
       },
@@ -35995,7 +36260,11 @@
             "CreateSecurityZoneInstance",
             "DeleteSecurityZoneInstance",
             "ActivateDCINetworkInstance",
-            "DeActivateDCINetworkInstance"
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "GENERIC-RESOURCE-API:request-id": {
@@ -36806,7 +37075,11 @@
             "CreateSecurityZoneInstance",
             "DeleteSecurityZoneInstance",
             "ActivateDCINetworkInstance",
-            "DeActivateDCINetworkInstance"
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "GENERIC-RESOURCE-API:request-id": {
@@ -37456,7 +37729,11 @@
             "CreateSecurityZoneInstance",
             "DeleteSecurityZoneInstance",
             "ActivateDCINetworkInstance",
-            "DeActivateDCINetworkInstance"
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "GENERIC-RESOURCE-API:request-id": {
@@ -38165,7 +38442,11 @@
             "CreateSecurityZoneInstance",
             "DeleteSecurityZoneInstance",
             "ActivateDCINetworkInstance",
-            "DeActivateDCINetworkInstance"
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "GENERIC-RESOURCE-API:request-id": {
@@ -38684,7 +38965,11 @@
             "CreateSecurityZoneInstance",
             "DeleteSecurityZoneInstance",
             "ActivateDCINetworkInstance",
-            "DeActivateDCINetworkInstance"
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "GENERIC-RESOURCE-API:request-id": {
@@ -39417,10 +39702,10 @@
         "GENERIC-RESOURCE-API:floating-ip-v4": {
           "description": "Floating ipv4 for VMs of a given type on this network",
           "items": {
-            "$ref": "#/definitions/6.252.1.9%{LL",
+            "$ref": "#/definitions/0.255.197.19%}",
             "enum": [
-              "6.252.1.9%{LL",
-              "B:"
+              "0.255.197.19%}",
+              ":DA%p"
             ]
           },
           "type": "array"
@@ -39428,7 +39713,7 @@
         "GENERIC-RESOURCE-API:floating-ip-v6": {
           "description": "Floating ipv6 for VMs of a given type on this network",
           "items": {
-            "$ref": "#/definitions/A9e6:2e"
+            "$ref": "#/definitions/:85:2"
           },
           "type": "array"
         }
@@ -40450,9 +40735,6 @@
           },
           "type": "object"
         },
-        "GENERIC-RESOURCE-API:brg-wan-mac-address": {
-          "$ref": "#/definitions/Some brg-wan-mac-address"
-        },
         "GENERIC-RESOURCE-API:request-information": {
           "items": {
             "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)request-information"
@@ -40468,6 +40750,12 @@
         "GENERIC-RESOURCE-API:service-information": {
           "items": {
             "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information"
+          },
+          "type": "object"
+        },
+        "GENERIC-RESOURCE-API:tunnelxconn-request-input": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)tunnelxconn-request-input"
           },
           "type": "object"
         }
@@ -40611,7 +40899,11 @@
             "CreateSecurityZoneInstance",
             "DeleteSecurityZoneInstance",
             "ActivateDCINetworkInstance",
-            "DeActivateDCINetworkInstance"
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "GENERIC-RESOURCE-API:request-id": {
@@ -40710,6 +41002,25 @@
         "GENERIC-RESOURCE-API:service-information": {
           "items": {
             "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)service-information"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)tunnelxconn-request-input": {
+      "properties": {
+        "GENERIC-RESOURCE-API:brg-wan-mac-address": {
+          "$ref": "#/definitions/Some brg-wan-mac-address"
+        }
+      },
+      "type": "object"
+    },
+    "GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)tunnelxconn-request-input-TOP": {
+      "properties": {
+        "GENERIC-RESOURCE-API:tunnelxconn-request-input": {
+          "items": {
+            "$ref": "#/definitions/GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/allotted-resource-operation-information(config)tunnelxconn-request-input"
           },
           "type": "object"
         }
@@ -40878,27 +41189,27 @@
     "GENERIC-RESOURCE-API/tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/allotted-resource-data/tunnelxconn-topology(config)tunnelxconn-assignments": {
       "properties": {
         "GENERIC-RESOURCE-API:vg-ip": {
-          "$ref": "#/definitions/22.80.15.0%L",
+          "$ref": "#/definitions/101.112.40.0%NLpNNLp{p",
           "description": "The Network Controller will assign the VG IP address from local inventory",
           "enum": [
-            "22.80.15.0%L",
-            "bD4:ca"
+            "101.112.40.0%NLpNNLp{p",
+            "5Ede:"
           ]
         },
         "GENERIC-RESOURCE-API:vgmux-bearer-ip": {
-          "$ref": "#/definitions/2.204.65.2",
+          "$ref": "#/definitions/25.0.2.0%LLNp",
           "description": "The Network Controller will look up the vgmux bearer ip from the vgmux vf module",
           "enum": [
-            "2.204.65.2",
-            "8ce::"
+            "25.0.2.0%LLNp",
+            "A:"
           ]
         },
         "GENERIC-RESOURCE-API:vgmux-lan-ip": {
-          "$ref": "#/definitions/2.0.254.1%p",
+          "$ref": "#/definitions/191.0.17.5%LLpN}{",
           "description": "The Network Controller will look up the vgmux lan ip from the vgmux vg module",
           "enum": [
-            "2.0.254.1%p",
-            "FF3b:285"
+            "191.0.17.5%LLpN}{",
+            "dbC::"
           ]
         },
         "GENERIC-RESOURCE-API:vni": {
@@ -41489,15 +41800,15 @@
     "GENERIC-RESOURCE-API/vnf-topology-information/vnf-assignments/vnf-vms(config)vm-networks": {
       "properties": {
         "GENERIC-RESOURCE-API:floating-ip": {
-          "$ref": "#/definitions/1.25.3.1%L{N{pNLL}}{pL{Lpp}N",
+          "$ref": "#/definitions/15.16.8.2%L}}{L",
           "description": "Floating ipv4 for VMs of a given type on this network",
           "enum": [
-            "1.25.3.1%L{N{pNLL}}{pL{Lpp}N",
-            "3::08B3"
+            "15.16.8.2%L}}{L",
+            "3:7b1b:"
           ]
         },
         "GENERIC-RESOURCE-API:floating-ip-v6": {
-          "$ref": "#/definitions/cEa:",
+          "$ref": "#/definitions/cE2c:2b:",
           "description": "Floating ipv6 for VMs of a given type on this network"
         },
         "GENERIC-RESOURCE-API:interface-route-prefixes": {
@@ -41557,11 +41868,11 @@
     "GENERIC-RESOURCE-API/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)interface-route-prefixes": {
       "properties": {
         "GENERIC-RESOURCE-API:interface-route-prefix": {
-          "$ref": "#/definitions/3.209.0.0%N}p{",
+          "$ref": "#/definitions/20.23.0.1",
           "description": "route prefixes (CIDRs) to be provided to MSO in vnf-topology as a list of static routes",
           "enum": [
-            "3.209.0.0%N}p{",
-            ":2%L}"
+            "20.23.0.1",
+            ":56Ab:"
           ]
         },
         "GENERIC-RESOURCE-API:interface-route-prefix-cidr": {
@@ -41588,11 +41899,11 @@
     "GENERIC-RESOURCE-API/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)network-ips": {
       "properties": {
         "GENERIC-RESOURCE-API:ip-address": {
-          "$ref": "#/definitions/0.0.28.122%{",
+          "$ref": "#/definitions/0.24.0.1",
           "description": "List of assigned ipv4 addresses on a network",
           "enum": [
-            "0.0.28.122%{",
-            ":4%L}pL"
+            "0.24.0.1",
+            "5F::da6a:f6"
           ]
         }
       },
@@ -41612,7 +41923,7 @@
     "GENERIC-RESOURCE-API/vnf-topology-information/vnf-assignments/vnf-vms/vm-networks(config)network-ips-v6": {
       "properties": {
         "GENERIC-RESOURCE-API:ip-address-ipv6": {
-          "$ref": "#/definitions/:",
+          "$ref": "#/definitions/:%}LpLNLLLpL{L{LNN}L}}",
           "description": "List of assigned ipv6 addresses on a network"
         }
       },
