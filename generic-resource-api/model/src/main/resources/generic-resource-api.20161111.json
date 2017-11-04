@@ -28226,7 +28226,13 @@
             "CreateContrailRouteInstance",
             "DeleteContrailRouteInstance",
             "CreateSecurityZoneInstance",
-            "DeleteSecurityZoneInstance"
+            "DeleteSecurityZoneInstance",
+            "ActivateDCINetworkInstance",
+            "DeActivateDCINetworkInstance",
+            "CreateTunnelXConnInstance",
+            "DeleteTunnelXConnInstance",
+            "CreateBRGInstance",
+            "DeleteBRGInstance"
           ]
         },
         "last-order-status": {

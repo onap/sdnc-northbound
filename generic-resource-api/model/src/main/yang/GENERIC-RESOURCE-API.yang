@@ -1176,6 +1176,12 @@ module GENERIC-RESOURCE-API {
             enum "DeleteContrailRouteInstance";
             enum "CreateSecurityZoneInstance";
             enum "DeleteSecurityZoneInstance";
+            enum "ActivateDCINetworkInstance";
+            enum "DeActivateDCINetworkInstance";
+            enum "CreateTunnelXConnInstance";
+            enum "DeleteTunnelXConnInstance";
+            enum "CreateBRGInstance";
+            enum "DeleteBRGInstance";
          }
       }
       leaf last-svc-request-id {
