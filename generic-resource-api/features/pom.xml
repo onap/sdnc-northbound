@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.onap.sdnc.northbound</groupId>
         <artifactId>generic-resource-api</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>generic-resource-api-features</artifactId>

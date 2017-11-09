@@ -4,7 +4,7 @@
     <parent>
         <artifactId>vnfapi</artifactId>
         <groupId>org.onap.sdnc.northbound</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.1-SNAPSHOT</version>
     </parent>
     <artifactId>vnfapi-features</artifactId>
 
