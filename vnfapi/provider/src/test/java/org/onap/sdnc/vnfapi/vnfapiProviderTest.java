@@ -738,7 +738,7 @@ public class vnfapiProviderTest {
             vnfapiProvider.preloadVnfTopologyOperation(preloadVnfTopologyOperationInput);
 
         Assert.assertEquals("403", rpcResultFuture.get().getResult().getResponseCode());
-        Assert.assertEquals("invalid input, null or empty vnf-name and vnf-type",
+        Assert.assertEquals("invalid input, null or empty vnf-name or vnf-type",
             rpcResultFuture.get().getResult().getResponseMessage());
         Assert.assertEquals("Y", rpcResultFuture.get().getResult().getAckFinalIndicator());
     }
@@ -1120,7 +1120,7 @@ public class vnfapiProviderTest {
             vnfapiProvider.preloadNetworkTopologyOperation(PreloadNetworkTopologyOperationInput);
 
         Assert.assertEquals("403", rpcResultFuture.get().getResult().getResponseCode());
-        Assert.assertEquals("input, null or empty vnf-name and vnf-type",
+        Assert.assertEquals("input, null or empty network-name or network-type",
             rpcResultFuture.get().getResult().getResponseMessage());
         Assert.assertEquals("Y", rpcResultFuture.get().getResult().getAckFinalIndicator());
     }

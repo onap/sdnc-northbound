@@ -2199,9 +2199,9 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             || input.getVfModuleTopologyInformation().getVfModuleIdentifiers().getVfModuleName() == null
             || input.getVfModuleTopologyInformation().getVfModuleIdentifiers().getVfModuleModelId() == null) {
             log.debug("exiting " + SVC_OPERATION
-                + " because of invalid input, null or empty vnf-instance-name and vnf-model-id");
+                + " because of invalid input, null or empty vnf-instance-name or vnf-model-id");
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, null or empty vnf-instance-name and vnf-model-id");
+            responseBuilder.setResponseMessage("invalid input, null or empty vnf-instance-name or vnf-model-id");
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<PreloadVfModuleTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVfModuleTopologyOperationOutput>status(true)
@@ -2397,9 +2397,10 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             || input.getNetworkTopologyInformation().getNetworkTopologyIdentifier() == null
             || input.getNetworkTopologyInformation().getNetworkTopologyIdentifier().getNetworkName() == null
             || input.getNetworkTopologyInformation().getNetworkTopologyIdentifier().getNetworkType() == null) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or empty vnf-name and vnf-type");
+            log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or" +
+                    " empty network-name or network-type");
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("input, null or empty vnf-name and vnf-type");
+            responseBuilder.setResponseMessage("input, null or empty network-name or network-type");
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build())
