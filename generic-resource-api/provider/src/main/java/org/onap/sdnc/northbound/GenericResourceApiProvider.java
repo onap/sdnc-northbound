@@ -1226,7 +1226,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
 				// Only update operational tree on Activate
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
+				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)
+					|| input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Create)) {
 					log.info("Updating OPERATIONAL tree.");
 					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 				}
