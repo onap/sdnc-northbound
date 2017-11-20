@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.onap.sdnc.northbound</groupId>
 		<artifactId>sdnc-northbound</artifactId>
-		<version>1.2.2-SNAPSHOT</version>
+		<version>1.3.0-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -18,7 +18,7 @@
 	<name>VNF Tools Plugin</name>
 	<description>Provides execute nodes to Directed Graphs that use the VNF Module.</description>
 
-	<version>1.2.2-SNAPSHOT</version>
+	<version>1.3.0-SNAPSHOT</version>
 
         <dependencyManagement>
 
