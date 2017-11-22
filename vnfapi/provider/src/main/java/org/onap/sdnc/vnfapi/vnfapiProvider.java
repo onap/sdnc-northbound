@@ -771,30 +771,33 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             InstanceIdentifier.<Vnfs>builder(Vnfs.class).child(VnfList.class, entry.getKey());
         InstanceIdentifier<VnfList> path = vnfListIdBuilder.build();
 
-        int tries = 2;
-        while (true) {
+        int optimisticLockTries = 2;
+        boolean tryAgain =true;
+        while (tryAgain) {
+            tryAgain = false;
             try {
                 WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                 tx.delete(storeType, path);
                 tx.submit().checkedGet();
                 log.debug("DataStore delete succeeded");
-                break;
             } catch (final TransactionCommitFailedException  e) {
                 if (e instanceof OptimisticLockFailedException) {
-                    if (--tries <= 0) {
+                    if (--optimisticLockTries <= 0) {
                         log.debug("Got OptimisticLockFailedException on last try - failing ");
                         throw new IllegalStateException(e);
                     }
                     log.debug("Got OptimisticLockFailedException - trying again ");
+                    tryAgain = true;
+                    continue;
                 }
-                else {
-                		if (e.getCause() instanceof ModifiedNodeDoesNotExistException) {
-                			log.debug("Ignoring MpdifiedNodeDoesNotExistException");
-                		} else {
-                			log.debug("Delete DataStore failed");
-                			throw new IllegalStateException(e);
-                		}
+
+                if (e.getCause() instanceof ModifiedNodeDoesNotExistException) {
+                    log.debug("Ignoring MpdifiedNodeDoesNotExistException");
+                    break;
                 }
+
+                log.debug("Delete DataStore failed");
+                throw new IllegalStateException(e);
             }
         }
     }
