@@ -51,7 +51,7 @@ import static org.onap.sdnc.vnfapi.util.MDSALUtil.vnfTopologyOperationOutput;
  * This class test the VnfTopologyOperation mdsal RPC.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class VnfTopologyOperationRPCTest extends VnfApiProviderTest {
+public class VnfTopologyOperationRPCTest extends VnfApiProviderTestBase {
 
 
     final String SVC_OPERATION = "vnf-topology-operation";
