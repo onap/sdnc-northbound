@@ -3,7 +3,7 @@
  * openECOMP : SDN-C
  * ================================================================================
  * Copyright (C) 2017 AT&T Intellectual Property. All rights
- * 							reserved.
+ *                             reserved.
  * ================================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
+public class VnfApiProviderTestBase extends AbstractConcurrentDataBrokerTest {
 
     protected vnfapiProvider vnfapiProvider;
     protected DataBroker dataBroker;
@@ -68,8 +68,9 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
 
 
     public static PropBuilder prop(){
-        return (new PropBuilder());
+        return new PropBuilder();
     }
 
 
 }
+
