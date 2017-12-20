@@ -117,7 +117,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class vnfapiProviderTest {
+public class VnfapiProviderTestBase {
     @Rule public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock private DataBroker dataBroker;

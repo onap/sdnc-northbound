@@ -50,6 +50,7 @@
 			<plugin>
 				<groupId>org.opendaylight.yangtools</groupId>
 				<artifactId>yang-maven-plugin</artifactId>
+                <version>${odl.yangtools.yang.maven.plugin.version}</version>
 				<dependencies>
 					<dependency>
 						<groupId>org.opendaylight.mdsal</groupId>
