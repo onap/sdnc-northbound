@@ -36,12 +36,12 @@ import org.slf4j.LoggerFactory;
 
 public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
 
-    protected vnfapiProvider vnfapiProvider;
+    protected VnfApiProvider vnfapiProvider;
     protected DataBroker dataBroker;
     protected @Mock NotificationPublishService mockNotificationPublishService;
     protected @Mock RpcProviderRegistry mockRpcProviderRegistry;
     protected @Mock VNFSDNSvcLogicServiceClient mockVNFSDNSvcLogicServiceClient;
-    protected static final Logger LOG = LoggerFactory.getLogger(vnfapiProvider.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(VnfApiProvider.class);
 
 
     protected DataBrokerUtil db;
@@ -54,7 +54,7 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         dataBroker = getDataBroker();
         db = new DataBrokerUtil(dataBroker);
          try {
-            vnfapiProvider = new vnfapiProvider(
+            vnfapiProvider = new VnfApiProvider(
                     dataBroker,
                     mockNotificationPublishService,
                     mockRpcProviderRegistry,

@@ -105,7 +105,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.powermock.reflect.Whitebox;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -128,7 +127,7 @@ public class VnfapiProviderTestBase {
     @Mock private ReadWriteTransaction readWriteTransactionInDataChanged;
     @Mock private CheckedFuture<Void, TransactionCommitFailedException> checkedFuture;
 
-    private vnfapiProvider vnfapiProvider;
+    private VnfApiProvider vnfapiProvider;
     private String vfModuleName;
     private String vfModuleModelId;
     private String vnfInstanceId;
@@ -152,7 +151,7 @@ public class VnfapiProviderTestBase {
         doReturn(writeTransaction).when(dataBroker).newWriteOnlyTransaction();
         doReturn(checkedFuture).when(writeTransaction).submit();
 
-        vnfapiProvider = spy(new vnfapiProvider(dataBroker, notificationPublishService, rpcProviderRegistry,
+        vnfapiProvider = spy(new VnfApiProvider(dataBroker, notificationPublishService, rpcProviderRegistry,
             vnfsdnSvcLogicServiceClient));
     }
 

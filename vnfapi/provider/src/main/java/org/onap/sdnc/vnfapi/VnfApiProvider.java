@@ -152,32 +152,33 @@ import java.util.concurrent.Future;
  * which provides storage for the most commonly used components of the MD-SAL. Additionally the
  * base class provides some basic logging and initialization / clean up methods.
  */
-public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeListener {
+public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeListener {
+
+    private final Logger log = LoggerFactory.getLogger(VnfApiProvider.class);
+
+    private static final String APP_NAME = "vnfapi";
+
+    private VNFSDNSvcLogicServiceClient svcLogicClient;
+    private final ExecutorService executor;
+
     protected DataBroker dataBroker;
     protected NotificationPublishService notificationService;
     protected RpcProviderRegistry rpcRegistry;
     protected BindingAwareBroker.RpcRegistration<VNFAPIService> rpcRegistration;
 
-    private final Logger log = LoggerFactory.getLogger(vnfapiProvider.class);
-    private final String appName = "vnfapi";
-    private final ExecutorService executor;
-
-    private VNFSDNSvcLogicServiceClient svcLogicClient;
-    private ListenerRegistration<DataChangeListener> dclServices;
-
-    public vnfapiProvider(DataBroker dataBroker2, NotificationPublishService notificationPublishService,
+    public VnfApiProvider(DataBroker dataBroker2, NotificationPublishService notificationPublishService,
         RpcProviderRegistry rpcProviderRegistry, VNFSDNSvcLogicServiceClient client) {
-        this.log.info("Creating provider for " + appName);
+        log.info("Creating provider for " + APP_NAME);
         executor = Executors.newFixedThreadPool(1);
         dataBroker = dataBroker2;
         notificationService = notificationPublishService;
         rpcRegistry = rpcProviderRegistry;
-        this.svcLogicClient = client;
+        svcLogicClient = client;
         initialize();
     }
 
-    public void initialize() {
-        log.info("Initializing provider for " + appName);
+    private void initialize() {
+        log.info("Initializing provider for " + APP_NAME);
         // Create the top level containers
         createContainers();
         try {
@@ -186,7 +187,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             log.error("Caught Exception while trying to load properties file: ", e);
         }
 
-        log.info("Initialization complete for " + appName);
+        log.info("Initialization complete for " + APP_NAME);
     }
 
     private void createContainers() {
@@ -236,19 +237,22 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         }
     }
 
-    @Override public void close() throws Exception {
-        log.info("Closing provider for " + appName);
+    @Override
+    public void close() throws Exception {
+        log.info("Closing provider for " + APP_NAME);
         executor.shutdown();
         rpcRegistration.close();
-        log.info("Successfully closed provider for " + appName);
+        log.info("Successfully closed provider for " + APP_NAME);
     }
 
     // On data change not used
-    @Override public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
-        boolean changed = false;
-        log.info("   IN ON DATA CHANGE: ");
-        WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
+    @Override
+    public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
 
+        log.info("   IN ON DATA CHANGE: ");
+
+        boolean changed = false;
+        WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
         DataObject updatedSubTree = change.getUpdatedSubtree();
 
         if (updatedSubTree != null) {
@@ -256,130 +260,158 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 log.debug("updatedSubTree was non-null:" + updatedSubTree);
             }
             if (updatedSubTree instanceof Vnfs) {
-                ArrayList<VnfList> vnfList = (ArrayList<VnfList>) ((Vnfs) updatedSubTree).getVnfList();
-                if (vnfList != null) {
-                    for (VnfList entry : vnfList) {
-                        ServiceData serviceData = entry.getServiceData();
-                        ServiceStatus serviceStatus = entry.getServiceStatus();
-                        if (serviceData != null && serviceStatus != null) {
-                            //
-                            // ServiceData change detected, check the AckFinal indicator and request-status to see if we need to proceed.
-                            //
-                            if ((!"Y".equals(serviceStatus.getFinalIndicator())) && (RequestStatus.Synccomplete
-                                .equals(serviceStatus.getRequestStatus()))) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Final Indicator is not Y, calling handleServiceDataUpdated");
-                                }
-                                //handleServiceDataUpdated(serviceData, serviceStatus, writeTransaction);
-                                changed = true;
-                            }
-                        }
-                    }
-                }
+                changed = isChanged(changed, (Vnfs) updatedSubTree);
             }
             if (updatedSubTree instanceof PreloadVnfs) {
-                ArrayList<VnfPreloadList> vnfList =
-                    (ArrayList<VnfPreloadList>) ((PreloadVnfs) updatedSubTree).getVnfPreloadList();
-                if (vnfList != null) {
-                    for (VnfPreloadList entry : vnfList) {
-                        PreloadData preloadData = entry.getPreloadData();
-                        if (preloadData != null) {
-                            changed = true;
-                        }
-                    }
-                }
+                changed = isChanged(changed, (PreloadVnfs) updatedSubTree);
             }
             //1610
             if (updatedSubTree instanceof PreloadVnfInstances) {
-                ArrayList<VnfInstancePreloadList> vnfInstanceList =
-                    (ArrayList<VnfInstancePreloadList>) ((PreloadVnfInstances) updatedSubTree)
-                        .getVnfInstancePreloadList();
-                if (vnfInstanceList != null) {
-                    for (VnfInstancePreloadList entry : vnfInstanceList) {
-                        VnfInstancePreloadData vnfInstancePreloadData = entry.getVnfInstancePreloadData();
-                        if (vnfInstancePreloadData != null) {
-                            changed = true;
-                        }
-                    }
-                }
+                changed = isChanged(changed, (PreloadVnfInstances) updatedSubTree);
             }
             //1610
             if (updatedSubTree instanceof VnfInstances) {
-                ArrayList<VnfInstanceList> vnfInstanceList =
-                    (ArrayList<VnfInstanceList>) ((VnfInstances) updatedSubTree).getVnfInstanceList();
-                if (vnfInstanceList != null) {
-                    for (VnfInstanceList entry : vnfInstanceList) {
-                        VnfInstanceServiceData vnfInstanceServiceData = entry.getVnfInstanceServiceData();
-                        ServiceStatus serviceStatus = entry.getServiceStatus();
-                        if (vnfInstanceServiceData != null && serviceStatus != null) {
-                            // VnfInstanceServiceData change detected, check the AckFinal indicator and request-status
-                            // to see if we need to proceed.
-                            if ((!"Y".equals(serviceStatus.getFinalIndicator())) && (RequestStatus.Synccomplete
-                                .equals(serviceStatus.getRequestStatus()))) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Final Indicator is not Y, calling handleServiceDataUpdated");
-                                }
-                                changed = true;
-                            }
-                        }
-                    }
-                }
+                changed = isChanged(changed, (VnfInstances) updatedSubTree);
             }
             //1610
             if (updatedSubTree instanceof PreloadVfModules) {
-                ArrayList<VfModulePreloadList> vnfInstanceList =
-                    (ArrayList<VfModulePreloadList>) ((PreloadVfModules) updatedSubTree).getVfModulePreloadList();
-                if (vnfInstanceList != null) {
-                    for (VfModulePreloadList entry : vnfInstanceList) {
-                        VfModulePreloadData vnfInstancePreloadData = entry.getVfModulePreloadData();
-                        if (vnfInstancePreloadData != null) {
-                            changed = true;
-                        }
-                    }
-                }
+                changed = isChanged(changed, (PreloadVfModules) updatedSubTree);
             }
             //1610
             if (updatedSubTree instanceof VfModules) {
-                ArrayList<VfModuleList> vfModuleList =
-                    (ArrayList<VfModuleList>) ((VfModules) updatedSubTree).getVfModuleList();
-                if (vfModuleList != null) {
-                    for (VfModuleList entry : vfModuleList) {
-                        VfModuleServiceData vfModuleServiceData = entry.getVfModuleServiceData();
-                        ServiceStatus serviceStatus = entry.getServiceStatus();
-                        if (vfModuleServiceData != null && serviceStatus != null) {
-                            // VfModuleServiceData change detected, check the AckFinal indicator and request-status to
-                            // see if we need to proceed.
-                            if ((!"Y".equals(serviceStatus.getFinalIndicator())) && (RequestStatus.Synccomplete
-                                .equals(serviceStatus.getRequestStatus()))) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Final Indicator is not Y, calling handleServiceDataUpdated");
-                                }
-                                changed = true;
-                            }
-                        }
-                    }
-                }
+                changed = isChanged(changed, (VfModules) updatedSubTree);
             }
         }
+
         // Do the write transaction only if something changed.
         if (changed) {
             CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = writeTransaction.submit();
             Futures.addCallback(checkedFuture, new FutureCallback<Void>() {
 
-                @Override public void onSuccess(Void arg0) {
+                @Override
+                public void onSuccess(Void arg0) {
                     log.debug("Successfully updated Service Status");
                 }
 
-                @Override public void onFailure(Throwable ex) {
-                    log.debug("Failed updating Service Status", ex);
+                @Override
+                public void onFailure(Throwable e) {
+                    log.debug("Failed updating Service Status", e);
                 }
             }, executor);
         }
     }
 
+    private boolean isChanged(boolean changed, VfModules updatedSubTree) {
+        ArrayList<VfModuleList> vfModuleList =
+            (ArrayList<VfModuleList>) updatedSubTree.getVfModuleList();
+        if (vfModuleList != null) {
+            for (VfModuleList entry : vfModuleList) {
+                VfModuleServiceData vfModuleServiceData = entry.getVfModuleServiceData();
+                ServiceStatus serviceStatus = entry.getServiceStatus();
+                if (vfModuleServiceData != null && serviceStatus != null) {
+                    // VfModuleServiceData change detected, check the AckFinal indicator and request-status to
+                    // see if we need to proceed.
+                    return isChanged(changed, serviceStatus);
+                }
+            }
+        }
+        return changed;
+    }
+
+    private boolean isChanged(boolean changed, PreloadVfModules updatedSubTree) {
+        ArrayList<VfModulePreloadList> vnfInstanceList =
+            (ArrayList<VfModulePreloadList>) updatedSubTree.getVfModulePreloadList();
+        if (vnfInstanceList != null) {
+            for (VfModulePreloadList entry : vnfInstanceList) {
+                VfModulePreloadData vnfInstancePreloadData = entry.getVfModulePreloadData();
+                if (vnfInstancePreloadData != null) {
+                    return true;
+                }
+            }
+        }
+        return changed;
+    }
+
+    private boolean isChanged(boolean changed, VnfInstances updatedSubTree) {
+        ArrayList<VnfInstanceList> vnfInstanceList =
+            (ArrayList<VnfInstanceList>) updatedSubTree.getVnfInstanceList();
+        if (vnfInstanceList != null) {
+            for (VnfInstanceList entry : vnfInstanceList) {
+                VnfInstanceServiceData vnfInstanceServiceData = entry.getVnfInstanceServiceData();
+                ServiceStatus serviceStatus = entry.getServiceStatus();
+                if (vnfInstanceServiceData != null && serviceStatus != null) {
+                    // VnfInstanceServiceData change detected, check the AckFinal indicator and request-status
+                    // to see if we need to proceed.
+                    return isChanged(changed, serviceStatus);
+                }
+            }
+        }
+        return changed;
+    }
+
+    private boolean isChanged(boolean changed, PreloadVnfInstances updatedSubTree) {
+        ArrayList<VnfInstancePreloadList> vnfInstanceList =
+            (ArrayList<VnfInstancePreloadList>) updatedSubTree
+                .getVnfInstancePreloadList();
+        if (vnfInstanceList != null) {
+            for (VnfInstancePreloadList entry : vnfInstanceList) {
+                VnfInstancePreloadData vnfInstancePreloadData = entry.getVnfInstancePreloadData();
+                if (vnfInstancePreloadData != null) {
+                    return true;
+                }
+            }
+        }
+        return changed;
+    }
+
+    private boolean isChanged(boolean changed, PreloadVnfs updatedSubTree) {
+        ArrayList<VnfPreloadList> vnfList =
+            (ArrayList<VnfPreloadList>) updatedSubTree.getVnfPreloadList();
+        if (vnfList != null) {
+            for (VnfPreloadList entry : vnfList) {
+                PreloadData preloadData = entry.getPreloadData();
+                if (preloadData != null) {
+                    return true;
+                }
+            }
+        }
+        return changed;
+    }
+
+    private boolean isChanged(boolean changed, Vnfs updatedSubTree) {
+        ArrayList<VnfList> vnfList = (ArrayList<VnfList>) updatedSubTree.getVnfList();
+        if (vnfList != null) {
+            for (VnfList entry : vnfList) {
+                ServiceData serviceData = entry.getServiceData();
+                ServiceStatus serviceStatus = entry.getServiceStatus();
+                if (serviceData != null && serviceStatus != null) {
+                    //
+                    // ServiceData change detected, check the AckFinal indicator and request-status to see if we need to proceed.
+                    //
+                    return isChanged(changed, serviceStatus);
+                }
+            }
+        }
+        return changed;
+    }
+
+    private boolean isChanged(boolean changed, ServiceStatus serviceStatus) {
+        if ((!"Y".equals(serviceStatus.getFinalIndicator())) && (RequestStatus.Synccomplete
+            .equals(serviceStatus.getRequestStatus()))) {
+            if (log.isDebugEnabled()) {
+                log.debug("Final Indicator is not Y, calling handleServiceDataUpdated");
+            }
+            return true;
+        }
+        return changed;
+    }
+
     private static class Iso8601Util {
+
         private static TimeZone tz = TimeZone.getTimeZone("UTC");
         private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+        private Iso8601Util() {}
 
         static {
             df.setTimeZone(tz);
