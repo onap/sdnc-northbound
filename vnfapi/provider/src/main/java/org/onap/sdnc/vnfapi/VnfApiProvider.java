@@ -126,7 +126,6 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.s
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.model.infrastructure.VnfList;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.model.infrastructure.VnfListBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.model.infrastructure.VnfListKey;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -530,23 +529,25 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         getServiceData(siid, serviceDataBuilder, LogicalDatastoreType.CONFIGURATION);
     }
 
-
     private void getServiceData(String siid, ServiceDataBuilder serviceDataBuilder, LogicalDatastoreType type) {
         // See if any data exists yet for this siid, if so grab it.
-        InstanceIdentifier serviceInstanceIdentifier =
-            InstanceIdentifier.<Vnfs>builder(Vnfs.class).child(VnfList.class, new VnfListKey(siid)).build();
+        InstanceIdentifier<VnfList> serviceInstanceIdentifier = InstanceIdentifier
+            .builder(Vnfs.class)
+            .child(VnfList.class, new VnfListKey(siid))
+            .build();
+
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
-        Optional<VnfList> data = null;
+        Optional<VnfList> data = Optional.absent();
         try {
-            data = (Optional<VnfList>) readTx.read(type, serviceInstanceIdentifier).get();
+            data = readTx.read(type, serviceInstanceIdentifier).get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL (" + type + ") for [" + siid + "] ", e);
+            log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + siid + "] ", e);
         }
 
-        if (data != null && data.isPresent()) {
+        if (data.isPresent()) {
             ServiceData serviceData = (ServiceData) data.get().getServiceData();
             if (serviceData != null) {
-                log.info("Read MD-SAL (" + type + ") data for [" + siid + "] ServiceData: " + serviceData);
+                log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + siid + SERVICE_DATA_STR + serviceData);
                 serviceDataBuilder.setSdncRequestHeader(serviceData.getSdncRequestHeader());
                 serviceDataBuilder.setRequestInformation(serviceData.getRequestInformation());
                 serviceDataBuilder.setServiceInformation(serviceData.getServiceInformation());
@@ -555,10 +556,10 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 serviceDataBuilder.setVnfTopologyInformation(serviceData.getVnfTopologyInformation());
                 serviceDataBuilder.setOperStatus(serviceData.getOperStatus());
             } else {
-                log.info("No service-data found in MD-SAL (" + type + ") for [" + siid + "] ");
+                log.info("No service-data found in MD-SAL (" + type + FOR_STR + siid + "] ");
             }
         } else {
-            log.info("No data found in MD-SAL (" + type + ") for [" + siid + "] ");
+            log.info(NO_DATA_FOUND_STR + type + FOR_STR + siid + "] ");
         }
     }
 
@@ -572,21 +573,24 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     private void getVnfInstanceServiceData(String siid, VnfInstanceServiceDataBuilder vnfInstanceServiceDataBuilder,
         LogicalDatastoreType type) {
         // See if any data exists yet for this siid, if so grab it.
-        InstanceIdentifier vnfInstanceIdentifier = InstanceIdentifier.<VnfInstances>builder(VnfInstances.class)
-            .child(VnfInstanceList.class, new VnfInstanceListKey(siid)).build();
+        InstanceIdentifier<VnfInstanceList> vnfInstanceIdentifier = InstanceIdentifier
+            .builder(VnfInstances.class)
+            .child(VnfInstanceList.class, new VnfInstanceListKey(siid))
+            .build();
+
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
-        Optional<VnfInstanceList> data = null;
+        Optional<VnfInstanceList> data = Optional.absent();
         try {
-            data = (Optional<VnfInstanceList>) readTx.read(type, vnfInstanceIdentifier).get();
+            data = readTx.read(type, vnfInstanceIdentifier).get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL (" + type + ") for [" + siid + "] ", e);
+            log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + siid + "] ", e);
         }
 
-        if (data != null && data.isPresent()) {
+        if (data.isPresent()) {
             VnfInstanceServiceData vnfInstanceServiceData =
                 (VnfInstanceServiceData) data.get().getVnfInstanceServiceData();
             if (vnfInstanceServiceData != null) {
-                log.info("Read MD-SAL (" + type + ") data for [" + siid + "] VnfInstanceServiceData: "
+                log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + siid + "] VnfInstanceServiceData: "
                     + vnfInstanceServiceData);
                 vnfInstanceServiceDataBuilder.setSdncRequestHeader(vnfInstanceServiceData.getSdncRequestHeader());
                 vnfInstanceServiceDataBuilder.setRequestInformation(vnfInstanceServiceData.getRequestInformation());
@@ -598,10 +602,10 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     .setVnfInstanceTopologyInformation(vnfInstanceServiceData.getVnfInstanceTopologyInformation());
                 vnfInstanceServiceDataBuilder.setOperStatus(vnfInstanceServiceData.getOperStatus());
             } else {
-                log.info("No vnf-instance-service-data found in MD-SAL (" + type + ") for [" + siid + "] ");
+                log.info("No vnf-instance-service-data found in MD-SAL (" + type + FOR_STR + siid + "] ");
             }
         } else {
-            log.info("No data found in MD-SAL (" + type + ") for [" + siid + "] ");
+            log.info(NO_DATA_FOUND_STR + type + FOR_STR + siid + "] ");
         }
     }
 
@@ -615,22 +619,24 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     private void getVfModuleServiceData(String siid, VfModuleServiceDataBuilder vfModuleServiceDataBuilder,
         LogicalDatastoreType type) {
         // See if any data exists yet for this siid, if so grab it.
-        InstanceIdentifier vfModuleIdentifier =
-            InstanceIdentifier.<VfModules>builder(VfModules.class).child(VfModuleList.class, new VfModuleListKey(siid))
-                .build();
+        InstanceIdentifier<VfModuleList> vfModuleIdentifier = InstanceIdentifier
+            .builder(VfModules.class)
+            .child(VfModuleList.class, new VfModuleListKey(siid))
+            .build();
+
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
-        Optional<VfModuleList> data = null;
+        Optional<VfModuleList> data = Optional.absent();
         try {
-            data = (Optional<VfModuleList>) readTx.read(type, vfModuleIdentifier).get();
+            data = readTx.read(type, vfModuleIdentifier).get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL (" + type + ") for [" + siid + "] ", e);
+            log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + siid + "] ", e);
         }
 
-        if (data != null && data.isPresent()) {
+        if (data.isPresent()) {
             VfModuleServiceData vfModuleServiceData = data.get().getVfModuleServiceData();
             if (vfModuleServiceData != null) {
                 log.info(
-                    "Read MD-SAL (" + type + ") data for [" + siid + "] VfModuleServiceData: " + vfModuleServiceData);
+                    READ_MD_SAL_STR + type + DATA_FOR_STR + siid + "] VfModuleServiceData: " + vfModuleServiceData);
                 vfModuleServiceDataBuilder.setSdncRequestHeader(vfModuleServiceData.getSdncRequestHeader());
                 vfModuleServiceDataBuilder.setRequestInformation(vfModuleServiceData.getRequestInformation());
                 vfModuleServiceDataBuilder.setServiceInformation(vfModuleServiceData.getServiceInformation());
@@ -641,170 +647,145 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     .setVfModuleTopologyInformation(vfModuleServiceData.getVfModuleTopologyInformation());
                 vfModuleServiceDataBuilder.setOperStatus(vfModuleServiceData.getOperStatus());
             } else {
-                log.info("No vf-module-service-data found in MD-SAL (" + type + ") for [" + siid + "] ");
+                log.info("No vf-module-service-data found in MD-SAL (" + type + FOR_STR + siid + "] ");
             }
         } else {
-            log.info("No data found in MD-SAL (" + type + ") for [" + siid + "] ");
+            log.info(NO_DATA_FOUND_STR + type + FOR_STR + siid + "] ");
         }
     }
 
 
-    private void getPreloadData(String vnf_name, String vnf_type, PreloadDataBuilder preloadDataBuilder) {
+    private void getPreloadData(String vnfName, String vnfType, PreloadDataBuilder preloadDataBuilder) {
         // default to config
-        getPreloadData(vnf_name, vnf_type, preloadDataBuilder, LogicalDatastoreType.CONFIGURATION);
+        getPreloadData(vnfName, vnfType, preloadDataBuilder, LogicalDatastoreType.CONFIGURATION);
     }
 
-    private void getPreloadData(String preload_name, String preload_type, PreloadDataBuilder preloadDataBuilder,
+    private void getPreloadData(String preloadName, String preloadType, PreloadDataBuilder preloadDataBuilder,
         LogicalDatastoreType type) {
         // See if any data exists yet for this name/type, if so grab it.
-        InstanceIdentifier preloadInstanceIdentifier = InstanceIdentifier.<PreloadVnfs>builder(PreloadVnfs.class)
-            .child(VnfPreloadList.class, new VnfPreloadListKey(preload_name, preload_type)).build();
+        InstanceIdentifier<VnfPreloadList> preloadInstanceIdentifier = InstanceIdentifier
+            .builder(PreloadVnfs.class)
+            .child(VnfPreloadList.class, new VnfPreloadListKey(preloadName, preloadType))
+            .build();
+
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
-        Optional<VnfPreloadList> data = null;
+        Optional<VnfPreloadList> data = Optional.absent();
         try {
-            data = (Optional<VnfPreloadList>) readTx.read(type, preloadInstanceIdentifier).get();
+            data = readTx.read(type, preloadInstanceIdentifier).get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL (" + type + ") for [" + preload_name + "," + preload_type + "] ",
+            log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + preloadName + "," + preloadType + "] ",
                 e);
         }
 
-        if (data != null && data.isPresent()) {
+        if (data.isPresent()) {
             PreloadData preloadData = (PreloadData) data.get().getPreloadData();
             if (preloadData != null) {
-                log.info("Read MD-SAL (" + type + ") data for [" + preload_name + "," + preload_type + "] PreloadData: "
+                log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + preloadName + "," + preloadType + "] PreloadData: "
                     + preloadData);
                 preloadDataBuilder.setVnfTopologyInformation(preloadData.getVnfTopologyInformation());
                 preloadDataBuilder.setNetworkTopologyInformation(preloadData.getNetworkTopologyInformation());
                 preloadDataBuilder.setOperStatus(preloadData.getOperStatus());
             } else {
                 log.info(
-                    "No preload-data found in MD-SAL (" + type + ") for [" + preload_name + "," + preload_type + "] ");
+                    "No preload-data found in MD-SAL (" + type + FOR_STR + preloadName + "," + preloadType + "] ");
             }
         } else {
-            log.info("No data found in MD-SAL (" + type + ") for [" + preload_name + "," + preload_type + "] ");
+            log.info(NO_DATA_FOUND_STR + type + FOR_STR + preloadName + "," + preloadType + "] ");
         }
     }
 
     //1610 preload-vnf-instance
-    private void getVnfInstancePreloadData(String vnf_name, String vnf_type,
+    private void getVnfInstancePreloadData(String vnfName, String vnfType,
         VnfInstancePreloadDataBuilder preloadDataBuilder) {
         // default to config
-        getVnfInstancePreloadData(vnf_name, vnf_type, preloadDataBuilder, LogicalDatastoreType.CONFIGURATION);
+        getVnfInstancePreloadData(vnfName, vnfType, preloadDataBuilder, LogicalDatastoreType.CONFIGURATION);
     }
 
     //1610 preload-vnf-instance
-    private void getVnfInstancePreloadData(String preload_name, String preload_type,
+    private void getVnfInstancePreloadData(String preloadName, String preloadType,
         VnfInstancePreloadDataBuilder preloadDataBuilder, LogicalDatastoreType type) {
         // See if any data exists yet for this name/type, if so grab it.
-        InstanceIdentifier preloadInstanceIdentifier =
-            InstanceIdentifier.<PreloadVnfInstances>builder(PreloadVnfInstances.class)
-                .child(VnfInstancePreloadList.class, new VnfInstancePreloadListKey(preload_name, preload_type)).build();
+        InstanceIdentifier<VnfInstancePreloadList> preloadInstanceIdentifier = InstanceIdentifier
+            .builder(PreloadVnfInstances.class)
+            .child(VnfInstancePreloadList.class, new VnfInstancePreloadListKey(preloadName, preloadType))
+            .build();
+
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
-        Optional<VnfInstancePreloadList> data = null;
+        Optional<VnfInstancePreloadList> data = Optional.absent();
         try {
-            data = (Optional<VnfInstancePreloadList>) readTx.read(type, preloadInstanceIdentifier).get();
+            data = readTx.read(type, preloadInstanceIdentifier).get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL (" + type + ") for [" + preload_name + "," + preload_type + "] ",
+            log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + preloadName + "," + preloadType + "] ",
                 e);
         }
 
-        if (data != null && data.isPresent()) {
+        if (data.isPresent()) {
             VnfInstancePreloadData preloadData = (VnfInstancePreloadData) data.get().getVnfInstancePreloadData();
             if (preloadData != null) {
-                log.info("Read MD-SAL (" + type + ") data for [" + preload_name + "," + preload_type
+                log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + preloadName + "," + preloadType
                     + "] VnfInstancePreloadData: " + preloadData);
                 preloadDataBuilder.setVnfInstanceTopologyInformation(preloadData.getVnfInstanceTopologyInformation());
                 preloadDataBuilder.setOperStatus(preloadData.getOperStatus());
             } else {
-                log.info("No vnf-instance-preload-data found in MD-SAL (" + type + ") for [" + preload_name + ","
-                    + preload_type + "] ");
+                log.info("No vnf-instance-preload-data found in MD-SAL (" + type + FOR_STR + preloadName + ","
+                    + preloadType + "] ");
             }
         } else {
-            log.info("No data found in MD-SAL (" + type + ") for [" + preload_name + "," + preload_type + "] ");
+            log.info(NO_DATA_FOUND_STR + type + FOR_STR + preloadName + "," + preloadType + "] ");
         }
     }
 
     // 1610 preload-vf-module
-    private void getVfModulePreloadData(String vnf_name, String vnf_type,
+    private void getVfModulePreloadData(String vnfName, String vnfType,
         VfModulePreloadDataBuilder preloadDataBuilder) {
         // default to config
-        getVfModulePreloadData(vnf_name, vnf_type, preloadDataBuilder, LogicalDatastoreType.CONFIGURATION);
+        getVfModulePreloadData(vnfName, vnfType, preloadDataBuilder, LogicalDatastoreType.CONFIGURATION);
     }
 
-    private void getVfModulePreloadData(String preload_name, String preload_type,
+    private void getVfModulePreloadData(String preloadName, String preloadType,
         VfModulePreloadDataBuilder preloadDataBuilder, LogicalDatastoreType type) {
         // See if any data exists yet for this name/type, if so grab it.
-        InstanceIdentifier preloadInstanceIdentifier =
-            InstanceIdentifier.<PreloadVfModules>builder(PreloadVfModules.class)
-                .child(VfModulePreloadList.class, new VfModulePreloadListKey(preload_name, preload_type)).build();
+        InstanceIdentifier<VfModulePreloadList> preloadInstanceIdentifier = InstanceIdentifier
+            .builder(PreloadVfModules.class)
+            .child(VfModulePreloadList.class, new VfModulePreloadListKey(preloadName, preloadType))
+            .build();
+
         ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
-        Optional<VfModulePreloadList> data = null;
+        Optional<VfModulePreloadList> data = Optional.absent();
+
         try {
-            data = (Optional<VfModulePreloadList>) readTx.read(type, preloadInstanceIdentifier).get();
+            data = readTx.read(type, preloadInstanceIdentifier).get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL (" + type + ") for [" + preload_name + "," + preload_type + "] ",
+            log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + preloadName + "," + preloadType + "] ",
                 e);
         }
 
-        if (data != null && data.isPresent()) {
+        if (data.isPresent()) {
             VfModulePreloadData preloadData = (VfModulePreloadData) data.get().getVfModulePreloadData();
             if (preloadData != null) {
-                log.info("Read MD-SAL (" + type + ") data for [" + preload_name + "," + preload_type
+                log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + preloadName + "," + preloadType
                     + "] VfModulePreloadData: " + preloadData);
                 preloadDataBuilder.setVfModuleTopologyInformation(preloadData.getVfModuleTopologyInformation());
                 preloadDataBuilder.setOperStatus(preloadData.getOperStatus());
             } else {
                 log.info(
-                    "No preload-data found in MD-SAL (" + type + ") for [" + preload_name + "," + preload_type + "] ");
+                    "No preload-data found in MD-SAL (" + type + FOR_STR + preloadName + "," + preloadType + "] ");
             }
         } else {
-            log.info("No data found in MD-SAL (" + type + ") for [" + preload_name + "," + preload_type + "] ");
+            log.info(NO_DATA_FOUND_STR + type + FOR_STR + preloadName + "," + preloadType + "] ");
         }
     }
 
-    private void SaveVnfList(final VnfList entry, boolean merge, LogicalDatastoreType storeType)
-        throws IllegalStateException {
+    private void deleteVnfList(final VnfList entry, LogicalDatastoreType storeType) {
         // Each entry will be identifiable by a unique key, we have to create that identifier
-        InstanceIdentifier.InstanceIdentifierBuilder<VnfList> vnfListIdBuilder =
-            InstanceIdentifier.<Vnfs>builder(Vnfs.class).child(VnfList.class, entry.getKey());
-        InstanceIdentifier<VnfList> path = vnfListIdBuilder.build();
+        InstanceIdentifierBuilder<VnfList> vnfListIdBuilder = InstanceIdentifier
+            .builder(Vnfs.class)
+            .child(VnfList.class, entry.getKey());
 
-        int tries = 2;
-        while (true) {
-            try {
-                WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                if (merge) {
-                    tx.merge(storeType, path, entry);
-                } else {
-                    tx.put(storeType, path, entry);
-                }
-                tx.submit().checkedGet();
-                log.debug("Update DataStore succeeded");
-                break;
-            } catch (final TransactionCommitFailedException e) {
-                if (e instanceof OptimisticLockFailedException) {
-                    if (--tries <= 0) {
-                        log.debug("Got OptimisticLockFailedException on last try - failing ");
-                        throw new IllegalStateException(e);
-                    }
-                    log.debug("Got OptimisticLockFailedException - trying again ");
-                } else {
-                    log.debug("Update DataStore failed");
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
-
-    }
-
-    private void DeleteVnfList(final VnfList entry, LogicalDatastoreType storeType) throws IllegalStateException {
-        // Each entry will be identifiable by a unique key, we have to create that identifier
-        InstanceIdentifier.InstanceIdentifierBuilder<VnfList> vnfListIdBuilder =
-            InstanceIdentifier.<Vnfs>builder(Vnfs.class).child(VnfList.class, entry.getKey());
         InstanceIdentifier<VnfList> path = vnfListIdBuilder.build();
 
         int optimisticLockTries = 2;
-        boolean tryAgain =true;
+        boolean tryAgain = true;
         while (tryAgain) {
             tryAgain = false;
             try {
@@ -812,16 +793,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 tx.delete(storeType, path);
                 tx.submit().checkedGet();
                 log.debug("DataStore delete succeeded");
-            } catch (final TransactionCommitFailedException  e) {
-                if (e instanceof OptimisticLockFailedException) {
-                    if (--optimisticLockTries <= 0) {
-                        log.debug("Got OptimisticLockFailedException on last try - failing ");
-                        throw new IllegalStateException(e);
-                    }
-                    log.debug("Got OptimisticLockFailedException - trying again ");
-                    tryAgain = true;
-                    continue;
+            } catch (OptimisticLockFailedException e) {
+                if (--optimisticLockTries <= 0) {
+                    log.debug("Got OptimisticLockFailedException on last try - failing ");
+                    throw new IllegalStateException(e);
                 }
+                log.debug("Got OptimisticLockFailedException - trying again ");
+                tryAgain = true;
+
+            } catch (final TransactionCommitFailedException e) {
 
                 if (e.getCause() instanceof ModifiedNodeDoesNotExistException) {
                     log.debug("Ignoring MpdifiedNodeDoesNotExistException");
@@ -834,13 +814,30 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         }
     }
 
-    //1610 vnf-instance
-    private void SaveVnfInstanceList(final VnfInstanceList entry, boolean merge, LogicalDatastoreType storeType)
-        throws IllegalStateException {
+    private void saveVnfList(final VnfList entry, boolean merge, LogicalDatastoreType storeType) {
         // Each entry will be identifiable by a unique key, we have to create that identifier
-        InstanceIdentifier.InstanceIdentifierBuilder<VnfInstanceList> vnfInstanceListIdBuilder =
-            InstanceIdentifier.<VnfInstances>builder(VnfInstances.class).child(VnfInstanceList.class, entry.getKey());
-        InstanceIdentifier<VnfInstanceList> path = vnfInstanceListIdBuilder.build();
+        InstanceIdentifier<VnfList> path = InstanceIdentifier
+            .builder(Vnfs.class)
+            .child(VnfList.class, entry.getKey())
+            .build();
+
+        tryUpdateDataStore(entry, merge, storeType, path);
+    }
+
+    //1610 vnf-instance
+    private void saveVnfInstanceList(final VnfInstanceList entry, boolean merge, LogicalDatastoreType storeType) {
+        // Each entry will be identifiable by a unique key, we have to create that identifier
+        InstanceIdentifier<VnfInstanceList> path = InstanceIdentifier
+            .builder(VnfInstances.class)
+            .child(VnfInstanceList.class, entry.getKey())
+            .build();
+
+
+        tryUpdateDataStore(entry, merge, storeType, path);
+    }
+
+    private  <T extends DataObject> void tryUpdateDataStore(T entry, boolean merge, LogicalDatastoreType storeType,
+        InstanceIdentifier<T> path) {
 
         int tries = 2;
         while (true) {
@@ -854,17 +851,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 tx.submit().checkedGet();
                 log.debug("Update DataStore succeeded");
                 break;
-            } catch (final TransactionCommitFailedException e) {
-                if (e instanceof OptimisticLockFailedException) {
-                    if (--tries <= 0) {
-                        log.debug("Got OptimisticLockFailedException on last try - failing ");
-                        throw new IllegalStateException(e);
-                    }
-                    log.debug("Got OptimisticLockFailedException - trying again ");
-                } else {
-                    log.debug("Update DataStore failed");
+            } catch (OptimisticLockFailedException e) {
+                if (--tries <= 0) {
+                    log.debug("Got OptimisticLockFailedException on last try - failing ");
                     throw new IllegalStateException(e);
                 }
+                log.debug("Got OptimisticLockFailedException - trying again ");
+            } catch (final TransactionCommitFailedException e) {
+                log.debug("Update DataStore failed");
+                throw new IllegalStateException(e);
             }
         }
     }
@@ -1157,7 +1152,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             vnfInstanceListBuilder.setVnfInstanceId(viid);
             vnfInstanceListBuilder.setServiceStatus(serviceStatusBuilder.build());
             try {
-                SaveVnfInstanceList(vnfInstanceListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
+                saveVnfInstanceList(vnfInstanceListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
             } catch (Exception e) {
                 log.error("Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + viid + "] \n", e);
             }
@@ -1180,13 +1175,13 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             vnfInstanceListBuilder.setVnfInstanceId(vnfInstanceServiceData.getVnfInstanceId());
             //siid = vnfInstanceServiceData.getVnfInstanceId();
             vnfInstanceListBuilder.setServiceStatus(serviceStatusBuilder.build());
-            SaveVnfInstanceList(vnfInstanceListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+            saveVnfInstanceList(vnfInstanceListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
             if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
                 // Only update operational tree on Delete or Activate
                 if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) || input.getSdncRequestHeader()
                     .getSvcAction().equals(SvcAction.Activate)) {
                     log.info("Updating OPERATIONAL tree.");
-                    SaveVnfInstanceList(vnfInstanceListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+                    saveVnfInstanceList(vnfInstanceListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
                 }
             }
             VnfInstanceInformationBuilder vnfInstanceInformationBuilder = new VnfInstanceInformationBuilder();
@@ -1607,7 +1602,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             vnfListBuilder.setVnfId(siid);
             vnfListBuilder.setServiceStatus(serviceStatusBuilder.build());
             try {
-                SaveVnfList(vnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
+                saveVnfList(vnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
             } catch (Exception e) {
                 log.error("Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + siid + "] \n", e);
             }
@@ -1628,17 +1623,17 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             vnfListBuilder.setVnfId(serviceData.getVnfId());
             siid = serviceData.getVnfId();
             vnfListBuilder.setServiceStatus(serviceStatusBuilder.build());
-            SaveVnfList(vnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+            saveVnfList(vnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
             if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
                 // Only update operational tree on Delete or Activate
                 if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
                     log.info("Updating OPERATIONAL tree.");
-                    SaveVnfList(vnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+                    saveVnfList(vnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
                 } else if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) || input
                     .getSdncRequestHeader().getSvcAction().equals(SvcAction.Rollback)) {
                     log.info("Delete OPERATIONAL tree.");
-                    DeleteVnfList(vnfListBuilder.build(), LogicalDatastoreType.CONFIGURATION);
-                    DeleteVnfList(vnfListBuilder.build(), LogicalDatastoreType.OPERATIONAL);
+                    deleteVnfList(vnfListBuilder.build(), LogicalDatastoreType.CONFIGURATION);
+                    deleteVnfList(vnfListBuilder.build(), LogicalDatastoreType.OPERATIONAL);
                 }
             }
             VnfInformationBuilder vnfInformationBuilder = new VnfInformationBuilder();
