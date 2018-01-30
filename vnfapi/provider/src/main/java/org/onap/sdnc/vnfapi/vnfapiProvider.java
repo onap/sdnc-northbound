@@ -1268,10 +1268,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         VfModuleServiceDataBuilder operDataBuilder = new VfModuleServiceDataBuilder();
         getVfModuleServiceData(vfid, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
-        // save service-data builder object for rollback
-        VfModuleServiceDataBuilder rb_vfModuleServiceDataBuilder = vfModuleServiceDataBuilder;
-        VfModuleServiceDataBuilder rb_operDataBuilder = operDataBuilder;
-
         // 1610 Need to pull vnf-instance-list.vf-module-relationship-list from MD-SAL
         VnfInstanceServiceDataBuilder vnfInstanceServiceDataBuilder = new VnfInstanceServiceDataBuilder();
         getVnfInstanceServiceData(viid, vnfInstanceServiceDataBuilder);
@@ -1280,9 +1276,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         VnfInstanceServiceDataBuilder vnfInstanceOperDataBuilder = new VnfInstanceServiceDataBuilder();
         getVnfInstanceServiceData(viid, vnfInstanceOperDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
-        // save operational builder object for rollback
-        VnfInstanceServiceDataBuilder rb_vnfInstanceServiceDataBuilder = vnfInstanceServiceDataBuilder;
-        VnfInstanceServiceDataBuilder rb_vnfInstanceOperDataBuilder = vnfInstanceOperDataBuilder;
 
         // Set the serviceStatus based on input
         setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
@@ -1292,18 +1285,14 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // setup a service-data object builder
         // ACTION vnf-topology-operation
         // INPUT:
-        //  USES sdnc-request-header;
         //  USES request-information;
         //  USES service-information;
         //  USES vnf-request-information
         // OUTPUT:
-        //  USES vnf-topology-response-body;
         //  USES vnf-information
         //  USES service-information
         //
         // container service-data
-        //   uses vnf-configuration-information;
-        //   uses oper-status;
 
         log.info("Adding INPUT data for " + SVC_OPERATION + " [" + vfid + "] input: " + input);
         VfModuleTopologyOperationInputBuilder inputBuilder = new VfModuleTopologyOperationInputBuilder(input);
@@ -1396,7 +1385,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             VfModuleListBuilder vfModuleListBuilder = new VfModuleListBuilder();
             vfModuleListBuilder.setVfModuleServiceData(vfModuleServiceData);
             vfModuleListBuilder.setVfModuleId(vfModuleServiceData.getVfModuleId());
-            //vfid = vfModuleServiceData.getVfModuleId();
             vfModuleListBuilder.setServiceStatus(serviceStatusBuilder.build());
             SaveVfModuleList(vfModuleListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
             if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
@@ -1443,7 +1431,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     @Override
     public Future<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(VnfTopologyOperationInput input) {
         final String SVC_OPERATION = "vnf-topology-operation";
-        ServiceData serviceData = null;
+        ServiceData serviceData;
         ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
         Properties parms = new Properties();
 
@@ -1503,17 +1491,13 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // setup a service-data object builder
         // ACTION vnf-topology-operation
         // INPUT:
-        //  USES sdnc-request-header;
         //  USES request-information;
-        //  USES service-information;
         //  USES vnf-request-information
         // OUTPUT:
-        //  USES vnf-topology-response-body;
         //  USES vnf-information
         //  USES service-information
         //
         // container service-data
-        //   uses vnf-configuration-information;
         //   uses oper-status;
 
         log.info("Adding INPUT data for " + SVC_OPERATION + " [" + siid + "] input: " + input);
@@ -1567,7 +1551,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
         serviceStatusBuilder.setRpcName(RpcName.VnfTopologyOperation);
 
-        if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
+        if (errorCode != null && errorCode.length() != 0 && !("0".equals(errorCode) || "200".equals(errorCode))) {
             responseBuilder.setResponseCode(errorCode);
             responseBuilder.setResponseMessage(errorMessage);
             responseBuilder.setAckFinalIndicator(ackFinal);
@@ -1644,8 +1628,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         NetworkTopologyOperationInput input) {
 
         final String SVC_OPERATION = "network-topology-operation";
-        ServiceData serviceData = null;
-        ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
         Properties parms = new Properties();
 
         log.info(SVC_OPERATION + " called.");
@@ -1680,7 +1662,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         }
 
         // Grab the service instance ID from the input buffer
-        String siid = null;
+        String siid;
         if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Assign)) {
             siid = input.getNetworkRequestInformation().getNetworkName();
         } else {
@@ -1737,7 +1719,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             networkId = respProps.getProperty("networkId", "0");
         }
 
-        if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
+        if (errorCode != null && errorCode.length() != 0 && !("0".equals(errorCode) || "200".equals(errorCode))) {
             responseBuilder.setResponseCode(errorCode);
             responseBuilder.setResponseMessage(errorMessage);
             responseBuilder.setAckFinalIndicator(ackFinal);
@@ -1789,7 +1771,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         PreloadVnfTopologyOperationInput input) {
 
         final String SVC_OPERATION = "preload-vnf-topology-operation";
-        PreloadData preloadData = null;
+        PreloadData preloadData;
         Properties parms = new Properties();
 
         log.info(SVC_OPERATION + " called.");
@@ -1797,7 +1779,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         PreloadVnfTopologyOperationOutputBuilder responseBuilder = new PreloadVnfTopologyOperationOutputBuilder();
 
         // Result from savePreloadData
-        final SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
 
         if (input == null || input.getVnfTopologyInformation() == null
             || input.getVnfTopologyInformation().getVnfTopologyIdentifier() == null
@@ -1846,7 +1827,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
         getPreloadData(preload_name, preload_type, preloadDataBuilder);
-        //preloadData = preloadDataBuilder.build();
 
         PreloadDataBuilder operDataBuilder = new PreloadDataBuilder();
         getPreloadData(preload_name, preload_type, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
@@ -1855,14 +1835,11 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // setup a preload-data object builder
         // ACTION vnf-topology-operation
         // INPUT:
-        //  USES sdnc-request-header;
         //  USES request-information;
         //  uses vnf-topology-information;
         // OUTPUT:
-        //  USES vnf-topology-response-body;
         //
         // container preload-data
-        //   uses vnf-configuration-information;
         log.info(
             "Adding INPUT data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] input: " + input);
         PreloadVnfTopologyOperationInputBuilder inputBuilder = new PreloadVnfTopologyOperationInputBuilder(input);
@@ -1903,10 +1880,9 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             errorCode = respProps.getProperty("error-code");
             errorMessage = respProps.getProperty("error-message");
             ackFinal = respProps.getProperty("ack-final", "Y");
-            // internalError = respProps.getProperty("internal-error", "false");
         }
 
-        if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
+        if (errorCode != null && errorCode.length() != 0 && !("0".equals(errorCode) || "200".equals(errorCode))) {
 
             responseBuilder.setResponseCode(errorCode);
             responseBuilder.setResponseMessage(errorMessage);
@@ -1985,7 +1961,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         PreloadVnfInstanceTopologyOperationInput input) {
 
         final String SVC_OPERATION = "preload-vnf-instance-topology-operation";
-        VnfInstancePreloadData vnfInstancePreloadData = null;
+        VnfInstancePreloadData vnfInstancePreloadData;
         Properties parms = new Properties();
 
         log.info(SVC_OPERATION + " called.");
@@ -1993,8 +1969,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         PreloadVnfInstanceTopologyOperationOutputBuilder responseBuilder =
             new PreloadVnfInstanceTopologyOperationOutputBuilder();
 
-        // Result from savePreloadData
-        final SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
 
         if (input == null || input.getVnfInstanceTopologyInformation() == null
             || input.getVnfInstanceTopologyInformation().getVnfInstanceIdentifiers().getVnfInstanceName() == null
@@ -2044,7 +2018,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         VnfInstancePreloadDataBuilder vnfInstancePreloadDataBuilder = new VnfInstancePreloadDataBuilder();
         getVnfInstancePreloadData(preload_name, preload_type, vnfInstancePreloadDataBuilder);
-        //preloadData = preloadDataBuilder.build();
+
 
         VnfInstancePreloadDataBuilder operDataBuilder = new VnfInstancePreloadDataBuilder();
         getVnfInstancePreloadData(preload_name, preload_type, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
@@ -2053,14 +2027,9 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // setup a preload-data object builder
         // ACTION vnf-topology-operation
         // INPUT:
-        //  USES sdnc-request-header;
-        //  USES request-information;
         //  uses vnf-topology-information;
         // OUTPUT:
-        //  USES vnf-topology-response-body;
-        //
         // container preload-data
-        //   uses vnf-configuration-information;
         log.info(
             "Adding INPUT data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] input: " + input);
         PreloadVnfInstanceTopologyOperationInputBuilder inputBuilder =
@@ -2102,10 +2071,9 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             errorCode = respProps.getProperty("error-code");
             errorMessage = respProps.getProperty("error-message");
             ackFinal = respProps.getProperty("ack-final", "Y");
-            // internalError = respProps.getProperty("internal-error", "false");
         }
 
-        if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
+        if (errorCode != null && errorCode.length() != 0 && !("0".equals(errorCode) || errorCode.equals("200"))) {
 
             responseBuilder.setResponseCode(errorCode);
             responseBuilder.setResponseMessage(errorMessage);
@@ -2187,7 +2155,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         PreloadVfModuleTopologyOperationInput input) {
 
         final String SVC_OPERATION = "preload-vf-module-topology-operation";
-        VfModulePreloadData vfModulePreloadData = null;
+        VfModulePreloadData vfModulePreloadData;
         Properties parms = new Properties();
 
         log.info(SVC_OPERATION + " called.");
@@ -2196,7 +2164,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             new PreloadVfModuleTopologyOperationOutputBuilder();
 
         // Result from savePreloadData
-        final SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
 
         if (input == null || input.getVfModuleTopologyInformation() == null
             || input.getVfModuleTopologyInformation().getVfModuleIdentifiers().getVfModuleName() == null
@@ -2245,7 +2212,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         VfModulePreloadDataBuilder vfModulePreloadDataBuilder = new VfModulePreloadDataBuilder();
         getVfModulePreloadData(preload_name, preload_type, vfModulePreloadDataBuilder);
-        //preloadData = preloadDataBuilder.build();
 
         VfModulePreloadDataBuilder operDataBuilder = new VfModulePreloadDataBuilder();
         getVfModulePreloadData(preload_name, preload_type, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
@@ -2254,14 +2220,11 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // setup a preload-data object builder
         // ACTION vnf-topology-operation
         // INPUT:
-        //  USES sdnc-request-header;
         //  USES request-information;
         //  uses vnf-topology-information;
         // OUTPUT:
-        //  USES vnf-topology-response-body;
         //
         // container preload-data
-        //   uses vnf-configuration-information;
 
         log.info(
             "Adding INPUT data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] input: " + input);
@@ -2303,10 +2266,9 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             errorCode = respProps.getProperty("error-code");
             errorMessage = respProps.getProperty("error-message");
             ackFinal = respProps.getProperty("ack-final", "Y");
-            // internalError = respProps.getProperty("internal-error", "false");
         }
 
-        if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
+        if (errorCode != null && errorCode.length() != 0 && !("0".equals(errorCode) || "200".equals(errorCode))) {
 
             responseBuilder.setResponseCode(errorCode);
             responseBuilder.setResponseMessage(errorMessage);
@@ -2385,7 +2347,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         PreloadNetworkTopologyOperationInput input) {
 
         final String SVC_OPERATION = "preload-network-topology-operation";
-        PreloadData preloadData = null;
+        PreloadData preloadData;
         Properties parms = new Properties();
 
         log.info(SVC_OPERATION + " called.");
@@ -2394,7 +2356,6 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             new PreloadNetworkTopologyOperationOutputBuilder();
 
         // Result from savePreloadData
-        final SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
 
         if (input == null || input.getNetworkTopologyInformation() == null
             || input.getNetworkTopologyInformation().getNetworkTopologyIdentifier() == null
@@ -2453,14 +2414,11 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // setup a preload-data object builder
         // ACTION vnf-topology-operation
         // INPUT:
-        //  USES sdnc-request-header;
         //  USES request-information;
         //  uses vnf-topology-information;
         // OUTPUT:
-        //  USES vnf-topology-response-body;
         //
         // container preload-data
-        //   uses vnf-configuration-information;
         log.info(
             "Adding INPUT data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] input: " + input);
         PreloadNetworkTopologyOperationInputBuilder inputBuilder =
@@ -2502,10 +2460,9 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             errorCode = respProps.getProperty("error-code");
             errorMessage = respProps.getProperty("error-message");
             ackFinal = respProps.getProperty("ack-final", "Y");
-            // internalError = respProps.getProperty("internal-error", "false");
         }
 
-        if (errorCode != null && errorCode.length() != 0 && !(errorCode.equals("0") || errorCode.equals("200"))) {
+        if (errorCode != null && errorCode.length() != 0 && !("0".equals(errorCode) || "200".equals(errorCode))) {
             responseBuilder.setResponseCode(errorCode);
             responseBuilder.setResponseMessage(errorMessage);
             responseBuilder.setAckFinalIndicator(ackFinal);
