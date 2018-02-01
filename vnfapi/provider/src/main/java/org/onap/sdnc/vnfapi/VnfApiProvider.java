@@ -130,6 +130,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.ModifiedNodeDoesNotExistException;
+import org.onap.ccsdk.sli.core.sli.SvcLogicException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -151,15 +152,26 @@ import java.util.concurrent.Future;
  * the most commonly used components of the MD-SAL. Additionally the base class provides some basic logging and
  * initialization / clean up methods.
  */
-public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeListener {
 
+public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeListener {
+    protected DataBroker dataBroker;
+    protected NotificationPublishService notificationService;
+    protected RpcProviderRegistry rpcRegistry;
+    protected BindingAwareBroker.RpcRegistration<VNFAPIService> rpcRegistration;
     private final Logger log = LoggerFactory.getLogger(VnfApiProvider.class);
     private final ExecutorService executor;
 
+    private static final String PRELOAD_DATA = "] PreloadData: ";
+    private static final String SENDING_SUCCESS_RPC = "Sending Success rpc result due to external error";
+    public static final String REASON = "', Reason: '";
+    public static final String ERROR_CODE = "] error code: '";
+    public static final String INVALID_INPUT_INVALID_PRELOAD_TYPE = "invalid input, invalid preload-type";
+    public static final String BECAUSE_OF_INVALID_PRELOAD_TYPE = " because of invalid preload-type";
+    public static final String INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID = "invalid input, null or empty service-instance-id";
+    public static final String BECAUSE_OF_INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID = " because of invalid input, null or empty service-instance-id";
     private static final String APP_NAME = "vnfapi";
     private static final String VNF_API = "VNF-API";
     private static final String OPERATIONAL_DATA = "operational-data";
-
     private static final String READ_MD_SAL_STR = "Read MD-SAL (";
     private static final String DATA_FOR_STR = ") data for [";
     private static final String SERVICE_DATA_STR = "] ServiceData: ";
@@ -183,11 +195,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     private static final String INVALID_INPUT_VNF_INSTANCE_STR = "invalid input, null or empty vnf-instance-id";
 
     private VNFSDNSvcLogicServiceClient svcLogicClient;
-    protected DataBroker dataBroker;
-    protected NotificationPublishService notificationService;
-    protected RpcProviderRegistry rpcRegistry;
-    protected BindingAwareBroker.RpcRegistration<VNFAPIService> rpcRegistration;
-
+    
     public VnfApiProvider(DataBroker dataBroker2, NotificationPublishService notificationPublishService,
         RpcProviderRegistry rpcProviderRegistry, VNFSDNSvcLogicServiceClient client) {
         log.info("Creating provider for " + APP_NAME);
@@ -705,7 +713,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (data.isPresent()) {
             PreloadData preloadData = (PreloadData) data.get().getPreloadData();
             if (preloadData != null) {
-                log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + preloadName + "," + preloadType + "] PreloadData: "
+              log.info(READ_MD_SAL_STR + type + DATA_FOR_STR  + preloadName + "," + preloadType + PRELOAD_DATA
                     + preloadData);
                 preloadDataBuilder.setVnfTopologyInformation(preloadData.getVnfTopologyInformation());
                 preloadDataBuilder.setNetworkTopologyInformation(preloadData.getNetworkTopologyInformation());
@@ -1047,19 +1055,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps = svcLogicClient
-                        .execute(VNF_API, svcOperation, null, "sync", vnfInstanceServiceDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", vnfInstanceServiceDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1287,20 +1291,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps = svcLogicClient
-                        .execute(VNF_API, svcOperation, null, "sync", vfModuleServiceDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic on vf-module for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
-
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", vfModuleServiceDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1405,7 +1404,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             || input.getServiceInformation().getServiceInstanceId().length() == 0) {
             log.debug(EXITING_STR + svcOperation + " because of invalid input, null or empty service-instance-id");
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
+            responseBuilder.setResponseMessage(INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<VnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<VnfTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
@@ -1483,19 +1482,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps =
-                        svcLogicClient.execute(VNF_API, svcOperation, null, "sync", serviceDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", serviceDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + siid, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1603,7 +1598,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             || input.getServiceInformation().getServiceInstanceId().length() == 0) {
             log.debug(EXITING_STR + svcOperation + " because of invalid input, null or empty service-instance-id");
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
+            responseBuilder.setResponseMessage(INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<NetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build())
@@ -1616,7 +1611,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             || input.getNetworkRequestInformation().getNetworkName() == null) {
             log.debug(EXITING_STR + svcOperation + " because of invalid input, null or empty service-instance-id");
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
+            responseBuilder.setResponseMessage(INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<NetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build())
@@ -1657,19 +1652,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps =
-                        svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps =  svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1767,17 +1758,18 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (preloadName == null || preloadName.length() == 0) {
             log.debug(EXITING_STR + svcOperation + " because of invalid preload-name");
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, invalid preload-name");
+            responseBuilder.setResponseMessage(INVALID_INPUT_INVALID_PRELOAD_TYPE);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build())
                     .build();
             return Futures.immediateFuture(rpcResult);
         }
+
         if (preloadType == null || preloadType.length() == 0) {
             log.debug(EXITING_STR + svcOperation + " because of invalid preload-type");
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, invalid preload-type");
+            responseBuilder.setResponseMessage(INVALID_INPUT_INVALID_PRELOAD_TYPE);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build())
@@ -1821,19 +1813,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps =
-                        svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+              respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1866,7 +1854,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     CAUGHT_EXCEPTION_STR + svcOperation + " [" + preloadName + "," + preloadType
                         + "] \n", e);
             }
-            log.debug("Sending Success rpc result due to external error");
+            log.debug(SENDING_SUCCESS_RPC);
             RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build())
                     .build();
@@ -1964,6 +1952,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     .withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
+
         if (preloadType == null || preloadType.length() == 0) {
             log.debug(EXITING_STR + svcOperation + " because of invalid preload-type");
             responseBuilder.setResponseCode("403");
@@ -1982,7 +1971,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         VnfInstancePreloadDataBuilder vnfInstancePreloadDataBuilder = new VnfInstancePreloadDataBuilder();
         getVnfInstancePreloadData(preloadName, preloadType, vnfInstancePreloadDataBuilder);
-
         VnfInstancePreloadDataBuilder operDataBuilder = new VnfInstancePreloadDataBuilder();
         getVnfInstancePreloadData(preloadName, preloadType, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
@@ -2011,19 +1999,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps = svcLogicClient
-                        .execute(VNF_API, svcOperation, null, "sync", vnfInstancePreloadDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", vnfInstancePreloadDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -2057,7 +2041,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     CAUGHT_EXCEPTION_STR + svcOperation + " [" + preloadName + "," + preloadType
                         + "] \n", e);
             }
-            log.debug("Sending Success rpc result due to external error");
+            log.debug(SENDING_SUCCESS_RPC);
             RpcResult<PreloadVnfInstanceTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfInstanceTopologyOperationOutput>status(true)
                     .withResult(responseBuilder.build()).build();
@@ -2176,7 +2160,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         VfModulePreloadDataBuilder vfModulePreloadDataBuilder = new VfModulePreloadDataBuilder();
         getVfModulePreloadData(preloadName, preloadType, vfModulePreloadDataBuilder);
-
         VfModulePreloadDataBuilder operDataBuilder = new VfModulePreloadDataBuilder();
         getVfModulePreloadData(preloadName, preloadType, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
@@ -2208,18 +2191,16 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-                try {
-                    respProps = svcLogicClient
-                        .execute(VNF_API, svcOperation, null, "sync", vfModulePreloadDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", vfModulePreloadDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
+
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -2252,7 +2233,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     CAUGHT_EXCEPTION_STR + svcOperation + " [" + preloadName + "," + preloadType
                         + "] \n", e);
             }
-            log.debug("Sending Success rpc result due to external error");
+            log.debug(SENDING_SUCCESS_RPC);
             RpcResult<PreloadVfModuleTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVfModuleTopologyOperationOutput>status(true)
                     .withResult(responseBuilder.build()).build();
@@ -2353,6 +2334,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             return Futures.immediateFuture(rpcResult);
         }
 
+
         if (preloadType == null || preloadType.length() == 0) {
             log.debug(EXITING_STR + svcOperation + " because of invalid preload-type");
             responseBuilder.setResponseCode("403");
@@ -2402,18 +2384,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-                try {
-                    respProps =
-                        svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -2446,7 +2425,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                         + "] \n", e);
 
             }
-            log.debug("Sending Success rpc result due to external error");
+            log.debug(SENDING_SUCCESS_RPC);
             RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build())
                     .build();
