@@ -130,6 +130,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.ModifiedNodeDoesNotExistException;
+import org.onap.ccsdk.sli.core.sli.SvcLogicException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -159,7 +160,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     private static final String APP_NAME = "vnfapi";
     private static final String VNF_API = "VNF-API";
     private static final String OPERATIONAL_DATA = "operational-data";
-
+    private static final String SVC_OPERATION = "vf-module-topology-operation";
     private static final String READ_MD_SAL_STR = "Read MD-SAL (";
     private static final String DATA_FOR_STR = ") data for [";
     private static final String SERVICE_DATA_STR = "] ServiceData: ";
@@ -1286,6 +1287,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
+<<<<<<< HEAD
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
 
                 try {
@@ -1296,11 +1298,19 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     errorMessage = e.getMessage();
                     errorCode = "500";
                 }
+=======
+            if (svcLogicClient.hasGraph("VNF-API", SVC_OPERATION, null, "sync")) {
+                respProps = svcLogicClient.execute("VNF-API", SVC_OPERATION, null, "sync", vfModuleServiceDataBuilder, parms);
+>>>>>>> Improve code metrics
 
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + SVC_OPERATION, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1482,6 +1492,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
+<<<<<<< HEAD
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
 
                 try {
@@ -1492,10 +1503,19 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     errorMessage = e.getMessage();
                     errorCode = "500";
                 }
+=======
+            if (svcLogicClient.hasGraph("VNF-API", SVC_OPERATION, null, "sync")) {
+                respProps = svcLogicClient.execute("VNF-API", SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
+
+>>>>>>> Improve code metrics
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + SVC_OPERATION, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1656,6 +1676,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String networkId = "error";
 
         try {
+<<<<<<< HEAD
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
 
                 try {
@@ -1666,10 +1687,18 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     errorMessage = e.getMessage();
                     errorCode = "500";
                 }
+=======
+            if (svcLogicClient.hasGraph("VNF-API", svcOperation, null, "sync")) {
+                respProps =  svcLogicClient.execute("VNF-API", svcOperation, null, "sync", preloadDataBuilder, parms);
+>>>>>>> Improve code metrics
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1820,6 +1849,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
+<<<<<<< HEAD
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
 
                 try {
@@ -1830,10 +1860,18 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     errorMessage = e.getMessage();
                     errorCode = "500";
                 }
+=======
+            if (svcLogicClient.hasGraph("VNF-API", svcOperation, null, "sync")) {
+              respProps = svcLogicClient.execute("VNF-API", svcOperation, null, "sync", preloadDataBuilder, parms);
+>>>>>>> Improve code metrics
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1982,7 +2020,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         VnfInstancePreloadDataBuilder vnfInstancePreloadDataBuilder = new VnfInstancePreloadDataBuilder();
         getVnfInstancePreloadData(preloadName, preloadType, vnfInstancePreloadDataBuilder);
+<<<<<<< HEAD
 
+=======
+        //preloadData = preloadDataBuilder.build();
+>>>>>>> Improve code metrics
         VnfInstancePreloadDataBuilder operDataBuilder = new VnfInstancePreloadDataBuilder();
         getVnfInstancePreloadData(preloadName, preloadType, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
@@ -2010,6 +2052,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
+<<<<<<< HEAD
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
 
                 try {
@@ -2020,10 +2063,18 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     errorMessage = e.getMessage();
                     errorCode = "500";
                 }
+=======
+            if (svcLogicClient.hasGraph("VNF-API", svcOperation, null, "sync")) {
+                respProps = svcLogicClient.execute("VNF-API", svcOperation, null, "sync", vnfInstancePreloadDataBuilder, parms);
+>>>>>>> Improve code metrics
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -2176,7 +2227,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         VfModulePreloadDataBuilder vfModulePreloadDataBuilder = new VfModulePreloadDataBuilder();
         getVfModulePreloadData(preloadName, preloadType, vfModulePreloadDataBuilder);
-
         VfModulePreloadDataBuilder operDataBuilder = new VfModulePreloadDataBuilder();
         getVfModulePreloadData(preloadName, preloadType, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
@@ -2207,6 +2257,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
+<<<<<<< HEAD
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
                 try {
                     respProps = svcLogicClient
@@ -2216,10 +2267,19 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     errorMessage = e.getMessage();
                     errorCode = "500";
                 }
+=======
+            if (svcLogicClient.hasGraph("VNF-API", svcOperation, null, "sync")) {
+                respProps = svcLogicClient.execute("VNF-API", svcOperation, null, "sync", vfModulePreloadDataBuilder, parms);
+>>>>>>> Improve code metrics
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
+
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -2401,6 +2461,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
+<<<<<<< HEAD
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
                 try {
                     respProps =
@@ -2410,10 +2471,18 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     errorMessage = e.getMessage();
                     errorCode = "500";
                 }
+=======
+            if (svcLogicClient.hasGraph("VNF-API", svcOperation, null, "sync")) {
+                respProps = svcLogicClient.execute("VNF-API", svcOperation, null, "sync", preloadDataBuilder, parms);
+>>>>>>> Improve code metrics
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
