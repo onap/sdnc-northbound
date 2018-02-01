@@ -36,100 +36,12 @@ import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedEx
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.NetworkTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.NetworkTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.NetworkTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.NetworkTopologyOperationOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadNetworkTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadNetworkTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadNetworkTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadNetworkTopologyOperationOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVfModuleTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVfModuleTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVfModuleTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVfModuleTopologyOperationOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVfModules;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVfModulesBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfInstanceTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfInstanceTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfInstanceTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfInstanceTopologyOperationOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfInstances;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfInstancesBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfTopologyOperationOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfs;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfsBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VNFAPIService;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VfModuleTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VfModuleTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VfModuleTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VfModuleTopologyOperationOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VfModules;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VfModulesBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstances;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstancesBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfTopologyOperationOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.Vnfs;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfsBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.network.information.NetworkInformationBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.data.PreloadData;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.data.PreloadDataBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.model.information.VnfPreloadList;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.model.information.VnfPreloadListBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.model.information.VnfPreloadListKey;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.vf.module.model.information.VfModulePreloadList;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.vf.module.model.information.VfModulePreloadListBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.vf.module.model.information.VfModulePreloadListKey;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.vnf.instance.model.information.VnfInstancePreloadList;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.vnf.instance.model.information.VnfInstancePreloadListBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.preload.vnf.instance.model.information.VnfInstancePreloadListKey;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.request.information.RequestInformation;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.sdnc.request.header.SdncRequestHeader;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.sdnc.request.header.SdncRequestHeader.SvcAction;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.data.ServiceData;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.data.ServiceDataBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.RequestStatus;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.RpcAction;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.RpcName;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.VnfsdnAction;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.VnfsdnSubaction;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatusBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vf.module.information.VfModuleInformationBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vf.module.model.infrastructure.VfModuleList;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vf.module.model.infrastructure.VfModuleListBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vf.module.model.infrastructure.VfModuleListKey;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vf.module.preload.data.VfModulePreloadData;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vf.module.preload.data.VfModulePreloadDataBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vf.module.service.data.VfModuleServiceData;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vf.module.service.data.VfModuleServiceDataBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.information.VnfInformationBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.information.VnfInstanceInformationBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.model.infrastructure.VnfInstanceList;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.model.infrastructure.VnfInstanceListBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.model.infrastructure.VnfInstanceListKey;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.preload.data.VnfInstancePreloadData;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.preload.data.VnfInstancePreloadDataBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.service.data.VnfInstanceServiceData;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.service.data.VnfInstanceServiceDataBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.model.infrastructure.VnfList;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.model.infrastructure.VnfListBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.model.infrastructure.VnfListKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.ModifiedNodeDoesNotExistException;
+import org.onap.ccsdk.sli.core.sli.SvcLogicException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -143,8 +55,6 @@ import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.ArrayList;
-import java.util.concurrent.Future;
 
 /**
  * Defines a base implementation for your provider. This class extends from a helper class which provides storage for
@@ -159,7 +69,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     private static final String APP_NAME = "vnfapi";
     private static final String VNF_API = "VNF-API";
     private static final String OPERATIONAL_DATA = "operational-data";
-
     private static final String READ_MD_SAL_STR = "Read MD-SAL (";
     private static final String DATA_FOR_STR = ") data for [";
     private static final String SERVICE_DATA_STR = "] ServiceData: ";
@@ -1047,19 +956,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps = svcLogicClient
-                        .execute(VNF_API, svcOperation, null, "sync", vnfInstanceServiceDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", vnfInstanceServiceDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1287,20 +1192,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps = svcLogicClient
-                        .execute(VNF_API, svcOperation, null, "sync", vfModuleServiceDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic on vf-module for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
-
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", vfModuleServiceDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1483,19 +1383,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps =
-                        svcLogicClient.execute(VNF_API, svcOperation, null, "sync", serviceDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", serviceDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + siid, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1657,19 +1553,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps =
-                        svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps =  svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1821,19 +1713,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps =
-                        svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+              respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -1982,7 +1870,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         VnfInstancePreloadDataBuilder vnfInstancePreloadDataBuilder = new VnfInstancePreloadDataBuilder();
         getVnfInstancePreloadData(preloadName, preloadType, vnfInstancePreloadDataBuilder);
-
         VnfInstancePreloadDataBuilder operDataBuilder = new VnfInstancePreloadDataBuilder();
         getVnfInstancePreloadData(preloadName, preloadType, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
@@ -2011,19 +1898,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-
-                try {
-                    respProps = svcLogicClient
-                        .execute(VNF_API, svcOperation, null, "sync", vnfInstancePreloadDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", vnfInstancePreloadDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -2176,7 +2059,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         VfModulePreloadDataBuilder vfModulePreloadDataBuilder = new VfModulePreloadDataBuilder();
         getVfModulePreloadData(preloadName, preloadType, vfModulePreloadDataBuilder);
-
         VfModulePreloadDataBuilder operDataBuilder = new VfModulePreloadDataBuilder();
         getVfModulePreloadData(preloadName, preloadType, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
@@ -2208,18 +2090,16 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-                try {
-                    respProps = svcLogicClient
-                        .execute(VNF_API, svcOperation, null, "sync", vfModulePreloadDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", vfModulePreloadDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
+
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
@@ -2402,18 +2282,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         try {
             if (svcLogicClient.hasGraph(VNF_API, svcOperation, null, "sync")) {
-                try {
-                    respProps =
-                        svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
-                } catch (Exception e) {
-                    log.error("Caught exception executing service logic for " + svcOperation, e);
-                    errorMessage = e.getMessage();
-                    errorCode = "500";
-                }
+                respProps = svcLogicClient.execute(VNF_API, svcOperation, null, "sync", preloadDataBuilder, parms);
             } else {
                 errorMessage = "No service logic active for VNF-API: '" + svcOperation + "'";
                 errorCode = "503";
             }
+        } catch (SvcLogicException e) {
+            log.error("Caught exception executing service logic for " + svcOperation, e);
+            errorMessage = e.getMessage();
+            errorCode = "500";
         } catch (Exception e) {
             errorCode = "500";
             errorMessage = e.getMessage();
