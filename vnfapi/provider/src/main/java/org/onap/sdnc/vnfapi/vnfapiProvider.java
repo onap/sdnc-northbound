@@ -153,6 +153,14 @@ import java.util.concurrent.Future;
  * base class provides some basic logging and initialization / clean up methods.
  */
 public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeListener {
+    private static final String PRELOAD_DATA = "] PreloadData: ";
+    private static final String SENDING_SUCCESS_RPC = "Sending Success rpc result due to external error";
+    public static final String REASON = "', Reason: '";
+    public static final String ERROR_CODE = "] error code: '";
+    public static final String INVALID_INPUT_INVALID_PRELOAD_TYPE = "invalid input, invalid preload-type";
+    public static final String BECAUSE_OF_INVALID_PRELOAD_TYPE = " because of invalid preload-type";
+    public static final String INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID = "invalid input, null or empty service-instance-id";
+    public static final String BECAUSE_OF_INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID = " because of invalid input, null or empty service-instance-id";
     protected DataBroker dataBroker;
     protected NotificationPublishService notificationService;
     protected RpcProviderRegistry rpcRegistry;
@@ -639,7 +647,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (data != null && data.isPresent()) {
             PreloadData preloadData = (PreloadData) data.get().getPreloadData();
             if (preloadData != null) {
-                log.info("Read MD-SAL (" + type + ") data for [" + preload_name + "," + preload_type + "] PreloadData: "
+                log.info("Read MD-SAL (" + type + ") data for [" + preload_name + "," + preload_type + PRELOAD_DATA
                     + preloadData);
                 preloadDataBuilder.setVnfTopologyInformation(preloadData.getVnfTopologyInformation());
                 preloadDataBuilder.setNetworkTopologyInformation(preloadData.getNetworkTopologyInformation());
@@ -1454,9 +1462,9 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (input == null || input.getServiceInformation() == null
             || input.getServiceInformation().getServiceInstanceId() == null
             || input.getServiceInformation().getServiceInstanceId().length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or empty service-instance-id");
+            log.debug("exiting " + SVC_OPERATION + BECAUSE_OF_INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID);
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
+            responseBuilder.setResponseMessage(INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<VnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<VnfTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
@@ -1657,7 +1665,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             || input.getServiceInformation().getServiceInstanceId().length() == 0) {
             log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or empty service-instance-id");
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
+            responseBuilder.setResponseMessage(INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<NetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build())
@@ -1670,7 +1678,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             || input.getNetworkRequestInformation().getNetworkName() == null) {
             log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or empty service-instance-id");
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
+            responseBuilder.setResponseMessage(INVALID_INPUT_NULL_OR_EMPTY_SERVICE_INSTANCE_ID);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<NetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build())
@@ -1819,9 +1827,9 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         // Make sure we have a preload_name and preload_type
         if (preload_name == null || preload_name.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-name");
+            log.debug("exiting " + SVC_OPERATION + BECAUSE_OF_INVALID_PRELOAD_TYPE);
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, invalid preload-name");
+            responseBuilder.setResponseMessage(INVALID_INPUT_INVALID_PRELOAD_TYPE);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build())
@@ -1829,9 +1837,9 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             return Futures.immediateFuture(rpcResult);
         }
         if (preload_type == null || preload_type.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-type");
+            log.debug("exiting " + SVC_OPERATION + BECAUSE_OF_INVALID_PRELOAD_TYPE);
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("invalid input, invalid preload-type");
+            responseBuilder.setResponseMessage(INVALID_INPUT_INVALID_PRELOAD_TYPE);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build())
@@ -1917,8 +1925,8 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             preloadVnfListBuilder.setVnfType(preload_type);
             preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
             log.error(
-                "Returned FAILED for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] error code: '"
-                    + errorCode + "', Reason: '" + errorMessage + "'");
+                "Returned FAILED for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + ERROR_CODE
+                    + errorCode + REASON + errorMessage + "'");
             try {
                 SavePreloadList(preloadVnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
             } catch (Exception e) {
@@ -1926,7 +1934,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     "Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
                         + "] \n", e);
             }
-            log.debug("Sending Success rpc result due to external error");
+            log.debug(SENDING_SUCCESS_RPC);
             RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build())
                     .build();
@@ -2027,7 +2035,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             return Futures.immediateFuture(rpcResult);
         }
         if (preload_type == null || preload_type.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-type");
+            log.debug("exiting " + SVC_OPERATION + BECAUSE_OF_INVALID_PRELOAD_TYPE);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, invalid preload-type");
             responseBuilder.setAckFinalIndicator("Y");
@@ -2126,7 +2134,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     "Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
                         + "] \n", e);
             }
-            log.debug("Sending Success rpc result due to external error");
+            log.debug(SENDING_SUCCESS_RPC);
             RpcResult<PreloadVnfInstanceTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfInstanceTopologyOperationOutput>status(true)
                     .withResult(responseBuilder.build()).build();
@@ -2228,7 +2236,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             return Futures.immediateFuture(rpcResult);
         }
         if (preload_type == null || preload_type.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-type");
+            log.debug("exiting " + SVC_OPERATION + BECAUSE_OF_INVALID_PRELOAD_TYPE);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, invalid preload-type");
             responseBuilder.setAckFinalIndicator("Y");
@@ -2326,7 +2334,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                     "Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
                         + "] \n", e);
             }
-            log.debug("Sending Success rpc result due to external error");
+            log.debug(SENDING_SUCCESS_RPC);
             RpcResult<PreloadVfModuleTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVfModuleTopologyOperationOutput>status(true)
                     .withResult(responseBuilder.build()).build();
@@ -2428,7 +2436,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         }
 
         if (preload_type == null || preload_type.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-type");
+            log.debug("exiting " + SVC_OPERATION + BECAUSE_OF_INVALID_PRELOAD_TYPE);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("input, invalid preload-type");
             responseBuilder.setAckFinalIndicator("Y");
@@ -2525,7 +2533,7 @@ public class vnfapiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                         + "] \n", e);
 
             }
-            log.debug("Sending Success rpc result due to external error");
+            log.debug(SENDING_SUCCESS_RPC);
             RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build())
                     .build();
