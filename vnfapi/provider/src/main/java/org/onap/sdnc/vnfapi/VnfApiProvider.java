@@ -24,7 +24,6 @@ package org.onap.sdnc.vnfapi;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -157,6 +156,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     private final Logger log = LoggerFactory.getLogger(VnfApiProvider.class);
     private final ExecutorService executor;
 
+
     private static final String APP_NAME = "vnfapi";
     private static final String VNF_API = "VNF-API";
     private static final String OPERATIONAL_DATA = "operational-data";
@@ -185,7 +185,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     private static final String INVALID_INPUT_VNF_INSTANCE_STR = "invalid input, null or empty vnf-instance-id";
 
     private VNFSDNSvcLogicServiceClient svcLogicClient;
-
     protected DataBroker dataBroker;
     protected NotificationPublishService notificationService;
     protected RpcProviderRegistry rpcRegistry;
@@ -616,8 +615,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         }
 
         if (data.isPresent()) {
-            VnfInstanceServiceData vnfInstanceServiceData =
-                (VnfInstanceServiceData) data.get().getVnfInstanceServiceData();
+            VnfInstanceServiceData vnfInstanceServiceData = data.get().getVnfInstanceServiceData();
             if (vnfInstanceServiceData != null) {
                 log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + siid + "] VnfInstanceServiceData: "
                     + vnfInstanceServiceData);
@@ -812,7 +810,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             .child(VnfList.class, entry.getKey())
             .build();
 
-
         int optimisticLockTries = 2;
         boolean tryAgain = true;
         while (tryAgain) {
@@ -860,7 +857,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             .builder(VnfInstances.class)
             .child(VnfInstanceList.class, entry.getKey())
             .build();
-
 
         tryUpdateDataStore(entry, merge, storeType, path);
     }
@@ -913,7 +909,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         tryUpdateDataStore(entry, merge, storeType, path);
     }
 
-    private  <T extends DataObject> void tryUpdateDataStore(T entry, boolean merge, LogicalDatastoreType storeType,
+    private <T extends DataObject> void tryUpdateDataStore(T entry, boolean merge, LogicalDatastoreType storeType,
         InstanceIdentifier<T> path) {
 
         int tries = 2;
@@ -1245,7 +1241,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         VnfInstanceServiceDataBuilder vnfInstanceOperDataBuilder = new VnfInstanceServiceDataBuilder();
         getVnfInstanceServiceData(viid, vnfInstanceOperDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
-
         // Set the serviceStatus based on input
         setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
         setServiceStatus(serviceStatusBuilder, input.getRequestInformation());
@@ -1402,14 +1397,14 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
         Properties parms = new Properties();
 
-        log.info(SVC_OPERATION + " called.");
+        log.info(SVC_OPERATION + CALLED_STR);
         // create a new response object
         VnfTopologyOperationOutputBuilder responseBuilder = new VnfTopologyOperationOutputBuilder();
 
         if (input == null || input.getServiceInformation() == null
             || input.getServiceInformation().getServiceInstanceId() == null
             || input.getServiceInformation().getServiceInstanceId().length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or empty service-instance-id");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid input, null or empty service-instance-id");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1421,7 +1416,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getVnfRequestInformation() == null || input.getVnfRequestInformation().getVnfId() == null
             || input.getVnfRequestInformation().getVnfId().length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or empty vf-module-id");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid input, null or empty vf-module-id");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, null or empty vf-module-id");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1467,13 +1462,13 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // container service-data
         //   uses oper-status;
 
-        log.info("Adding INPUT data for " + SVC_OPERATION + " [" + siid + "] input: " + input);
+        log.info(ADDING_INPUT_DATA_STR + SVC_OPERATION + " [" + siid + INPUT_STR + input);
         VnfTopologyOperationInputBuilder inputBuilder = new VnfTopologyOperationInputBuilder(input);
         VnfSdnUtil.toProperties(parms, inputBuilder.build());
 
-        log.info("Adding OPERATIONAL data for " + SVC_OPERATION + " [" + siid + "] operational-data: " + operDataBuilder
+        log.info(ADDING_OPERATIONAL_DATA_STR + SVC_OPERATION + " [" + siid + OPERATIONAL_DATA_STR + operDataBuilder
             .build());
-        VnfSdnUtil.toProperties(parms, "operational-data", operDataBuilder);
+        VnfSdnUtil.toProperties(parms, OPERATIONAL_DATA, operDataBuilder);
 
         log.info(
             "Adding CONFIG data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] preload-data: "
@@ -1488,11 +1483,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
-            if (svcLogicClient.hasGraph("VNF-API", SVC_OPERATION, null, "sync")) {
+            if (svcLogicClient.hasGraph(VNF_API, SVC_OPERATION, null, "sync")) {
 
                 try {
                     respProps =
-                        svcLogicClient.execute("VNF-API", SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
+                        svcLogicClient.execute(VNF_API, SVC_OPERATION, null, "sync", serviceDataBuilder, parms);
                 } catch (Exception e) {
                     log.error("Caught exception executing service logic for " + SVC_OPERATION, e);
                     errorMessage = e.getMessage();
@@ -1528,9 +1523,9 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             try {
                 saveVnfList(vnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
             } catch (Exception e) {
-                log.error("Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + siid + "] \n", e);
+                log.error(CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + siid + "] \n", e);
             }
-            log.error("Returned FAILED for " + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
+            log.error(RETURNED_FAILED_STR + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
             RpcResult<VnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<VnfTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             // return error
@@ -1540,7 +1535,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Got success from SLI
         try {
             serviceData = serviceDataBuilder.build();
-            log.info("Updating MD-SAL for " + SVC_OPERATION + " [" + siid + "] ServiceData: " + serviceData);
+            log.info(UPDATING_MD_SAL_STR + SVC_OPERATION + " [" + siid + "] ServiceData: " + serviceData);
             // svc-configuration-list
             VnfListBuilder vnfListBuilder = new VnfListBuilder();
             vnfListBuilder.setServiceData(serviceData);
@@ -1551,7 +1546,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
                 // Only update operational tree on Delete or Activate
                 if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
-                    log.info("Updating OPERATIONAL tree.");
+                    log.info(UPDATING_OPERATIONAL_TREE_STR);
                     saveVnfList(vnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
                 } else if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) || input
                     .getSdncRequestHeader().getSvcAction().equals(SvcAction.Rollback)) {
@@ -1565,11 +1560,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             responseBuilder.setVnfInformation(vnfInformationBuilder.build());
             responseBuilder.setServiceInformation(serviceData.getServiceInformation());
         } catch (Exception e) {
-            log.error("Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + siid + "] \n", e);
+            log.error(CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + siid + "] \n", e);
             responseBuilder.setResponseCode("500");
             responseBuilder.setResponseMessage(e.toString());
             responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for " + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
+            log.error(RETURNED_FAILED_STR + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
             RpcResult<VnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<VnfTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             // return error
@@ -1582,8 +1577,8 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (errorMessage != null) {
             responseBuilder.setResponseMessage(errorMessage);
         }
-        log.info("Updated MD-SAL for " + SVC_OPERATION + " [" + siid + "] ");
-        log.info("Returned SUCCESS for " + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
+        log.info(UPDATED_MD_SAL_STR + SVC_OPERATION + " [" + siid + "] ");
+        log.info(RETURNED_SUCCESS_STR + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
 
         RpcResult<VnfTopologyOperationOutput> rpcResult =
             RpcResultBuilder.<VnfTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
@@ -1591,20 +1586,21 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         return Futures.immediateFuture(rpcResult);
     }
 
-    @Override public Future<RpcResult<NetworkTopologyOperationOutput>> networkTopologyOperation(
+    @Override
+    public Future<RpcResult<NetworkTopologyOperationOutput>> networkTopologyOperation(
         NetworkTopologyOperationInput input) {
 
         final String SVC_OPERATION = "network-topology-operation";
         Properties parms = new Properties();
 
-        log.info(SVC_OPERATION + " called.");
+        log.info(SVC_OPERATION + CALLED_STR);
         // create a new response object
         NetworkTopologyOperationOutputBuilder responseBuilder = new NetworkTopologyOperationOutputBuilder();
 
         if (input == null || input.getServiceInformation() == null
             || input.getServiceInformation().getServiceInstanceId() == null
             || input.getServiceInformation().getServiceInstanceId().length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or empty service-instance-id");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid input, null or empty service-instance-id");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1617,7 +1613,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         if (input.getNetworkRequestInformation() == null
             || input.getNetworkRequestInformation().getNetworkName() == null) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or empty service-instance-id");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid input, null or empty service-instance-id");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, null or empty service-instance-id");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1646,7 +1642,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
         getPreloadData(preload_name, preload_type, preloadDataBuilder);
 
-        log.info("Adding INPUT data for " + SVC_OPERATION + " [" + siid + "] input: " + input);
+        log.info(ADDING_INPUT_DATA_STR + SVC_OPERATION + " [" + siid + INPUT_STR + input);
         NetworkTopologyOperationInputBuilder inputBuilder = new NetworkTopologyOperationInputBuilder(input);
         VnfSdnUtil.toProperties(parms, inputBuilder.build());
 
@@ -1659,11 +1655,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String networkId = "error";
 
         try {
-            if (svcLogicClient.hasGraph("VNF-API", SVC_OPERATION, null, "sync")) {
+            if (svcLogicClient.hasGraph(VNF_API, SVC_OPERATION, null, "sync")) {
 
                 try {
                     respProps =
-                        svcLogicClient.execute("VNF-API", SVC_OPERATION, null, "sync", preloadDataBuilder, parms);
+                        svcLogicClient.execute(VNF_API, SVC_OPERATION, null, "sync", preloadDataBuilder, parms);
                 } catch (Exception e) {
                     log.error("Caught exception executing service logic for " + SVC_OPERATION, e);
                     errorMessage = e.getMessage();
@@ -1691,7 +1687,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             responseBuilder.setResponseMessage(errorMessage);
             responseBuilder.setAckFinalIndicator(ackFinal);
 
-            log.error("Returned FAILED for " + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
+            log.error(RETURNED_FAILED_STR + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
 
             RpcResult<NetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build())
@@ -1707,11 +1703,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             responseBuilder.setNetworkInformation(networkInformationBuilder.build());
             responseBuilder.setServiceInformation(input.getServiceInformation());
         } catch (IllegalStateException e) {
-            log.error("Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + siid + "] \n", e);
+            log.error(CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + siid + "] \n", e);
             responseBuilder.setResponseCode("500");
             responseBuilder.setResponseMessage(e.toString());
             responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for " + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
+            log.error(RETURNED_FAILED_STR + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
             RpcResult<NetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build())
                     .build();
@@ -1725,8 +1721,8 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (errorMessage != null) {
             responseBuilder.setResponseMessage(errorMessage);
         }
-        log.info("Updated MD-SAL for " + SVC_OPERATION + " [" + siid + "] ");
-        log.info("Returned SUCCESS for " + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
+        log.info(UPDATED_MD_SAL_STR + SVC_OPERATION + " [" + siid + "] ");
+        log.info(RETURNED_SUCCESS_STR + SVC_OPERATION + " [" + siid + "] " + responseBuilder.build());
 
         RpcResult<NetworkTopologyOperationOutput> rpcResult =
             RpcResultBuilder.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
@@ -1734,14 +1730,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         return Futures.immediateFuture(rpcResult);
     }
 
-    @Override public Future<RpcResult<PreloadVnfTopologyOperationOutput>> preloadVnfTopologyOperation(
+    @Override
+    public Future<RpcResult<PreloadVnfTopologyOperationOutput>> preloadVnfTopologyOperation(
         PreloadVnfTopologyOperationInput input) {
 
         final String SVC_OPERATION = "preload-vnf-topology-operation";
         PreloadData preloadData;
         Properties parms = new Properties();
 
-        log.info(SVC_OPERATION + " called.");
+        log.info(SVC_OPERATION + CALLED_STR);
         // create a new response object
         PreloadVnfTopologyOperationOutputBuilder responseBuilder = new PreloadVnfTopologyOperationOutputBuilder();
 
@@ -1751,7 +1748,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             || input.getVnfTopologyInformation().getVnfTopologyIdentifier() == null
             || input.getVnfTopologyInformation().getVnfTopologyIdentifier().getVnfName() == null
             || input.getVnfTopologyInformation().getVnfTopologyIdentifier().getVnfType() == null) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or empty vnf-name or vnf-type");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid input, null or empty vnf-name or vnf-type");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, null or empty vnf-name or vnf-type");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1767,7 +1764,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         // Make sure we have a preload_name and preload_type
         if (preload_name == null || preload_name.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-name");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid preload-name");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, invalid preload-name");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1777,7 +1774,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             return Futures.immediateFuture(rpcResult);
         }
         if (preload_type == null || preload_type.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-type");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid preload-type");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, invalid preload-type");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1808,12 +1805,12 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         //
         // container preload-data
         log.info(
-            "Adding INPUT data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] input: " + input);
+            ADDING_INPUT_DATA_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + INPUT_STR + input);
         PreloadVnfTopologyOperationInputBuilder inputBuilder = new PreloadVnfTopologyOperationInputBuilder(input);
         VnfSdnUtil.toProperties(parms, inputBuilder.build());
-        log.info("Adding OPERATIONAL data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
-            + "] operational-data: " + operDataBuilder.build());
-        VnfSdnUtil.toProperties(parms, "operational-data", operDataBuilder);
+        log.info(ADDING_OPERATIONAL_DATA_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
+            + OPERATIONAL_DATA_STR + operDataBuilder.build());
+        VnfSdnUtil.toProperties(parms, OPERATIONAL_DATA, operDataBuilder);
 
         // Call SLI sync method
         // Get SvcLogicService reference
@@ -1823,11 +1820,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
-            if (svcLogicClient.hasGraph("VNF-API", SVC_OPERATION, null, "sync")) {
+            if (svcLogicClient.hasGraph(VNF_API, SVC_OPERATION, null, "sync")) {
 
                 try {
                     respProps =
-                        svcLogicClient.execute("VNF-API", SVC_OPERATION, null, "sync", preloadDataBuilder, parms);
+                        svcLogicClient.execute(VNF_API, SVC_OPERATION, null, "sync", preloadDataBuilder, parms);
                 } catch (Exception e) {
                     log.error("Caught exception executing service logic for " + SVC_OPERATION, e);
                     errorMessage = e.getMessage();
@@ -1860,13 +1857,13 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             preloadVnfListBuilder.setVnfType(preload_type);
             preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
             log.error(
-                "Returned FAILED for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] error code: '"
+                RETURNED_FAILED_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] error code: '"
                     + errorCode + "', Reason: '" + errorMessage + "'");
             try {
                 savePreloadList(preloadVnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
             } catch (Exception e) {
                 log.error(
-                    "Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
+                    CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
                         + "] \n", e);
             }
             log.debug("Sending Success rpc result due to external error");
@@ -1880,7 +1877,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         try {
             preloadData = preloadDataBuilder.build();
             log.info(
-                "Updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] preloadData: "
+                UPDATING_MD_SAL_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] preloadData: "
                     + preloadData);
             // svc-configuration-list
             VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
@@ -1890,15 +1887,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
             // SDNGC-989 set merge flag to false
             savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-            log.info("Updating OPERATIONAL tree.");
+            log.info(UPDATING_OPERATIONAL_TREE_STR);
             savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
         } catch (Exception e) {
-            log.error("Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
+            log.error(CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
                 + "] \n", e);
             responseBuilder.setResponseCode("500");
             responseBuilder.setResponseMessage(e.toString());
             responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] "
+            log.error(RETURNED_FAILED_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] "
                 + responseBuilder.build());
             RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfTopologyOperationOutput>status(false).withResult(responseBuilder.build())
@@ -1912,9 +1909,9 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (errorMessage != null) {
             responseBuilder.setResponseMessage(errorMessage);
         }
-        log.info("Updated MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] ");
+        log.info(UPDATED_MD_SAL_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] ");
         log.info(
-            "Returned SUCCESS for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] " + responseBuilder
+            RETURNED_SUCCESS_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] " + responseBuilder
                 .build());
 
         RpcResult<PreloadVnfTopologyOperationOutput> rpcResult =
@@ -1924,23 +1921,23 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     }
 
     //1610 preload-vnf-instance-topology-operation
-    @Override public Future<RpcResult<PreloadVnfInstanceTopologyOperationOutput>> preloadVnfInstanceTopologyOperation(
+    @Override
+    public Future<RpcResult<PreloadVnfInstanceTopologyOperationOutput>> preloadVnfInstanceTopologyOperation(
         PreloadVnfInstanceTopologyOperationInput input) {
 
         final String SVC_OPERATION = "preload-vnf-instance-topology-operation";
         VnfInstancePreloadData vnfInstancePreloadData;
         Properties parms = new Properties();
 
-        log.info(SVC_OPERATION + " called.");
+        log.info(SVC_OPERATION + CALLED_STR);
         // create a new response object
         PreloadVnfInstanceTopologyOperationOutputBuilder responseBuilder =
             new PreloadVnfInstanceTopologyOperationOutputBuilder();
 
-
         if (input == null || input.getVnfInstanceTopologyInformation() == null
             || input.getVnfInstanceTopologyInformation().getVnfInstanceIdentifiers().getVnfInstanceName() == null
             || input.getVnfInstanceTopologyInformation().getVnfInstanceIdentifiers().getVnfModelId() == null) {
-            log.debug("exiting " + SVC_OPERATION
+            log.debug(EXITING_STR + SVC_OPERATION
                 + " because of invalid input, null or empty vnf-instance-name or vnf-model-id");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, null or empty vnf-instance-name or vnf-model-id");
@@ -1958,7 +1955,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         // Make sure we have a preload_name and preload_type
         if (preload_name == null || preload_name.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-name");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid preload-name");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, invalid preload-name");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1968,7 +1965,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             return Futures.immediateFuture(rpcResult);
         }
         if (preload_type == null || preload_type.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-type");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid preload-type");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, invalid preload-type");
             responseBuilder.setAckFinalIndicator("Y");
@@ -1986,7 +1983,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         VnfInstancePreloadDataBuilder vnfInstancePreloadDataBuilder = new VnfInstancePreloadDataBuilder();
         getVnfInstancePreloadData(preload_name, preload_type, vnfInstancePreloadDataBuilder);
 
-
         VnfInstancePreloadDataBuilder operDataBuilder = new VnfInstancePreloadDataBuilder();
         getVnfInstancePreloadData(preload_name, preload_type, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
 
@@ -1998,13 +1994,13 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // OUTPUT:
         // container preload-data
         log.info(
-            "Adding INPUT data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] input: " + input);
+            ADDING_INPUT_DATA_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + INPUT_STR + input);
         PreloadVnfInstanceTopologyOperationInputBuilder inputBuilder =
             new PreloadVnfInstanceTopologyOperationInputBuilder(input);
         VnfSdnUtil.toProperties(parms, inputBuilder.build());
-        log.info("Adding OPERATIONAL data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
-            + "] operational-data: " + operDataBuilder.build());
-        VnfSdnUtil.toProperties(parms, "operational-data", operDataBuilder);
+        log.info(ADDING_OPERATIONAL_DATA_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
+            + OPERATIONAL_DATA_STR + operDataBuilder.build());
+        VnfSdnUtil.toProperties(parms, OPERATIONAL_DATA, operDataBuilder);
 
         // Call SLI sync method
         // Get SvcLogicService reference
@@ -2014,11 +2010,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
-            if (svcLogicClient.hasGraph("VNF-API", SVC_OPERATION, null, "sync")) {
+            if (svcLogicClient.hasGraph(VNF_API, SVC_OPERATION, null, "sync")) {
 
                 try {
                     respProps = svcLogicClient
-                        .execute("VNF-API", SVC_OPERATION, null, "sync", vnfInstancePreloadDataBuilder, parms);
+                        .execute(VNF_API, SVC_OPERATION, null, "sync", vnfInstancePreloadDataBuilder, parms);
                 } catch (Exception e) {
                     log.error("Caught exception executing service logic for " + SVC_OPERATION, e);
                     errorMessage = e.getMessage();
@@ -2051,14 +2047,14 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             vnfInstancePreloadListBuilder.setVnfModelId(preload_type);
             vnfInstancePreloadListBuilder.setVnfInstancePreloadData(vnfInstancePreloadDataBuilder.build());
             log.error(
-                "Returned FAILED for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] error code: '"
+                RETURNED_FAILED_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] error code: '"
                     + errorCode + "', Reason: '" + errorMessage + "'");
             try {
                 saveVnfInstancePreloadList(vnfInstancePreloadListBuilder.build(), true,
                     LogicalDatastoreType.CONFIGURATION);
             } catch (Exception e) {
                 log.error(
-                    "Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
+                    CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
                         + "] \n", e);
             }
             log.debug("Sending Success rpc result due to external error");
@@ -2072,7 +2068,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         try {
             vnfInstancePreloadData = vnfInstancePreloadDataBuilder.build();
             log.info(
-                "Updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] preloadData: "
+                UPDATING_MD_SAL_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] preloadData: "
                     + vnfInstancePreloadData);
             // svc-configuration-list
             VnfInstancePreloadListBuilder vnfInstancePreloadListBuilder = new VnfInstancePreloadListBuilder();
@@ -2083,15 +2079,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             // SDNGC-989 set merge flag to false
             saveVnfInstancePreloadList(vnfInstancePreloadListBuilder.build(), false,
                 LogicalDatastoreType.CONFIGURATION);
-            log.info("Updating OPERATIONAL tree.");
+            log.info(UPDATING_OPERATIONAL_TREE_STR);
             saveVnfInstancePreloadList(vnfInstancePreloadListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
         } catch (Exception e) {
-            log.error("Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
+            log.error(CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
                 + "] \n", e);
             responseBuilder.setResponseCode("500");
             responseBuilder.setResponseMessage(e.toString());
             responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] "
+            log.error(RETURNED_FAILED_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] "
                 + responseBuilder.build());
             RpcResult<PreloadVnfInstanceTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVnfInstanceTopologyOperationOutput>status(false)
@@ -2105,9 +2101,9 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (errorMessage != null) {
             responseBuilder.setResponseMessage(errorMessage);
         }
-        log.info("Updated MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] ");
+        log.info(UPDATED_MD_SAL_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] ");
         log.info(
-            "Returned SUCCESS for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] " + responseBuilder
+            RETURNED_SUCCESS_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] " + responseBuilder
                 .build());
 
         RpcResult<PreloadVnfInstanceTopologyOperationOutput> rpcResult =
@@ -2118,14 +2114,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
 
     //1610 preload-vf-module-topology-operation
-    @Override public Future<RpcResult<PreloadVfModuleTopologyOperationOutput>> preloadVfModuleTopologyOperation(
+    @Override
+    public Future<RpcResult<PreloadVfModuleTopologyOperationOutput>> preloadVfModuleTopologyOperation(
         PreloadVfModuleTopologyOperationInput input) {
 
         final String SVC_OPERATION = "preload-vf-module-topology-operation";
         VfModulePreloadData vfModulePreloadData;
         Properties parms = new Properties();
 
-        log.info(SVC_OPERATION + " called.");
+        log.info(SVC_OPERATION + CALLED_STR);
         // create a new response object
         PreloadVfModuleTopologyOperationOutputBuilder responseBuilder =
             new PreloadVfModuleTopologyOperationOutputBuilder();
@@ -2135,7 +2132,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (input == null || input.getVfModuleTopologyInformation() == null
             || input.getVfModuleTopologyInformation().getVfModuleIdentifiers().getVfModuleName() == null
             || input.getVfModuleTopologyInformation().getVfModuleIdentifiers().getVfModuleModelId() == null) {
-            log.debug("exiting " + SVC_OPERATION
+            log.debug(EXITING_STR + SVC_OPERATION
                 + " because of invalid input, null or empty vf-module-name or vf-module-model-id");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, null or empty vf-module-name or vf-module-model-id");
@@ -2152,7 +2149,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         // Make sure we have a preload_name and preload_type
         if (preload_name == null || preload_name.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-name");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid preload-name");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, invalid preload-name");
             responseBuilder.setAckFinalIndicator("Y");
@@ -2162,7 +2159,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             return Futures.immediateFuture(rpcResult);
         }
         if (preload_type == null || preload_type.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-type");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid preload-type");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, invalid preload-type");
             responseBuilder.setAckFinalIndicator("Y");
@@ -2194,13 +2191,13 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // container preload-data
 
         log.info(
-            "Adding INPUT data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] input: " + input);
+            ADDING_INPUT_DATA_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + INPUT_STR + input);
         PreloadVfModuleTopologyOperationInputBuilder inputBuilder =
             new PreloadVfModuleTopologyOperationInputBuilder(input);
         VnfSdnUtil.toProperties(parms, inputBuilder.build());
-        log.info("Adding OPERATIONAL data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
-            + "] operational-data: " + operDataBuilder.build());
-        VnfSdnUtil.toProperties(parms, "operational-data", operDataBuilder);
+        log.info(ADDING_OPERATIONAL_DATA_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
+            + OPERATIONAL_DATA_STR + operDataBuilder.build());
+        VnfSdnUtil.toProperties(parms, OPERATIONAL_DATA, operDataBuilder);
 
         // Call SLI sync method
         // Get SvcLogicService reference
@@ -2210,10 +2207,10 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
-            if (svcLogicClient.hasGraph("VNF-API", SVC_OPERATION, null, "sync")) {
+            if (svcLogicClient.hasGraph(VNF_API, SVC_OPERATION, null, "sync")) {
                 try {
                     respProps = svcLogicClient
-                        .execute("VNF-API", SVC_OPERATION, null, "sync", vfModulePreloadDataBuilder, parms);
+                        .execute(VNF_API, SVC_OPERATION, null, "sync", vfModulePreloadDataBuilder, parms);
                 } catch (Exception e) {
                     log.error("Caught exception executing service logic for " + SVC_OPERATION, e);
                     errorMessage = e.getMessage();
@@ -2246,13 +2243,13 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             vfModulePreloadListBuilder.setVfModuleModelId(preload_type);
             vfModulePreloadListBuilder.setVfModulePreloadData(vfModulePreloadDataBuilder.build());
             log.error(
-                "Returned FAILED for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] error code: '"
+                RETURNED_FAILED_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] error code: '"
                     + errorCode + "', Reason: '" + errorMessage + "'");
             try {
                 saveVfModulePreloadList(vfModulePreloadListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
             } catch (Exception e) {
                 log.error(
-                    "Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
+                    CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
                         + "] \n", e);
             }
             log.debug("Sending Success rpc result due to external error");
@@ -2266,7 +2263,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         try {
             vfModulePreloadData = vfModulePreloadDataBuilder.build();
             log.info(
-                "Updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] preloadData: "
+                UPDATING_MD_SAL_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] preloadData: "
                     + vfModulePreloadData);
             // svc-configuration-list
             VfModulePreloadListBuilder vfModulePreloadListBuilder = new VfModulePreloadListBuilder();
@@ -2276,15 +2273,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
             // SDNGC-989 set merge flag to false
             saveVfModulePreloadList(vfModulePreloadListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-            log.info("Updating OPERATIONAL tree.");
+            log.info(UPDATING_OPERATIONAL_TREE_STR);
             saveVfModulePreloadList(vfModulePreloadListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
         } catch (Exception e) {
-            log.error("Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
+            log.error(CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
                 + "] \n", e);
             responseBuilder.setResponseCode("500");
             responseBuilder.setResponseMessage(e.toString());
             responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] "
+            log.error(RETURNED_FAILED_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] "
                 + responseBuilder.build());
             RpcResult<PreloadVfModuleTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadVfModuleTopologyOperationOutput>status(false)
@@ -2298,9 +2295,9 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (errorMessage != null) {
             responseBuilder.setResponseMessage(errorMessage);
         }
-        log.info("Updated MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] ");
+        log.info(UPDATED_MD_SAL_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] ");
         log.info(
-            "Returned SUCCESS for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] " + responseBuilder
+            RETURNED_SUCCESS_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] " + responseBuilder
                 .build());
 
         RpcResult<PreloadVfModuleTopologyOperationOutput> rpcResult =
@@ -2310,14 +2307,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     }
 
 
-    @Override public Future<RpcResult<PreloadNetworkTopologyOperationOutput>> preloadNetworkTopologyOperation(
+    @Override
+    public Future<RpcResult<PreloadNetworkTopologyOperationOutput>> preloadNetworkTopologyOperation(
         PreloadNetworkTopologyOperationInput input) {
 
         final String SVC_OPERATION = "preload-network-topology-operation";
         PreloadData preloadData;
         Properties parms = new Properties();
 
-        log.info(SVC_OPERATION + " called.");
+        log.info(SVC_OPERATION + CALLED_STR);
         // create a new response object
         PreloadNetworkTopologyOperationOutputBuilder responseBuilder =
             new PreloadNetworkTopologyOperationOutputBuilder();
@@ -2328,8 +2326,8 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             || input.getNetworkTopologyInformation().getNetworkTopologyIdentifier() == null
             || input.getNetworkTopologyInformation().getNetworkTopologyIdentifier().getNetworkName() == null
             || input.getNetworkTopologyInformation().getNetworkTopologyIdentifier().getNetworkType() == null) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid input, null or" +
-                    " empty network-name or network-type");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid input, null or" +
+                " empty network-name or network-type");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("input, null or empty network-name or network-type");
             responseBuilder.setAckFinalIndicator("Y");
@@ -2345,7 +2343,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
         // Make sure we have a preload_name and preload_type
         if (preload_name == null || preload_name.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-name");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid preload-name");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("input, invalid preload-name");
             responseBuilder.setAckFinalIndicator("Y");
@@ -2356,7 +2354,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         }
 
         if (preload_type == null || preload_type.length() == 0) {
-            log.debug("exiting " + SVC_OPERATION + " because of invalid preload-type");
+            log.debug(EXITING_STR + SVC_OPERATION + " because of invalid preload-type");
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("input, invalid preload-type");
             responseBuilder.setAckFinalIndicator("Y");
@@ -2387,13 +2385,13 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         //
         // container preload-data
         log.info(
-            "Adding INPUT data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] input: " + input);
+            ADDING_INPUT_DATA_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + INPUT_STR + input);
         PreloadNetworkTopologyOperationInputBuilder inputBuilder =
             new PreloadNetworkTopologyOperationInputBuilder(input);
         VnfSdnUtil.toProperties(parms, inputBuilder.build());
-        log.info("Adding OPERATIONAL data for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
-            + "] operational-data: " + operDataBuilder.build());
-        VnfSdnUtil.toProperties(parms, "operational-data", operDataBuilder);
+        log.info(ADDING_OPERATIONAL_DATA_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
+            + OPERATIONAL_DATA_STR + operDataBuilder.build());
+        VnfSdnUtil.toProperties(parms, OPERATIONAL_DATA, operDataBuilder);
 
         // Call SLI sync method
         // Get SvcLogicService reference
@@ -2403,10 +2401,10 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         String ackFinal = "Y";
 
         try {
-            if (svcLogicClient.hasGraph("VNF-API", SVC_OPERATION, null, "sync")) {
+            if (svcLogicClient.hasGraph(VNF_API, SVC_OPERATION, null, "sync")) {
                 try {
                     respProps =
-                        svcLogicClient.execute("VNF-API", SVC_OPERATION, null, "sync", preloadDataBuilder, parms);
+                        svcLogicClient.execute(VNF_API, SVC_OPERATION, null, "sync", preloadDataBuilder, parms);
                 } catch (Exception e) {
                     log.error("Caught exception executing service logic for " + SVC_OPERATION, e);
                     errorMessage = e.getMessage();
@@ -2421,7 +2419,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             errorMessage = e.getMessage();
             log.error("Caught exception looking for service logic", e);
         }
-
 
         if (respProps != null) {
             errorCode = respProps.getProperty("error-code");
@@ -2439,13 +2436,13 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             preloadVnfListBuilder.setVnfType(preload_type);
             preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
             log.error(
-                "Returned FAILED for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] error code: '"
+                RETURNED_FAILED_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] error code: '"
                     + errorCode + "', Reason: '" + errorMessage + "'");
             try {
                 savePreloadList(preloadVnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
             } catch (Exception e) {
                 log.error(
-                    "Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
+                    CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
                         + "] \n", e);
 
             }
@@ -2460,7 +2457,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         try {
             preloadData = preloadDataBuilder.build();
             log.info(
-                "Updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] preloadData: "
+                UPDATING_MD_SAL_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] preloadData: "
                     + preloadData);
             // svc-configuration-list
             VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
@@ -2470,15 +2467,15 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
             // SDNGC-989 set merge flag to false
             savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-            log.info("Updating OPERATIONAL tree.");
+            log.info(UPDATING_OPERATIONAL_TREE_STR);
             savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
         } catch (Exception e) {
-            log.error("Caught Exception updating MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type
+            log.error(CAUGHT_EXCEPTION_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type
                 + "] \n", e);
             responseBuilder.setResponseCode("500");
             responseBuilder.setResponseMessage(e.toString());
             responseBuilder.setAckFinalIndicator("Y");
-            log.error("Returned FAILED for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] "
+            log.error(RETURNED_FAILED_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] "
                 + responseBuilder.build());
             RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
                 RpcResultBuilder.<PreloadNetworkTopologyOperationOutput>status(false)
@@ -2492,9 +2489,9 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         if (errorMessage != null) {
             responseBuilder.setResponseMessage(errorMessage);
         }
-        log.info("Updated MD-SAL for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] ");
+        log.info(UPDATED_MD_SAL_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] ");
         log.info(
-            "Returned SUCCESS for " + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] " + responseBuilder
+            RETURNED_SUCCESS_STR + SVC_OPERATION + " [" + preload_name + "," + preload_type + "] " + responseBuilder
                 .build());
 
         RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult =
