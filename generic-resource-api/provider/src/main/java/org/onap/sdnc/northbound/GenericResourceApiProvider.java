@@ -96,7 +96,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.SettableFuture;
 
 /**
  * Defines a base implementation for your provider. This class extends from a
@@ -139,7 +138,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 	private static final String APP_NAME = "generic-resource-api";
 	private static final String CALLED_STR = "{} called.";
-	private static final String NULL_OR_EMPTY_ERROR_LOG = "exiting {} because of null or empty service-instance-id";
+	private static final String NULL_OR_EMPTY_ERROR_MESSAGE = "exiting {} because of null or empty service-instance-id";
 	private static final String NULL_OR_EMPTY_ERROR_PARAM = "invalid input, null or empty service-instance-id";
 	private static final String ADDING_INPUT_DATA_LOG = "Adding INPUT data for {} [{}] input: {}";
 	private static final String ADDING_OPERATIONAL_DATA_LOG = "Adding OPERATIONAL data for {} [{}] operational-data: {}";
@@ -168,7 +167,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 	private final Logger log = LoggerFactory.getLogger(GenericResourceApiProvider.class);
 	private final ExecutorService executor;
 	private final GenericResourceApiSvcLogicServiceClient svcLogicClient;
-
 
     protected DataBroker dataBroker;
 	protected NotificationPublishService notificationService;
@@ -509,7 +507,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		if (input == null || input.getServiceInformation() == null
 				|| input.getServiceInformation().getServiceInstanceId() == null
 				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
-			log.debug(NULL_OR_EMPTY_ERROR_LOG, svcOperation);
+			log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
 			responseBuilder.setAckFinalIndicator("Y");
@@ -553,28 +551,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Get SvcLogicService reference
 
 		ErrorObject error = new ErrorObject("200", "");
-		Properties respProps = null;
 		String ackFinal = "Y";
 		String serviceObjectPath = null;
-
-		try {
-			if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
-				try {
-					respProps = svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", serviceDataBuilder, parms);
-				} catch (Exception e) {
-					log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-					error.setMessage(e.getMessage());
-					error.setStatusCode("500");
-				}
-			} else {
-				error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-				error.setStatusCode("503");
-			}
-		} catch (Exception e) {
-			error.setMessage(e.getMessage());
-			error.setStatusCode("500");
-			log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
-		}
+		Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
 
 		if (respProps != null) {
 			error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
@@ -655,6 +634,30 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		return Futures.immediateFuture(rpcResult);
 	}
 
+	private Properties tryGetProperties(String svcOperation, Properties parms, ServiceDataBuilder serviceDataBuilder,
+		ErrorObject error) {
+		try {
+			if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
+				try {
+					return svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", serviceDataBuilder, parms);
+				} catch (Exception e) {
+					log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
+					error.setMessage(e.getMessage());
+					error.setStatusCode("500");
+				}
+			} else {
+				error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
+				error.setStatusCode("503");
+			}
+		} catch (Exception e) {
+			error.setMessage(e.getMessage());
+			error.setStatusCode("500");
+			log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
+		}
+
+		return null;
+	}
+
 	private boolean validateErrorObject(ErrorObject error) {
 		return
 			!error.getStatusCode().isEmpty() && !("0".equals(error.getStatusCode()) || "200".equals(error.getStatusCode()));
@@ -679,7 +682,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		if (input == null || input.getServiceInformation() == null
 				|| input.getServiceInformation().getServiceInstanceId() == null
 				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
-			log.debug(NULL_OR_EMPTY_ERROR_LOG, svcOperation);
+			log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
 			responseBuilder.setAckFinalIndicator("Y");
@@ -745,29 +748,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Call SLI sync method
 		// Get SvcLogicService reference
 
-		Properties respProps = null;
+
 		ErrorObject error = new ErrorObject("200", "");
 		String ackFinal = "Y";
 		String serviceObjectPath = null;
-
-		try {
-			if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
-				try {
-					respProps = svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", serviceDataBuilder, parms);
-				} catch (Exception e) {
-					log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-					error.setMessage(e.getMessage());
-					error.setStatusCode("500");
-				}
-			} else {
-				error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-				error.setStatusCode("503");
-			}
-		} catch (Exception e) {
-			error.setStatusCode("500");
-			error.setMessage(e.getMessage());
-			log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
-		}
+		Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
 
 		if (respProps != null) {
 			error.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
@@ -878,7 +863,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		if (input == null || input.getServiceInformation() == null
 				|| input.getServiceInformation().getServiceInstanceId() == null
 				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
-			log.debug(NULL_OR_EMPTY_ERROR_LOG, svcOperation);
+			log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
 			responseBuilder.setResponseCode("403");
 			responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
 			responseBuilder.setAckFinalIndicator("Y");
@@ -956,29 +941,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Get SvcLogicService reference
 
 		ErrorObject error = new ErrorObject("200", "");
-		Properties respProps = null;
 		String ackFinal = "Y";
 		String serviceObjectPath = null;
-
-		try {
-			if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
-
-				try {
-					respProps = svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", serviceDataBuilder, parms);
-				} catch (Exception e) {
-					log.error("Caught exception executing service logic for " + svcOperation, e);
-					error.setMessage(e.getMessage());
-					error.setStatusCode("500");
-				}
-			} else {
-				error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-				error.setStatusCode("503");
-			}
-		} catch (Exception e) {
-			error.setMessage(e.getMessage());
-			error.setStatusCode("500");
-			log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
-		}
+		Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
 
 		if (respProps != null) {
 			error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
@@ -1023,13 +988,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 			serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
 			saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-			if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
+			if (isValidRequest(input) &&
+				(input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
+					input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
 				// Only update operational tree on activate or delete
-				if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
-						|| input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
-					log.info(UPDATING_TREE_INFO_MESSAGE);
-					saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
-				}
+
+				log.info(UPDATING_TREE_INFO_MESSAGE);
+				saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 			}
 
 			ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
@@ -1063,6 +1028,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		return Futures.immediateFuture(rpcResult);
 	}
 
+	private boolean isValidRequest(VfModuleTopologyOperationInput input) {
+		return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
+	}
+
 	@Override
 	public Future<RpcResult<NetworkTopologyOperationOutput>> networkTopologyOperation(
 			NetworkTopologyOperationInput input) {
@@ -1079,13 +1048,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		if (input == null || input.getServiceInformation() == null
 				|| input.getServiceInformation().getServiceInstanceId() == null
 				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
-			log.debug(NULL_OR_EMPTY_ERROR_LOG, svcOperation);
-			responseBuilder.setResponseCode("404");
-			responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
-			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-					.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
-			return Futures.immediateFuture(rpcResult);
+			log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
+			return buildRpcResultFuture(responseBuilder, NULL_OR_EMPTY_ERROR_PARAM);
 		}
 
 		String siid = input.getServiceInformation().getServiceInstanceId();
@@ -1101,13 +1065,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		ServiceData sd = serviceDataBuilder.build();
 		if (sd == null || sd.getServiceLevelOperStatus() == null) {
 			log.debug(EMPTY_SERVICE_INSTANCE_MESSAGE, svcOperation);
-			responseBuilder.setResponseCode("404");
-			responseBuilder
-					.setResponseMessage(INVALID_INPUT_ERROR_MESSAGE);
-			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-					.<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
-			return Futures.immediateFuture(rpcResult);
+			return buildRpcResultFuture(responseBuilder, INVALID_INPUT_ERROR_MESSAGE);
 		}
 
 		log.info(ADDING_INPUT_DATA_LOG, svcOperation, siid, input);
@@ -1117,33 +1075,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Call SLI sync method
 		// Get SvcLogicService reference
 
-		Properties respProps = null;
 
 		ErrorObject error = new ErrorObject("200", "");
 		String ackFinal = "Y";
 		String networkId = ERROR_NETWORK_ID;
 		String serviceObjectPath = null;
 		String networkObjectPath = null;
-
-		try {
-			if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
-
-				try {
-					respProps = svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", serviceDataBuilder, parms);
-				} catch (Exception e) {
-					log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-					error.setStatusCode("500");
-					error.setMessage(e.getMessage());
-				}
-			} else {
-				error.setStatusCode("503");
-				error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-			}
-		} catch (Exception e) {
-			error.setStatusCode("500");
-			error.setMessage(e.getMessage());
-			log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
-		}
+		Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
 
 		if (respProps != null) {
 			error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
@@ -1222,6 +1160,18 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		return Futures.immediateFuture(rpcResult);
 	}
 
+	private Future<RpcResult<NetworkTopologyOperationOutput>> buildRpcResultFuture(
+		NetworkTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
+
+		responseBuilder.setResponseCode("404");
+		responseBuilder
+                .setResponseMessage(responseMessage);
+		responseBuilder.setAckFinalIndicator("Y");
+		RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
+                .<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+		return Futures.immediateFuture(rpcResult);
+	}
+
 	private boolean isValidRequest(NetworkTopologyOperationInput input) {
 		return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
 	}
@@ -1242,13 +1192,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		if (input == null || input.getServiceInformation() == null
 				|| input.getServiceInformation().getServiceInstanceId() == null
 				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
-			log.debug(NULL_OR_EMPTY_ERROR_LOG, svcOperation);
-			responseBuilder.setResponseCode("404");
-			responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
-			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
-					.<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
-			return Futures.immediateFuture(rpcResult);
+			log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
+			return buildRpcResultFuture(responseBuilder, NULL_OR_EMPTY_ERROR_PARAM);
 		}
 
 		String siid = input.getServiceInformation().getServiceInstanceId();
@@ -1264,13 +1209,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		ServiceData sd = serviceDataBuilder.build();
 		if (sd == null || sd.getServiceLevelOperStatus() == null) {
 			log.debug(EMPTY_SERVICE_INSTANCE_MESSAGE, svcOperation);
-			responseBuilder.setResponseCode("404");
-			responseBuilder
-					.setResponseMessage(INVALID_INPUT_ERROR_MESSAGE);
-			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
-					.<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
-			return Futures.immediateFuture(rpcResult);
+			return buildRpcResultFuture(responseBuilder, INVALID_INPUT_ERROR_MESSAGE);
 		}
 
 		log.info("Adding INPUT data for " + svcOperation + " [" + siid + "] input: " + input);
@@ -1279,34 +1218,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 		// Call SLI sync method
 		// Get SvcLogicService reference
-
-		Properties respProps = null;
-
 		ErrorObject error = new ErrorObject("200", "");
 		String ackFinal = "Y";
 		String allottedResourceId = ERROR_NETWORK_ID;
 		String serviceObjectPath = null;
 		String contrailRouteObjectPath = null;
-
-		try {
-			if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
-
-				try {
-					respProps = svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", serviceDataBuilder, parms);
-				} catch (Exception e) {
-					log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-					error.setMessage(e.getMessage());
-					error.setStatusCode("500");
-				}
-			} else {
-                error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-                error.setStatusCode("503");
-			}
-		} catch (Exception e) {
-            error.setMessage(e.getMessage());
-            error.setStatusCode("500");
-			log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
-		}
+		Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
 
 		if (respProps != null) {
 			error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
@@ -1385,7 +1302,22 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		return Futures.immediateFuture(rpcResult);
 	}
 
-    private boolean isValidRequest(ContrailRouteTopologyOperationInput input) {
+	private Future<RpcResult<ContrailRouteTopologyOperationOutput>>
+		buildRpcResultFuture(ContrailRouteTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
+
+		responseBuilder.setResponseCode("404");
+		responseBuilder.setResponseMessage(responseMessage);
+		responseBuilder.setAckFinalIndicator("Y");
+
+		RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
+			.<ContrailRouteTopologyOperationOutput>status(true)
+			.withResult(responseBuilder.build())
+			.build();
+
+		return Futures.immediateFuture(rpcResult);
+	}
+
+	private boolean isValidRequest(ContrailRouteTopologyOperationInput input) {
         return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
     }
 
@@ -1405,13 +1337,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		if (input == null || input.getServiceInformation() == null
 				|| input.getServiceInformation().getServiceInstanceId() == null
 				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
-			log.debug(NULL_OR_EMPTY_ERROR_LOG, svcOperation);
-			responseBuilder.setResponseCode("404");
-			responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
-			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
-					.<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
-			return Futures.immediateFuture(rpcResult);
+			log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
+			return buildRpcResultFuture(responseBuilder, NULL_OR_EMPTY_ERROR_PARAM);
 		}
 
 		String siid = input.getServiceInformation().getServiceInstanceId();
@@ -1427,13 +1354,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		ServiceData sd = serviceDataBuilder.build();
 		if (sd == null || sd.getServiceLevelOperStatus() == null) {
 			log.debug(EMPTY_SERVICE_INSTANCE_MESSAGE, svcOperation);
-			responseBuilder.setResponseCode("404");
-			responseBuilder
-					.setResponseMessage(INVALID_INPUT_ERROR_MESSAGE);
-			responseBuilder.setAckFinalIndicator("Y");
-			RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
-					.<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
-			return Futures.immediateFuture(rpcResult);
+			return buildRpcResultFuture(responseBuilder, INVALID_INPUT_ERROR_MESSAGE);
 		}
 
 		log.info(ADDING_INPUT_DATA_LOG, svcOperation, siid, input);
@@ -1548,7 +1469,22 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		return Futures.immediateFuture(rpcResult);
 	}
 
-    private boolean isValidRequest(SecurityZoneTopologyOperationInput input) {
+	private Future<RpcResult<SecurityZoneTopologyOperationOutput>>
+		buildRpcResultFuture(SecurityZoneTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
+
+		responseBuilder.setResponseCode("404");
+		responseBuilder.setResponseMessage(responseMessage);
+		responseBuilder.setAckFinalIndicator("Y");
+
+		RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
+			.<SecurityZoneTopologyOperationOutput>status(true)
+			.withResult(responseBuilder.build())
+			.build();
+
+		return Futures.immediateFuture(rpcResult);
+	}
+
+	private boolean isValidRequest(SecurityZoneTopologyOperationInput input) {
         return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
     }
 
@@ -1566,7 +1502,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		if (input == null || input.getServiceInformation() == null
 				|| input.getServiceInformation().getServiceInstanceId() == null
 				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
-			log.debug(NULL_OR_EMPTY_ERROR_LOG, svcOperation);
+			log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
 			responseBuilder.setAckFinalIndicator("Y");
@@ -1584,33 +1520,14 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		// Call SLI sync method
 		// Get SvcLogicService reference
 
-		Properties respProps = null;
+
 
 		ErrorObject error = new ErrorObject("200", "");
 		String ackFinal = "Y";
 		String allottedResourceId = ERROR_NETWORK_ID;
 		String serviceObjectPath = null;
 		String tunnelxconnObjectPath = null;
-
-		try {
-			if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
-
-				try {
-					respProps = svcLogicClient.execute(APP_NAME, svcOperation, null, "sync",  parms);
-				} catch (Exception e) {
-					log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-					error.setMessage(e.getMessage());
-					error.setStatusCode("500");
-				}
-			} else {
-				error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-				error.setStatusCode("503");
-			}
-		} catch (Exception e) {
-            error.setMessage(e.getMessage());
-            error.setStatusCode("500");
-			log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
-		}
+		Properties respProps = tryGetProperties(svcOperation, parms, error);
 
 		if (respProps != null) {
 			error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
@@ -1673,6 +1590,29 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		return Futures.immediateFuture(rpcResult);
 	}
 
+	private Properties tryGetProperties(String svcOperation, Properties parms, ErrorObject error) {
+		try {
+			if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
+
+				try {
+					return svcLogicClient.execute(APP_NAME, svcOperation, null, "sync",  parms);
+				} catch (Exception e) {
+					log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
+					error.setMessage(e.getMessage());
+					error.setStatusCode("500");
+				}
+			} else {
+				error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
+				error.setStatusCode("503");
+			}
+		} catch (Exception e) {
+            error.setMessage(e.getMessage());
+            error.setStatusCode("500");
+			log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
+		}
+		return null;
+	}
+
 	@Override
 	public Future<RpcResult<BrgTopologyOperationOutput>> brgTopologyOperation(BrgTopologyOperationInput input) {
 		final String svcOperation = "brg-topology-operation";
@@ -1685,7 +1625,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		if (input == null || input.getServiceInformation() == null
 				|| input.getServiceInformation().getServiceInstanceId() == null
 				|| input.getServiceInformation().getServiceInstanceId().length() == 0) {
-			log.debug(NULL_OR_EMPTY_ERROR_LOG, svcOperation);
+			log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
 			responseBuilder.setResponseCode("404");
 			responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
 			responseBuilder.setAckFinalIndicator("Y");
@@ -1702,34 +1642,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 		// Call SLI sync method
 		// Get SvcLogicService reference
-
-		Properties respProps = null;
-
 		ErrorObject error = new ErrorObject("200", "");
 		String ackFinal = "Y";
 		String allottedResourceId = ERROR_NETWORK_ID;
 		String serviceObjectPath = null;
 		String brgObjectPath = null;
-
-		try {
-			if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
-
-				try {
-					respProps = svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", parms);
-				} catch (Exception e) {
-					log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-					error.setMessage(e.getMessage());
-					error.setStatusCode("500");
-				}
-			} else {
-				error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-				error.setStatusCode("503");
-			}
-		} catch (Exception e) {
-            error.setMessage(e.getMessage());
-            error.setStatusCode("500");
-			log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
-		}
+		Properties respProps = tryGetProperties(svcOperation, parms, error);
 
 		if (respProps != null) {
 			error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
@@ -1862,31 +1780,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 		// Call SLI sync method
 		// Get SvcLogicService reference
-
-		Properties respProps = null;
-
 		ErrorObject error = new ErrorObject("200", "");
 		String ackFinal = "Y";
-
-        try {
-            if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
-
-                try {
-                    respProps = svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", parms);
-                } catch (Exception e) {
-                    log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-                    error.setMessage(e.getMessage());
-                    error.setStatusCode("500");
-                }
-            } else {
-                error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-                error.setStatusCode("503");
-            }
-        } catch (Exception e) {
-            error.setMessage(e.getMessage());
-            error.setStatusCode("500");
-            log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
-        }
+		Properties respProps = tryGetProperties(svcOperation, parms, error);
 
 		if (respProps != null) {
 			error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
@@ -1920,19 +1816,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 		// Got success from SLI
 		try {
-			preloadData = preloadDataBuilder.build();
-			log.info("Updating MD-SAL for {} [{},{}] preloadData: {}", svcOperation, preloadName, preloadType,
-					preloadData);
-			// svc-configuration-list
-			VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
-			preloadVnfListBuilder.setVnfName(preloadName);
-			preloadVnfListBuilder.setVnfType(preloadType);
-			preloadVnfListBuilder.setPreloadData(preloadData);
-
-			// merge flag sets to false to allow it to be overwritten (not appended)
-			savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-			log.info(UPDATING_TREE_INFO_MESSAGE);
-			savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+			updatePreloadData(svcOperation, preloadName, preloadType, preloadDataBuilder);
 		} catch (Exception e) {
 			log.error(UPDATING_MDSAL_ERROR_MESSAGE_2, svcOperation, preloadName, preloadType,
 					e);
@@ -1959,6 +1843,24 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 		RpcResult<PreloadVnfTopologyOperationOutput> rpcResult = RpcResultBuilder
 				.<PreloadVnfTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 		return Futures.immediateFuture(rpcResult);
+	}
+
+	private void updatePreloadData(String svcOperation, String preloadName, String preloadType,
+		PreloadDataBuilder preloadDataBuilder) {
+		PreloadData preloadData;
+		preloadData = preloadDataBuilder.build();
+		log.info("Updating MD-SAL for {} [{},{}] preloadData: {}", svcOperation, preloadName, preloadType,
+                preloadData);
+		// svc-configuration-list
+		VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
+		preloadVnfListBuilder.setVnfName(preloadName);
+		preloadVnfListBuilder.setVnfType(preloadType);
+		preloadVnfListBuilder.setPreloadData(preloadData);
+
+		// merge flag sets to false to allow it to be overwritten (not appended)
+		savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+		log.info(UPDATING_TREE_INFO_MESSAGE);
+		savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
 	}
 
 	@Override
@@ -2035,30 +1937,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 		// Call SLI sync method
 		// Get SvcLogicService reference
-
-		Properties respProps = null;
 		ErrorObject error = new ErrorObject("200", "");
 		String ackFinal = "Y";
-
-        try {
-            if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
-
-                try {
-                    respProps = svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", parms);
-                } catch (Exception e) {
-                    log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-                    error.setMessage(e.getMessage());
-                    error.setStatusCode("500");
-                }
-            } else {
-                error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-                error.setStatusCode("503");
-            }
-        } catch (Exception e) {
-            error.setMessage(e.getMessage());
-            error.setStatusCode("500");
-            log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
-        }
+		Properties respProps = tryGetProperties(svcOperation, parms, error);
 
 		if (respProps != null) {
 			error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
@@ -2093,22 +1974,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 		// Got success from SLI
 		try {
-			preloadData = preloadDataBuilder.build();
-			log.info("Updating MD-SAL for {} [{},{}] preloadData: {}", svcOperation, preloadName, preloadType,
-					preloadData);
-			// svc-configuration-list
-			VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
-			preloadVnfListBuilder.setVnfName(preloadName);
-			preloadVnfListBuilder.setVnfType(preloadType);
-			preloadVnfListBuilder.setPreloadData(preloadData);
-
-			// merge flag sets to false to allow it to be overwritten (not appended)
-			savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-			log.info(UPDATING_TREE_INFO_MESSAGE);
-			savePreloadList(preloadVnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+			updatePreloadData(svcOperation, preloadName, preloadType, preloadDataBuilder);
 		} catch (Exception e) {
-			log.error("Caught Exception updating MD-SAL for " + svcOperation + " [" + preloadName + "," + preloadType
-					+ "] \n", e);
+			log.error(UPDATING_MDSAL_ERROR_MESSAGE_2, svcOperation, preloadName, preloadType, e);
 			responseBuilder.setResponseCode("500");
 			responseBuilder.setResponseMessage(e.toString());
 			responseBuilder.setAckFinalIndicator("Y");
