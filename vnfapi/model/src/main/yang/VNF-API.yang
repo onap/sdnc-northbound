@@ -228,7 +228,7 @@ module VNF-API {
         container preload-data {
             uses vnf-topology-information;
             uses network-topology-information;
-            uses oper-status;
+            uses oper-statusCode;
         }
     }
 
@@ -271,7 +271,7 @@ module VNF-API {
 
     grouping vnf-assignments {
         container vnf-assignments {
-            leaf vnf-status {
+            leaf vnf-statusCode {
                 type string;
                 description "Orchestration Status from AAI - to be set by SDNC";
             }
@@ -590,17 +590,17 @@ module VNF-API {
                 description "vf-module-id";
             }
             uses service-data;
-            uses service-status;
+            uses service-statusCode;
         }
     }
     grouping service-data {
         container service-data {
             uses vnf-configuration-information;
-            uses oper-status;
+            uses oper-statusCode;
         }
     }
-    grouping service-status {
-        container service-status {
+    grouping service-statusCode {
+        container service-statusCode {
             leaf response-code {
                 type string;
             }
@@ -610,7 +610,7 @@ module VNF-API {
             leaf final-indicator {
                 type string;
             }
-            leaf request-status {
+            leaf request-statusCode {
                 type enumeration {
                     enum "synccomplete";
                     enum "asynccomplete";
@@ -719,9 +719,9 @@ module VNF-API {
 
 
     // Carried over from l3sdn and potentially not needed
-    grouping oper-status {
-        container oper-status {
-            leaf order-status {
+    grouping oper-statusCode {
+        container oper-statusCode {
+            leaf order-statusCode {
                 type enumeration {
                     enum "Active";
                     enum "PendingAssignment";
@@ -754,7 +754,7 @@ module VNF-API {
             leaf last-svc-request-id {
                 type string;
             }
-            leaf last-order-status {
+            leaf last-order-statusCode {
                 type enumeration {
                     enum "Active";
                     enum "PendingAssignment";

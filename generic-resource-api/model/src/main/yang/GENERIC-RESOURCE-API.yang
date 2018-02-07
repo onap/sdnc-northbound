@@ -22,14 +22,14 @@ module GENERIC-RESOURCE-API {
             mandatory true;
          }
          uses service-data;
-         uses service-status;
+         uses service-statusCode;
       }
    }
    grouping service-data {
       container service-data {
          uses service-operation-information;
          uses service-topology;
-         uses service-level-oper-status;
+         uses service-level-oper-statusCode;
          container networks {
             list network {
                key "network-id";
@@ -47,7 +47,7 @@ module GENERIC-RESOURCE-API {
                         ordered-by user;
                      }
                   }
-                  uses network-level-oper-status;
+                  uses network-level-oper-statusCode;
                }
             }
          }
@@ -68,7 +68,7 @@ module GENERIC-RESOURCE-API {
                         ordered-by user;
                      }
                   }
-                  uses vnf-level-oper-status;
+                  uses vnf-level-oper-statusCode;
                   container vf-modules {
                      list vf-module {
                         key "vf-module-id";
@@ -79,7 +79,7 @@ module GENERIC-RESOURCE-API {
                         container vf-module-data {
                            uses vf-module-operation-information;
                            uses vf-module-topology;
-                           uses vf-module-level-oper-status;
+                           uses vf-module-level-oper-statusCode;
                         }
                      }
                   }
@@ -100,8 +100,8 @@ module GENERIC-RESOURCE-API {
          }
       }
    }
-   grouping service-status {
-      container service-status {
+   grouping service-statusCode {
+      container service-statusCode {
          leaf response-code {
             type string;
          }
@@ -111,7 +111,7 @@ module GENERIC-RESOURCE-API {
          leaf final-indicator {
             type string;
          }
-         leaf request-status {
+         leaf request-statusCode {
             type enumeration {
                enum "synccomplete";
                enum "asynccomplete";
@@ -119,7 +119,7 @@ module GENERIC-RESOURCE-API {
             }
          }
          leaf action {
-            description "value would one of possible request-actions; match the list in service-data oper-status";
+            description "value would one of possible request-actions; match the list in service-data oper-statusCode";
             type string;
          }
          leaf rpc-name {
@@ -205,9 +205,9 @@ module GENERIC-RESOURCE-API {
          }
       }
    }
-   grouping service-level-oper-status {
-      container service-level-oper-status {
-         uses oper-status-data;
+   grouping service-level-oper-statusCode {
+      container service-level-oper-statusCode {
+         uses oper-statusCode-data;
       }
    }
    grouping network-operation-information {
@@ -292,9 +292,9 @@ module GENERIC-RESOURCE-API {
          }
       }
    }
-   grouping network-level-oper-status {
-      container network-level-oper-status {
-         uses oper-status-data;
+   grouping network-level-oper-statusCode {
+      container network-level-oper-statusCode {
+         uses oper-statusCode-data;
       }
    }
    grouping vnf-operation-information {
@@ -379,8 +379,8 @@ module GENERIC-RESOURCE-API {
    }
    grouping vnf-resource-assignments {
       container vnf-resource-assignments {
-         leaf vnf-status {
-            description "Do we need this?Orchestration status from AAI - to be set by SDNCWill not be used for vIPR.";
+         leaf vnf-statusCode {
+            description "Do we need this?Orchestration statusCode from AAI - to be set by SDNCWill not be used for vIPR.";
             type string;
          }
          container availability-zones {
@@ -437,9 +437,9 @@ module GENERIC-RESOURCE-API {
          }
       }
    }
-   grouping vnf-level-oper-status {
-      container vnf-level-oper-status {
-         uses oper-status-data;
+   grouping vnf-level-oper-statusCode {
+      container vnf-level-oper-statusCode {
+         uses oper-statusCode-data;
       }
    }
    grouping vf-module-operation-information {
@@ -505,8 +505,8 @@ module GENERIC-RESOURCE-API {
    }
    grouping vf-module-assignments {
       container vf-module-assignments {
-         leaf vf-module-status {
-            description "Do we need this?Orchestration status from AAI - to be set by SDNCNot being used for vIPR.";
+         leaf vf-module-statusCode {
+            description "Do we need this?Orchestration statusCode from AAI - to be set by SDNCNot being used for vIPR.";
             type string;
          }
          container vms {
@@ -632,9 +632,9 @@ module GENERIC-RESOURCE-API {
          }
       }
    }
-   grouping vf-module-level-oper-status {
-      container vf-module-level-oper-status {
-         uses oper-status-data;
+   grouping vf-module-level-oper-statusCode {
+      container vf-module-level-oper-statusCode {
+         uses oper-statusCode-data;
       }
    }
    grouping allotted-resource-info {
@@ -919,13 +919,13 @@ module GENERIC-RESOURCE-API {
          }
       }
    }
-   grouping allotted-resource-oper-status {
-      container allotted-resource-oper-status {
-         uses oper-status-data;
+   grouping allotted-resource-oper-statusCode {
+      container allotted-resource-oper-statusCode {
+         uses oper-statusCode-data;
       }
    }
-   grouping allotted-resource-status {
-      container allotted-resource-status {
+   grouping allotted-resource-statusCode {
+      container allotted-resource-statusCode {
          leaf response-code {
             type string;
          }
@@ -935,7 +935,7 @@ module GENERIC-RESOURCE-API {
          leaf final-indicator {
             type string;
          }
-         leaf request-status {
+         leaf request-statusCode {
             type enumeration {
                enum "synccomplete";
                enum "asynccomplete";
@@ -943,7 +943,7 @@ module GENERIC-RESOURCE-API {
             }
          }
          leaf action {
-            description "value would one of possible request-actions; match the list in service-data oper-status";
+            description "value would one of possible request-actions; match the list in service-data oper-statusCode";
             type string;
          }
          leaf rpc-name {
@@ -1135,8 +1135,8 @@ module GENERIC-RESOURCE-API {
          type string;
       }
    }
-   grouping oper-status-data {
-      leaf order-status {
+   grouping oper-statusCode-data {
+      leaf order-statusCode {
          description "TBD - do we need Request failed statuses? RequestFailed | InProgressTimeout";
          type enumeration {
             enum "Active";
@@ -1188,7 +1188,7 @@ module GENERIC-RESOURCE-API {
          description "Not currently populated in service data.";
          type string;
       }
-      leaf last-order-status {
+      leaf last-order-statusCode {
          description "fieldused by generic-resource-api";
          type enumeration {
             enum "Active";
@@ -1282,7 +1282,7 @@ module GENERIC-RESOURCE-API {
       container preload-data {
          uses vnf-topology-information;
          uses network-topology-information;
-         uses oper-status;
+         uses oper-statusCode;
       }
    }
    grouping vnf-topology-information {
@@ -1321,7 +1321,7 @@ module GENERIC-RESOURCE-API {
    }
    grouping vnf-assignments {
       container vnf-assignments {
-         leaf vnf-status {
+         leaf vnf-statusCode {
             description "Orchestration Status from AAI - to be set by SDNC";
             type string;
          }
@@ -1589,9 +1589,9 @@ module GENERIC-RESOURCE-API {
          type boolean;
       }
    }
-   grouping oper-status {
-      container oper-status {
-         leaf order-status {
+   grouping oper-statusCode {
+      container oper-statusCode {
+         leaf order-statusCode {
             type enumeration {
                enum "Active";
                enum "PendingAssignment";
@@ -1624,7 +1624,7 @@ module GENERIC-RESOURCE-API {
          leaf last-svc-request-id {
             type string;
          }
-         leaf last-order-status {
+         leaf last-order-statusCode {
             type enumeration {
                enum "Active";
                enum "PendingAssignment";
@@ -1663,9 +1663,9 @@ module GENERIC-RESOURCE-API {
                uses contrail-route-operation-information;
             }
             uses contrail-route-topology;
-            uses allotted-resource-oper-status;
+            uses allotted-resource-oper-statusCode;
          }
-         uses allotted-resource-status;
+         uses allotted-resource-statusCode;
       }
    }
    container security-zone-allotted-resources {
@@ -1683,9 +1683,9 @@ module GENERIC-RESOURCE-API {
             container security-zone-parameters {
                uses param;
             }
-            uses allotted-resource-oper-status;
+            uses allotted-resource-oper-statusCode;
          }
-         uses allotted-resource-status;
+         uses allotted-resource-statusCode;
       }
    }
    container tunnelxconn-allotted-resources {
@@ -1703,9 +1703,9 @@ module GENERIC-RESOURCE-API {
                container tunnelxconn-parameters {
                    uses param;
                }
-               uses allotted-resource-oper-status;
+               uses allotted-resource-oper-statusCode;
            }
-           uses allotted-resource-status;
+           uses allotted-resource-statusCode;
        }
    }
    container brg-allotted-resources {
@@ -1723,9 +1723,9 @@ module GENERIC-RESOURCE-API {
                container brg-parameters {
                    uses param;
                }
-               uses allotted-resource-oper-status;
+               uses allotted-resource-oper-statusCode;
            }
-           uses allotted-resource-status;
+           uses allotted-resource-statusCode;
        }
    }
    rpc service-topology-operation {

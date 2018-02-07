@@ -57,7 +57,7 @@ submodule vnfsubmodule {
 	grouping vnf-instance-preload-data {
 		container vnf-instance-preload-data {
 			uses vnf-instance-topology-information;
-			uses vnfapi:oper-status;
+			uses vnfapi:oper-statusCode;
 		}
 	}
 
@@ -105,7 +105,7 @@ submodule vnfsubmodule {
 				description "generic-vnf-id";
 			}
 			uses vnf-instance-service-data;
-			uses vnfapi:service-status;
+			uses vnfapi:service-statusCode;
 		}
 	}
 
@@ -113,7 +113,7 @@ submodule vnfsubmodule {
         container vnf-instance-service-data {
             uses vnf-instance-configuration-information;
             uses vf-module-relationship-list;
-            uses vnfapi:oper-status;
+            uses vnfapi:oper-statusCode;
         }
     }
 
@@ -250,7 +250,7 @@ submodule vnfsubmodule {
 	grouping vf-module-preload-data {
 		container vf-module-preload-data {
 			uses vf-module-topology-information;
-			uses vnfapi:oper-status;
+			uses vnfapi:oper-statusCode;
 		}
 	}
 
@@ -278,14 +278,14 @@ submodule vnfsubmodule {
 				description "vf-module-id";
 			}
 			uses vf-module-service-data;
-			uses vnfapi:service-status;
+			uses vnfapi:service-statusCode;
 		}
 	}
 
    grouping vf-module-service-data {
      container vf-module-service-data {
        uses vf-module-configuration-information;
-       uses vnfapi:oper-status;
+       uses vnfapi:oper-statusCode;
      }
     }
 
