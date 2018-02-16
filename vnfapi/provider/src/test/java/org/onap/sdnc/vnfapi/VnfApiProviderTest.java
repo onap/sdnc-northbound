@@ -22,6 +22,7 @@
 package org.onap.sdnc.vnfapi;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.onap.sdnc.vnfapi.util.DataBrokerUtil;
 import org.onap.sdnc.vnfapi.util.PropBuilder;
@@ -30,8 +31,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.PreloadVnfInstanceTopologyOperationOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Future;
 
 
 public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
@@ -71,5 +76,8 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         return (new PropBuilder());
     }
 
-
+    @Test
+    public void Dummy() throws Exception {
+        Future<RpcResult<VfModuleTopologyOperationOutput>> rpcResultFuture = vnfapiProvider.vfModuleTopologyOperation(null);
+    }
 }
