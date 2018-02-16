@@ -21,7 +21,9 @@
 
 package org.onap.sdnc.vnfapi;
 
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.onap.sdnc.vnfapi.util.DataBrokerUtil;
 import org.onap.sdnc.vnfapi.util.PropBuilder;
@@ -30,8 +32,13 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Future;
 
 
 public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
@@ -71,5 +78,20 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         return (new PropBuilder());
     }
 
+    @Test
+    public void vnfInstanceTopologyOperationInputIsNull() throws Exception {
+        String expectedResponseCode = "403";
+        String expectedResponseMessage = "invalid input, null or empty vnf-instance-id";
+        String expectedAckFinalIndicator = "Y";
 
+        VnfInstanceTopologyOperationInput input = null;
+        VnfInstanceTopologyOperationOutput result = vnfapiProvider
+                .vnfInstanceTopologyOperation(input)
+                .get()
+                .getResult();
+
+        Assert.assertEquals(result.getResponseCode(), expectedResponseCode );
+        Assert.assertEquals(result.getResponseMessage(), expectedResponseMessage);
+        Assert.assertEquals(result.getAckFinalIndicator(), expectedAckFinalIndicator);
+    }
 }
