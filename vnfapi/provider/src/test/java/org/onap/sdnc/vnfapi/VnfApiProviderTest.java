@@ -123,6 +123,22 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         checkVnfInstanceTopologyOperationOutput(result);
     }
 
+    @Test
+    public void vnfInstanceTopologyOperationInput_VnfInstanceRequestInformationVnfInstanceIdIsZero() throws Exception {
+        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
+        builder.setVnfInstanceRequestInformation(new VnfInstanceRequestInformationBuilder()
+                .setVnfInstanceId("")
+                .build());
+
+        VnfInstanceTopologyOperationInput input = builder.build();
+        VnfInstanceTopologyOperationOutput result = vnfapiProvider
+                .vnfInstanceTopologyOperation(input)
+                .get()
+                .getResult();
+
+        checkVnfInstanceTopologyOperationOutput(result);
+    }
+
     private void checkVnfInstanceTopologyOperationOutput(VnfInstanceTopologyOperationOutput result) {
         String expectedResponseCode = "403";
         String expectedResponseMessage = "invalid input, null or empty vnf-instance-id";
