@@ -41,7 +41,6 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTop
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.request.information.VnfInstanceRequestInformation;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.request.information.VnfInstanceRequestInformationBuilder;
-
 import java.util.concurrent.Future;
 
 
@@ -113,6 +112,22 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         builder.setVnfInstanceRequestInformation(new VnfInstanceRequestInformationBuilder()
             .setVnfInstanceId(null)
              .build());
+
+        VnfInstanceTopologyOperationInput input = builder.build();
+        VnfInstanceTopologyOperationOutput result = vnfapiProvider
+                .vnfInstanceTopologyOperation(input)
+                .get()
+                .getResult();
+
+        checkVnfInstanceTopologyOperationOutput(result);
+    }
+
+    @Test
+    public void vnfInstanceTopologyOperationInput_VnfInstanceRequestInformationVnfInstanceIdIsZero() throws Exception {
+        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
+        builder.setVnfInstanceRequestInformation(new VnfInstanceRequestInformationBuilder()
+                .setVnfInstanceId("")
+                .build());
 
         VnfInstanceTopologyOperationInput input = builder.build();
         VnfInstanceTopologyOperationOutput result = vnfapiProvider
