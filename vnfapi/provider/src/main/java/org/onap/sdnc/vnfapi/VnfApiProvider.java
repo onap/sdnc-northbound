@@ -949,6 +949,26 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     }
 
     //1610 vnf-instance-topology-operation
+
+    private Boolean validateVnfInstanceTopologyOperationInput(VnfInstanceTopologyOperationInput input) {
+        return input != null
+                && input.getVnfInstanceRequestInformation() != null
+                && input.getVnfInstanceRequestInformation().getVnfInstanceId() != null
+                && input.getVnfInstanceRequestInformation().getVnfInstanceId().length() != 0;
+    }
+
+    private Future<RpcResult<VnfInstanceTopologyOperationOutput>> buildVnfInstanceTopologyOperationOutputWithtError(
+            String responseCode, String responseMessage, String ackFinalIndicator) {
+        VnfInstanceTopologyOperationOutputBuilder responseBuilder = new VnfInstanceTopologyOperationOutputBuilder();
+        responseBuilder.setResponseCode(responseCode);
+        responseBuilder.setResponseMessage(responseMessage);
+        responseBuilder.setAckFinalIndicator(ackFinalIndicator);
+        return Futures.immediateFuture(RpcResultBuilder
+                .<VnfInstanceTopologyOperationOutput>status(true)
+                .withResult(responseBuilder.build())
+                .build());
+    }
+
     @Override
     public Future<RpcResult<VnfInstanceTopologyOperationOutput>> vnfInstanceTopologyOperation(
         VnfInstanceTopologyOperationInput input) {
@@ -962,38 +982,17 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // create a new response object
         VnfInstanceTopologyOperationOutputBuilder responseBuilder = new VnfInstanceTopologyOperationOutputBuilder();
 
-        if (input == null || input.getVnfInstanceRequestInformation() == null
-            || input.getVnfInstanceRequestInformation().getVnfInstanceId() == null) {
+        if (!validateVnfInstanceTopologyOperationInput(input)) {
             log.debug(EXITING_STR + svcOperation + " because of " + INVALID_INPUT_VNF_INSTANCE_STR);
-            responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage(INVALID_INPUT_VNF_INSTANCE_STR);
-            responseBuilder.setAckFinalIndicator("Y");
-            RpcResult<VnfInstanceTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<VnfInstanceTopologyOperationOutput>status(true)
-                .withResult(responseBuilder.build())
-                .build();
-            // return error
-            return Futures.immediateFuture(rpcResult);
+            return buildVnfInstanceTopologyOperationOutputWithtError("403",
+                    INVALID_INPUT_VNF_INSTANCE_STR,
+                    "Y" );
         }
 
         // Grab the service instance ID from the input buffer
         String viid = input.getVnfInstanceRequestInformation().getVnfInstanceId();
         String preloadName = input.getVnfInstanceRequestInformation().getVnfInstanceName();
         String preloadType = input.getVnfInstanceRequestInformation().getVnfModelId();
-
-        // Make sure we have a valid viid
-        if (viid == null || viid.length() == 0) {
-            log.debug(EXITING_STR + svcOperation + " because of invalid vnf-instance-id");
-            responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage(INVALID_INPUT_VNF_INSTANCE_STR);
-            responseBuilder.setAckFinalIndicator("Y");
-            RpcResult<VnfInstanceTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<VnfInstanceTopologyOperationOutput>status(true)
-                .withResult(responseBuilder.build())
-                .build();
-            // return error
-            return Futures.immediateFuture(rpcResult);
-        }
 
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
