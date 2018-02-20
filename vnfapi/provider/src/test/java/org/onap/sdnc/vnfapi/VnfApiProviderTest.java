@@ -26,6 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.onap.ccsdk.sli.core.sli.SvcLogicException;
 import org.onap.sdnc.vnfapi.util.DataBrokerUtil;
 import org.onap.sdnc.vnfapi.util.PropBuilder;
 import org.onap.sdnc.vnfapi.util.VNFSDNSvcLogicServiceClientMockUtil;
@@ -41,6 +43,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTop
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.request.information.VnfInstanceRequestInformation;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.request.information.VnfInstanceRequestInformationBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.service.data.VnfInstanceServiceDataBuilder;
 import java.util.concurrent.Future;
 
 
@@ -59,6 +62,7 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         svcClient = new VNFSDNSvcLogicServiceClientMockUtil(mockVNFSDNSvcLogicServiceClient);
         dataBroker = getDataBroker();
         db = new DataBrokerUtil(dataBroker);
@@ -88,7 +92,7 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
                 .get()
                 .getResult();
 
-        checkVnfInstanceTopologyOperationOutput(result);
+        checkVnfInstanceTopologyOperationOutput(result, "403");
     }
 
 
@@ -103,7 +107,7 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
                 .get()
                 .getResult();
 
-        checkVnfInstanceTopologyOperationOutput(result);
+        checkVnfInstanceTopologyOperationOutput(result, "403");
     }
 
     @Test
@@ -119,7 +123,7 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
                 .get()
                 .getResult();
 
-        checkVnfInstanceTopologyOperationOutput(result);
+        checkVnfInstanceTopologyOperationOutput(result, "403");
     }
 
     @Test
@@ -135,11 +139,41 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
                 .get()
                 .getResult();
 
-        checkVnfInstanceTopologyOperationOutput(result);
+        checkVnfInstanceTopologyOperationOutput(result, "403");
     }
 
-    private void checkVnfInstanceTopologyOperationOutput(VnfInstanceTopologyOperationOutput result) {
-        String expectedResponseCode = "403";
+    @Test
+    public void vnfInstanceTopologyOperationInput_svcLogicClientExecuteReturnException() throws Exception {
+        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
+        builder.setVnfInstanceRequestInformation(new VnfInstanceRequestInformationBuilder()
+            .setVnfInstanceId("viid")
+            .setVnfInstanceName("preloadName")
+            .setVnfModelId("preloadType")
+            .build());
+
+        Mockito.when(mockVNFSDNSvcLogicServiceClient
+                    .hasGraph(Mockito.any(),Mockito.any(), Mockito.any(),Mockito.any()))
+                .thenReturn(true);
+        Mockito.when(mockVNFSDNSvcLogicServiceClient
+                .execute(Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(VnfInstanceServiceDataBuilder.class),
+                        Mockito.any()))
+                .thenThrow(SvcLogicException.class);
+        VnfInstanceTopologyOperationInput input = builder.build();
+        VnfInstanceTopologyOperationOutput result = vnfapiProvider
+                .vnfInstanceTopologyOperation(input)
+                .get()
+                .getResult();
+
+        checkVnfInstanceTopologyOperationOutput(result, "500");
+    }
+
+    private void checkVnfInstanceTopologyOperationOutput(VnfInstanceTopologyOperationOutput result,
+            String expectedResponseCode) {
+
         String expectedResponseMessage = "invalid input, null or empty vnf-instance-id";
         String expectedAckFinalIndicator = "Y";
 
