@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.r
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.request.information.VnfInstanceRequestInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.service.data.VnfInstanceServiceDataBuilder;
 
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -55,6 +56,9 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
     private static final String VIID = "viid";
     private static final String PRELOAD_NAME = "preloadName";
     private static final String PRELOAD_TYPE = "preloadType";
+    private static final String ERROR_CODE = "error-code";
+    private static final String ERROR_MESSAGE = "error-message";
+    private static final String ACK_FINAL = "ack-final";
 
     protected VnfApiProvider vnfapiProvider;
     protected DataBroker dataBroker;
@@ -175,6 +179,35 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
                         Mockito.any()))
                 .thenThrow(exceptionClass.asSubclass(Throwable.class));
     }
+
+       @Test
+    public void vnfInstanceTopologyOperationInput_svcLogicClientExecuteReturnsNotNull() throws Exception {
+        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
+        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
+        VnfInstanceTopologyOperationInput input = builder.build();
+
+        Properties properties = prop().set(ERROR_CODE, "500")
+                .set(ERROR_MESSAGE, ERROR_MESSAGE)
+                .set(ACK_FINAL, "Y")
+                .build();
+
+        Mockito.when(mockVNFSDNSvcLogicServiceClient
+                .hasGraph(Mockito.any(),Mockito.any(), Mockito.any(),Mockito.any()))
+                .thenReturn(true);
+
+        Mockito.when(mockVNFSDNSvcLogicServiceClient
+                    .execute(Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(VnfInstanceServiceDataBuilder.class),
+                        Mockito.any()))
+               .thenReturn(properties);
+
+
+        checkVnfInstanceTopologyOperation(input, "500", ERROR_MESSAGE);
+    }
+
     private VnfInstanceRequestInformation createVnfInstanceRequestInformation(String vnfInstanceId) {
         return new VnfInstanceRequestInformationBuilder()
                 .setVnfInstanceId(vnfInstanceId)
