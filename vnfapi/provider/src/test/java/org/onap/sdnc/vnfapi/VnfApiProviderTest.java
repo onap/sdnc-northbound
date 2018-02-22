@@ -27,17 +27,23 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.onap.ccsdk.sli.core.sli.SvcLogicException;
 import org.onap.sdnc.vnfapi.util.DataBrokerUtil;
 import org.onap.sdnc.vnfapi.util.PropBuilder;
 import org.onap.sdnc.vnfapi.util.VNFSDNSvcLogicServiceClientMockUtil;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.impl.BindingDOMDataBrokerAdapter;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.controller.md.sal.binding.test.ConcurrentDataBrokerTestCustomizer;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.VnfInstanceTopologyOperationInputBuilder;
@@ -47,8 +53,32 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.s
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
+class DataBrokerErrorMsgConfigurator {
+    static public String JAVA_LANG_RUNTIME_EXCEPTION = "java.lang.RuntimeException: ";
+    static public String TRANSACTION_WRITE_ERROR = "transaction-write-error";
+}
+
+class DataBrokerStab extends BindingDOMDataBrokerAdapter {
+    public DataBrokerStab(final DOMDataBroker domDataBroker, final BindingToNormalizedNodeCodec codec) {
+        super(domDataBroker, codec);
+
+    }
+
+    @Override
+    public WriteTransaction newWriteOnlyTransaction() {
+        WriteTransaction mockWriteTransaction = Mockito.mock(WriteTransaction.class);
+        Mockito.doThrow(new RuntimeException(DataBrokerErrorMsgConfigurator.TRANSACTION_WRITE_ERROR))
+                .when(mockWriteTransaction).put(Mockito.any(), Mockito.any(), Mockito.any());
+        return mockWriteTransaction;
+    }
+}
+
+class VnfApiProviderDataBrokerTestCustomizer  extends ConcurrentDataBrokerTestCustomizer {
+    public DataBroker createDataBroker() {
+        return new DataBrokerStab(createDOMDataBroker(), super.getBindingToNormalized());
+    }
+}
 
 public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
     private static final String INVALID_INPUT = "invalid input, null or empty vnf-instance-id";
@@ -69,7 +99,16 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
 
     protected DataBrokerUtil db;
     protected VNFSDNSvcLogicServiceClientMockUtil svcClient;
+    protected DataBrokerStab dataBrokerStab;
 
+    public static PropBuilder prop(){
+        return (new PropBuilder());
+    }
+
+    @Override
+    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        return new VnfApiProviderDataBrokerTestCustomizer();
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -90,11 +129,6 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         }
     }
 
-
-    public static PropBuilder prop(){
-        return (new PropBuilder());
-    }
-
     @Test
     public void vnfInstanceTopologyOperationInputIsNull() throws Exception {
         VnfInstanceTopologyOperationInput input = null;
@@ -107,7 +141,6 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
         builder.setVnfInstanceRequestInformation(null);
         VnfInstanceTopologyOperationInput input = builder.build();
-
         checkVnfInstanceTopologyOperation(input, "403", INVALID_INPUT);
     }
 
@@ -116,7 +149,6 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
         builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(null));
         VnfInstanceTopologyOperationInput input = builder.build();
-
         checkVnfInstanceTopologyOperation(input, "403", INVALID_INPUT);
     }
 
@@ -125,7 +157,6 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
         builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(""));
         VnfInstanceTopologyOperationInput input = builder.build();
-
         checkVnfInstanceTopologyOperation(input, "403", INVALID_INPUT);
     }
 
@@ -134,11 +165,7 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
         builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
         VnfInstanceTopologyOperationInput input = builder.build();
-
-        Mockito.when(mockVNFSDNSvcLogicServiceClient
-                .hasGraph(Mockito.any(),Mockito.any(), Mockito.any(),Mockito.any()))
-                .thenReturn(false);
-
+        setReturnForSvcLogicServiceClientHasGraph(false);
         checkVnfInstanceTopologyOperation(input, "503", NO_SERVICE_LOGIC);
     }
 
@@ -149,9 +176,7 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
         VnfInstanceTopologyOperationInput input = builder.build();
 
-        Mockito.when(mockVNFSDNSvcLogicServiceClient
-                    .hasGraph(Mockito.any(),Mockito.any(), Mockito.any(),Mockito.any()))
-                .thenReturn(true);
+        setReturnForSvcLogicServiceClientHasGraph(true);
         setMockVNFSDNSvcLogicServiceClientToThrowException(SvcLogicException.class);
         checkVnfInstanceTopologyOperation(input, "500", null);
     }
@@ -162,11 +187,55 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
         builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
         VnfInstanceTopologyOperationInput input = builder.build();
 
-        Mockito.when(mockVNFSDNSvcLogicServiceClient
-                .hasGraph(Mockito.any(),Mockito.any(), Mockito.any(),Mockito.any()))
-                .thenReturn(true);
+        setReturnForSvcLogicServiceClientHasGraph(true);
         setMockVNFSDNSvcLogicServiceClientToThrowException(Exception.class);
         checkVnfInstanceTopologyOperation(input, "500", null);
+    }
+
+    @Test
+    public void vnfInstanceTopologyOperationInput_svcLogicClientExecuteReturnsNotNull() throws Exception {
+        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
+        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
+        VnfInstanceTopologyOperationInput input = builder.build();
+
+        Properties properties = prop().set(ERROR_CODE, "500")
+                .set(ERROR_MESSAGE, ERROR_MESSAGE)
+                .set(ACK_FINAL, "Y")
+                .build();
+
+        setReturnForSvcLogicServiceClientHasGraph(true);
+        setReturnForSvcLogicServiceClientExecute(properties);
+        checkVnfInstanceTopologyOperation(input, "500", ERROR_MESSAGE);
+    }
+
+    @Test
+    public void vnfInstanceTopologyOperationInput_svcLogicClientExecuteReturnsNull() throws Exception {
+        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
+        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
+        VnfInstanceTopologyOperationInput input = builder.build();
+
+        setReturnForSvcLogicServiceClientHasGraph(true);
+        setReturnForSvcLogicServiceClientExecute(null);
+        String expectedErrorMsg = DataBrokerErrorMsgConfigurator.JAVA_LANG_RUNTIME_EXCEPTION
+                + DataBrokerErrorMsgConfigurator.TRANSACTION_WRITE_ERROR;
+        checkVnfInstanceTopologyOperation(input,"500",expectedErrorMsg);
+    }
+
+    private void setReturnForSvcLogicServiceClientHasGraph(Boolean returnValue) throws Exception{
+        Mockito.when(mockVNFSDNSvcLogicServiceClient
+                .hasGraph(Mockito.any(),Mockito.any(), Mockito.any(),Mockito.any()))
+                .thenReturn(returnValue);
+    }
+
+    private void setReturnForSvcLogicServiceClientExecute(Properties properties) throws Exception{
+        Mockito.when(mockVNFSDNSvcLogicServiceClient
+                .execute(Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(VnfInstanceServiceDataBuilder.class),
+                        Mockito.any()))
+                .thenReturn(properties);
     }
 
     private void setMockVNFSDNSvcLogicServiceClientToThrowException(Class exceptionClass) throws Exception {
@@ -178,34 +247,6 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
                         Mockito.any(VnfInstanceServiceDataBuilder.class),
                         Mockito.any()))
                 .thenThrow(exceptionClass.asSubclass(Throwable.class));
-    }
-
-       @Test
-    public void vnfInstanceTopologyOperationInput_svcLogicClientExecuteReturnsNotNull() throws Exception {
-        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
-        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
-        VnfInstanceTopologyOperationInput input = builder.build();
-
-        Properties properties = prop().set(ERROR_CODE, "500")
-                .set(ERROR_MESSAGE, ERROR_MESSAGE)
-                .set(ACK_FINAL, "Y")
-                .build();
-
-        Mockito.when(mockVNFSDNSvcLogicServiceClient
-                .hasGraph(Mockito.any(),Mockito.any(), Mockito.any(),Mockito.any()))
-                .thenReturn(true);
-
-        Mockito.when(mockVNFSDNSvcLogicServiceClient
-                    .execute(Mockito.any(),
-                        Mockito.any(),
-                        Mockito.any(),
-                        Mockito.any(),
-                        Mockito.any(VnfInstanceServiceDataBuilder.class),
-                        Mockito.any()))
-               .thenReturn(properties);
-
-
-        checkVnfInstanceTopologyOperation(input, "500", ERROR_MESSAGE);
     }
 
     private VnfInstanceRequestInformation createVnfInstanceRequestInformation(String vnfInstanceId) {
@@ -236,8 +277,8 @@ public class VnfApiProviderTest extends AbstractConcurrentDataBrokerTest {
 
         String expectedAckFinalIndicator = "Y";
 
-        Assert.assertEquals(result.getResponseCode(), expectedResponseCode );
-        Assert.assertEquals(result.getResponseMessage(), expectedResponseMessage);
-        Assert.assertEquals(result.getAckFinalIndicator(), expectedAckFinalIndicator);
+        Assert.assertEquals(expectedResponseCode , result.getResponseCode());
+        Assert.assertEquals(expectedResponseMessage, result.getResponseMessage());
+        Assert.assertEquals(expectedAckFinalIndicator, result.getAckFinalIndicator());
     }
  }
