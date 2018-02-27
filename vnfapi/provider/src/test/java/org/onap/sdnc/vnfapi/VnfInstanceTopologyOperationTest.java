@@ -21,6 +21,7 @@
 
 package org.onap.sdnc.vnfapi;
 
+import com.google.common.util.concurrent.CheckedFuture;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import org.opendaylight.controller.md.sal.binding.impl.BindingDOMDataBrokerAdapt
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.binding.test.ConcurrentDataBrokerTestCustomizer;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,29 +49,72 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.vnf.instance.s
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
+class ExceptionThrowerConfigurator {
+    private boolean shouldThrowExceptionDuringTransactionPut;
+
+    public ExceptionThrowerConfigurator() {
+        this.shouldThrowExceptionDuringTransactionPut = true;
+    }
+
+    public boolean shouldThrowExceptionDuringTransactionPut() {
+        return shouldThrowExceptionDuringTransactionPut;
+    }
+
+    public void setShouldThrowExceptionDuringTransactionPut(boolean shouldThrowExceptionDuringTransactionPut) {
+        this.shouldThrowExceptionDuringTransactionPut = shouldThrowExceptionDuringTransactionPut;
+    }
+}
+
 class DataBrokerErrorMsgConfigurator {
     static public String JAVA_LANG_RUNTIME_EXCEPTION = "java.lang.RuntimeException: ";
     static public String TRANSACTION_WRITE_ERROR = "transaction-write-error";
 }
 
 class DataBrokerStab extends BindingDOMDataBrokerAdapter {
-    public DataBrokerStab(final DOMDataBroker domDataBroker, final BindingToNormalizedNodeCodec codec) {
+    ExceptionThrowerConfigurator exceptionThrowerConfigurator;
+
+    public DataBrokerStab(final DOMDataBroker domDataBroker,
+        final BindingToNormalizedNodeCodec codec, ExceptionThrowerConfigurator exceptionThrowerConfigurator) {
         super(domDataBroker, codec);
+        this.exceptionThrowerConfigurator = exceptionThrowerConfigurator;
 
     }
 
     @Override
     public WriteTransaction newWriteOnlyTransaction() {
+        if (exceptionThrowerConfigurator.shouldThrowExceptionDuringTransactionPut()) {
+            return newThrowingExceptionWriteOnlyTransaction();
+        }
+        return newNotThrowingExceptionWriteOnlyTransaction();
+    }
+
+    private WriteTransaction newThrowingExceptionWriteOnlyTransaction() {
         WriteTransaction mockWriteTransaction = Mockito.mock(WriteTransaction.class);
         Mockito.doThrow(new RuntimeException(DataBrokerErrorMsgConfigurator.TRANSACTION_WRITE_ERROR))
                 .when(mockWriteTransaction).put(Mockito.any(), Mockito.any(), Mockito.any());
         return mockWriteTransaction;
     }
+
+    private WriteTransaction newNotThrowingExceptionWriteOnlyTransaction() {
+         WriteTransaction mockWriteTransaction = Mockito.mock(WriteTransaction.class);
+        CheckedFuture<Void, TransactionCommitFailedException> mockCheckedFuture =
+                Mockito.mock(CheckedFuture.class);
+        Mockito.doNothing().when(mockWriteTransaction).put(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doReturn(mockCheckedFuture).when(mockWriteTransaction).submit();
+        return mockWriteTransaction;
+    }
 }
 
 class VnfApiProviderDataBrokerTestCustomizer  extends ConcurrentDataBrokerTestCustomizer {
+    ExceptionThrowerConfigurator exceptionThrowerConfigurator;
+
+    public VnfApiProviderDataBrokerTestCustomizer(ExceptionThrowerConfigurator exceptionThrowerConfigurator) {
+        this.exceptionThrowerConfigurator = exceptionThrowerConfigurator;
+    }
+
     public DataBroker createDataBroker() {
-        return new DataBrokerStab(createDOMDataBroker(), super.getBindingToNormalized());
+        return new DataBrokerStab(createDOMDataBroker(),
+            super.getBindingToNormalized(), this.exceptionThrowerConfigurator);
     }
 }
 
@@ -87,9 +132,12 @@ public class VnfInstanceTopologyOperationTest extends VnfApiProviderTest {
     private static final String ACK_FINAL = "ack-final";
     private static final String SVC_OPERATION = "vnf-topology-operation";
 
+    private ExceptionThrowerConfigurator exceptionThrowerConfigurator;
+
     @Override
     protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
-        return new VnfApiProviderDataBrokerTestCustomizer();
+        this.exceptionThrowerConfigurator = new ExceptionThrowerConfigurator();
+        return new VnfApiProviderDataBrokerTestCustomizer(this.exceptionThrowerConfigurator);
     }
 
     @Before
@@ -114,24 +162,22 @@ public class VnfInstanceTopologyOperationTest extends VnfApiProviderTest {
 
     @Test
     public void vnfInstanceTopologyOperationInput_getVnfInstanceRequestInformationVnfInstanceIdIsNull() throws Exception {
-        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
-        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(null));
+        VnfInstanceRequestInformation vnfInstanceRequestInformation = createVnfInstanceRequestInformation(null);
+        VnfInstanceTopologyOperationInputBuilder builder = createVnfInstanceTopologyOperationInputBuilder(vnfInstanceRequestInformation);
         VnfInstanceTopologyOperationInput input = builder.build();
         checkVnfInstanceTopologyOperation(input, "403", INVALID_INPUT);
     }
 
     @Test
     public void vnfInstanceTopologyOperationInput_VnfInstanceRequestInformationVnfInstanceIdIsZero() throws Exception {
-        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
-        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(""));
+        VnfInstanceTopologyOperationInputBuilder builder = createVnfInstanceTopologyOperationInputBuilder(createVnfInstanceRequestInformation(""));
         VnfInstanceTopologyOperationInput input = builder.build();
         checkVnfInstanceTopologyOperation(input, "403", INVALID_INPUT);
     }
 
     @Test
     public void vnfInstanceTopologyOperationInput_svcLogicClientHasGrapheReturnFalse() throws Exception {
-        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
-        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
+        VnfInstanceTopologyOperationInputBuilder builder = createVnfInstanceTopologyOperationInputBuilder(createVnfInstanceRequestInformation(VIID));
         VnfInstanceTopologyOperationInput input = builder.build();
         setReturnForSvcLogicServiceClientHasGraph(false);
         checkVnfInstanceTopologyOperation(input, "503", NO_SERVICE_LOGIC);
@@ -139,8 +185,7 @@ public class VnfInstanceTopologyOperationTest extends VnfApiProviderTest {
 
     @Test
     public void vnfInstanceTopologyOperationInput_svcLogicClientExecuteThrowsSvcLogicException() throws Exception {
-        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
-        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
+        VnfInstanceTopologyOperationInputBuilder builder = createVnfInstanceTopologyOperationInputBuilder(createVnfInstanceRequestInformation(VIID));
         VnfInstanceTopologyOperationInput input = builder.build();
         setReturnForSvcLogicServiceClientHasGraph(true);
         setMockVNFSDNSvcLogicServiceClientToThrowException(SvcLogicException.class);
@@ -149,8 +194,7 @@ public class VnfInstanceTopologyOperationTest extends VnfApiProviderTest {
 
     @Test
     public void vnfInstanceTopologyOperationInput_svcLogicClientExecuteThrowsException() throws Exception {
-        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
-        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
+        VnfInstanceTopologyOperationInputBuilder builder = createVnfInstanceTopologyOperationInputBuilder(createVnfInstanceRequestInformation(VIID));
         VnfInstanceTopologyOperationInput input = builder.build();
 
         setReturnForSvcLogicServiceClientHasGraph(true);
@@ -160,8 +204,7 @@ public class VnfInstanceTopologyOperationTest extends VnfApiProviderTest {
 
     @Test
     public void vnfInstanceTopologyOperationInput_svcLogicClientExecuteReturnsNotNull() throws Exception {
-        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
-        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
+        VnfInstanceTopologyOperationInputBuilder builder = createVnfInstanceTopologyOperationInputBuilder(createVnfInstanceRequestInformation(VIID));
         VnfInstanceTopologyOperationInput input = builder.build();
 
         Properties properties = prop().set(ERROR_CODE, "500")
@@ -176,8 +219,7 @@ public class VnfInstanceTopologyOperationTest extends VnfApiProviderTest {
 
     @Test
     public void vnfInstanceTopologyOperationInput_svcLogicClientExecuteReturnsNull() throws Exception {
-        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
-        builder.setVnfInstanceRequestInformation(createVnfInstanceRequestInformation(VIID));
+        VnfInstanceTopologyOperationInputBuilder builder = createVnfInstanceTopologyOperationInputBuilder(createVnfInstanceRequestInformation(VIID));
         VnfInstanceTopologyOperationInput input = builder.build();
 
         setReturnForSvcLogicServiceClientHasGraph(true);
@@ -185,6 +227,17 @@ public class VnfInstanceTopologyOperationTest extends VnfApiProviderTest {
         String expectedErrorMsg = DataBrokerErrorMsgConfigurator.JAVA_LANG_RUNTIME_EXCEPTION
                 + DataBrokerErrorMsgConfigurator.TRANSACTION_WRITE_ERROR;
         checkVnfInstanceTopologyOperation(input, "500", expectedErrorMsg);
+    }
+
+    @Test
+    public void vnfInstanceTopologyOperationInput_NoErrorDuringTransactionWriting() throws Exception {
+        VnfInstanceTopologyOperationInputBuilder builder = createVnfInstanceTopologyOperationInputBuilder(createVnfInstanceRequestInformation(VIID));
+        VnfInstanceTopologyOperationInput input = builder.build();
+
+        setReturnForSvcLogicServiceClientHasGraph(true);
+        setReturnForSvcLogicServiceClientExecute(null);
+        exceptionThrowerConfigurator.setShouldThrowExceptionDuringTransactionPut(false);
+        checkVnfInstanceTopologyOperation(input, "200", null);
     }
 
     private void checkVnfInstanceTopologyOperation(VnfInstanceTopologyOperationInput input,
@@ -239,6 +292,14 @@ public class VnfInstanceTopologyOperationTest extends VnfApiProviderTest {
                         Mockito.any()))
                 .thenThrow(exceptionClass.asSubclass(Throwable.class));
     }
+
+    private VnfInstanceTopologyOperationInputBuilder createVnfInstanceTopologyOperationInputBuilder(VnfInstanceRequestInformation vnfInstanceRequestInformation) {
+        VnfInstanceTopologyOperationInputBuilder builder = new VnfInstanceTopologyOperationInputBuilder();
+        builder.setVnfInstanceRequestInformation(vnfInstanceRequestInformation);
+        return builder;
+    }
+
+
 
     private VnfInstanceRequestInformation createVnfInstanceRequestInformation(String vnfInstanceId) {
         return new VnfInstanceRequestInformationBuilder()
