@@ -195,7 +195,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     private static final String INVALID_INPUT_VNF_INSTANCE_STR = "invalid input, null or empty vnf-instance-id";
 
     private VNFSDNSvcLogicServiceClient svcLogicClient;
-    
+
     public VnfApiProvider(DataBroker dataBroker2, NotificationPublishService notificationPublishService,
         RpcProviderRegistry rpcProviderRegistry, VNFSDNSvcLogicServiceClient client) {
         log.info("Creating provider for " + APP_NAME);

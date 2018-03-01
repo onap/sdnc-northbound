@@ -42,12 +42,6 @@
         </fileSet>
     </fileSets>
 
-    <files>
-    <file>
-        <source>../model/target/vnfapi.properties</source>
-        <destName>./configuration/vnfapi.properties</destName>
 
-    </file>
-    </files>
 
 </assembly>

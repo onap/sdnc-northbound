@@ -109,6 +109,7 @@ class VnfApiProviderDataBrokerTestCustomizer  extends ConcurrentDataBrokerTestCu
     ExceptionThrowerConfigurator exceptionThrowerConfigurator;
 
     public VnfApiProviderDataBrokerTestCustomizer(ExceptionThrowerConfigurator exceptionThrowerConfigurator) {
+        super(false);
         this.exceptionThrowerConfigurator = exceptionThrowerConfigurator;
     }
 
