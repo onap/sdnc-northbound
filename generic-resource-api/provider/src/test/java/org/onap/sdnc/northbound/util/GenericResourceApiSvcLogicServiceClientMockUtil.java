@@ -21,16 +21,15 @@
 
 package org.onap.sdnc.northbound.util;
 
-import org.onap.sdnc.northbound.GenericResourceApiSvcLogicServiceClient;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceDataBuilder;
-
-import java.util.Properties;
-
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.when;
 import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.PropBuilder.propBuilder;
+
+import java.util.Properties;
+import org.onap.sdnc.northbound.GenericResourceApiSvcLogicServiceClient;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceDataBuilder;
 
 
 /**
@@ -75,15 +74,13 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
      */
     public void mockHasGraph(Boolean isHasGraph) throws Exception {
         when(
-                mockGenericResourceApiSvcLogicServiceClient
-                        .hasGraph(
-                                eq(MODULE),
-                                eq(scvOperation),
-                                eq(VERSION),
-                                eq(MODE)
-                        )
-        )
-                .thenReturn(isHasGraph);
+            mockGenericResourceApiSvcLogicServiceClient
+                .hasGraph(
+                    eq(MODULE),
+                    eq(scvOperation),
+                    eq(VERSION),
+                    eq(MODE))
+        ).thenReturn(isHasGraph);
     }
 
 
@@ -112,19 +109,29 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
      */
     public void mockExecute(PropBuilder svcResultProp) throws Exception{
         when(
-                mockGenericResourceApiSvcLogicServiceClient
-                        .execute(
-                                eq(MODULE),
-                                eq(scvOperation),
-                                eq(VERSION),
-                                eq(MODE),
-                                isA(ServiceDataBuilder.class),
-                                isA(Properties.class)
-                        )
-        )
-                .thenReturn(build(
-                        svcResultProp
-                ));
+            mockGenericResourceApiSvcLogicServiceClient
+                .execute(
+                    eq(MODULE),
+                    eq(scvOperation),
+                    eq(VERSION),
+                    eq(MODE),
+                    isA(ServiceDataBuilder.class),
+                    isA(Properties.class))
+        ).thenReturn(build(svcResultProp));
+    }
+
+    public void mockExecute(RuntimeException exception) throws Exception{
+        when(
+            mockGenericResourceApiSvcLogicServiceClient
+                .execute(
+                    eq(MODULE),
+                    eq(scvOperation),
+                    eq(VERSION),
+                    eq(MODE),
+                    isA(ServiceDataBuilder.class),
+                    isA(Properties.class)
+                )
+        ).thenThrow(exception);
     }
 
 }

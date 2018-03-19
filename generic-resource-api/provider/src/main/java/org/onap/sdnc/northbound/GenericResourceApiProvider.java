@@ -134,14 +134,14 @@ import com.google.common.util.concurrent.Futures;
 
 public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURCEAPIService {
 
-    private static final String APP_NAME = "generic-resource-api";
+    protected static final String APP_NAME = "generic-resource-api";
     private static final String CALLED_STR = "{} called.";
     private static final String NULL_OR_EMPTY_ERROR_MESSAGE = "exiting {} because of null or empty service-instance-id";
-    private static final String NULL_OR_EMPTY_ERROR_PARAM = "invalid input, null or empty service-instance-id";
+    protected static final String NULL_OR_EMPTY_ERROR_PARAM = "invalid input, null or empty service-instance-id";
     private static final String ADDING_INPUT_DATA_LOG = "Adding INPUT data for {} [{}] input: {}";
     private static final String ADDING_OPERATIONAL_DATA_LOG = "Adding OPERATIONAL data for {} [{}] operational-data: {}";
     private static final String OPERATIONAL_DATA_PARAM = "operational-data";
-    private static final String NO_SERVICE_LOGIC_ACTIVE = "No service logic active for ";
+    protected static final String NO_SERVICE_LOGIC_ACTIVE = "No service logic active for ";
     private static final String SERVICE_LOGIC_SEARCH_ERROR_MESSAGE = "Caught exception looking for service logic";
     private static final String ERROR_CODE_PARAM = "error-code";
     private static final String ERROR_MESSAGE_PARAM = "error-message";
@@ -502,7 +502,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // create a new response object
         ServiceTopologyOperationOutputBuilder responseBuilder = new ServiceTopologyOperationOutputBuilder();
 
-        if (hasValidService(input)) {
+        if (hasInvalidService(input)) {
             log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
             responseBuilder.setResponseCode("404");
             responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
@@ -548,25 +548,25 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        ErrorObject error = new ErrorObject("200", "");
+        ResponseObject responseObject = new ResponseObject("200", "");
         String ackFinal = "Y";
         String serviceObjectPath = null;
-        Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
+        Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, responseObject);
 
         if (respProps != null) {
-            error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
-            error.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
+            responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
+            responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
         }
 
-        setServiceStatus(serviceStatusBuilder, error.getStatusCode(), error.getMessage(), ackFinal);
+        setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);
         serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
         serviceStatusBuilder.setRpcName(svcOperation);
 
-        if (isValidErrorObject(error)) {
-            responseBuilder.setResponseCode(error.getStatusCode());
-            responseBuilder.setResponseMessage(error.getMessage());
+        if (failed(responseObject)) {
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
 
             ServiceBuilder serviceBuilder = new ServiceBuilder();
@@ -609,7 +609,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         } catch (Exception e) {
             log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
             responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
+            responseBuilder.setResponseMessage(e.getMessage());
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
@@ -622,9 +622,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
 
         // Update succeeded
-        responseBuilder.setResponseCode(error.getStatusCode());
+        responseBuilder.setResponseCode(responseObject.getStatusCode());
         responseBuilder.setAckFinalIndicator(ackFinal);
-        trySetResponseMessage(responseBuilder, error);
+        trySetResponseMessage(responseBuilder, responseObject);
         log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
@@ -636,13 +636,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(ServiceTopologyOperationOutputBuilder responseBuilder, ErrorObject error) {
+    private void trySetResponseMessage(ServiceTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
     }
 
-    private boolean hasValidService(ServiceTopologyOperationInput input) {
+    private boolean hasInvalidService(ServiceTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
             || input.getServiceInformation().getServiceInstanceId() == null
             || input.getServiceInformation().getServiceInstanceId().length() == 0;
@@ -665,30 +665,30 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private Properties tryGetProperties(String svcOperation, Properties parms, ServiceDataBuilder serviceDataBuilder,
-        ErrorObject error) {
+        ResponseObject responseObject) {
         try {
             if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
                 try {
                     return svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", serviceDataBuilder, parms);
                 } catch (Exception e) {
                     log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-                    error.setMessage(e.getMessage());
-                    error.setStatusCode("500");
+                    responseObject.setMessage(e.getMessage());
+                    responseObject.setStatusCode("500");
                 }
             } else {
-                error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-                error.setStatusCode("503");
+                responseObject.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
+                responseObject.setStatusCode("503");
             }
         } catch (Exception e) {
-            error.setMessage(e.getMessage());
-            error.setStatusCode("500");
+            responseObject.setMessage(e.getMessage());
+            responseObject.setStatusCode("500");
             log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
         }
 
         return null;
     }
 
-    private boolean isValidErrorObject(ErrorObject error) {
+    private boolean failed(ResponseObject error) {
         return
             !error.getStatusCode().isEmpty() && !("0".equals(error.getStatusCode()) || "200"
                 .equals(error.getStatusCode()));
@@ -779,7 +779,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        ErrorObject error = new ErrorObject("200", "");
+        ResponseObject error = new ResponseObject("200", "");
         String ackFinal = "Y";
         String serviceObjectPath = null;
         Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
@@ -795,7 +795,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
         serviceStatusBuilder.setRpcName(svcOperation);
 
-        if (isValidErrorObject(error)) {
+        if (failed(error)) {
             responseBuilder.setResponseCode(error.getStatusCode());
             responseBuilder.setResponseMessage(error.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
@@ -875,7 +875,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(VnfTopologyOperationOutputBuilder responseBuilder, ErrorObject error) {
+    private void trySetResponseMessage(VnfTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -1009,7 +1009,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        ErrorObject error = new ErrorObject("200", "");
+        ResponseObject error = new ResponseObject("200", "");
         String ackFinal = "Y";
         String serviceObjectPath = null;
         Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
@@ -1025,7 +1025,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
         serviceStatusBuilder.setRpcName(svcOperation);
 
-        if (isValidErrorObject(error)) {
+        if (failed(error)) {
             responseBuilder.setResponseCode(error.getStatusCode());
             responseBuilder.setResponseMessage(error.getStatusCode());
             responseBuilder.setAckFinalIndicator(ackFinal);
@@ -1099,7 +1099,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(VfModuleTopologyOperationOutputBuilder responseBuilder, ErrorObject error) {
+    private void trySetResponseMessage(VfModuleTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -1182,7 +1182,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        ErrorObject error = new ErrorObject("200", "");
+        ResponseObject error = new ResponseObject("200", "");
         String ackFinal = "Y";
         String networkId = ERROR_NETWORK_ID;
         String serviceObjectPath = null;
@@ -1198,7 +1198,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             networkObjectPath = respProps.getProperty("network-object-path");
         }
 
-        if (isValidErrorObject(error)) {
+        if (failed(error)) {
             responseBuilder.setResponseCode(error.getStatusCode());
             responseBuilder.setResponseMessage(error.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
@@ -1268,7 +1268,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(NetworkTopologyOperationOutputBuilder responseBuilder, ErrorObject error) {
+    private void trySetResponseMessage(NetworkTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -1355,7 +1355,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Call SLI sync method
         // Get SvcLogicService reference
-        ErrorObject error = new ErrorObject("200", "");
+        ResponseObject error = new ResponseObject("200", "");
         String ackFinal = "Y";
         String allottedResourceId = ERROR_NETWORK_ID;
         String serviceObjectPath = null;
@@ -1371,7 +1371,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             contrailRouteObjectPath = respProps.getProperty("contrail-route-object-path");
         }
 
-        if (isValidErrorObject(error)) {
+        if (failed(error)) {
             responseBuilder.setResponseCode(error.getStatusCode());
             responseBuilder.setResponseMessage(error.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
@@ -1439,7 +1439,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(ContrailRouteTopologyOperationOutputBuilder responseBuilder, ErrorObject error) {
+    private void trySetResponseMessage(ContrailRouteTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -1527,7 +1527,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         Properties respProps = null;
 
-        ErrorObject error = new ErrorObject("200", "");
+        ResponseObject error = new ResponseObject("200", "");
         String ackFinal = "Y";
         String allottedResourceId = ERROR_NETWORK_ID;
         String serviceObjectPath = null;
@@ -1562,7 +1562,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             securityZoneObjectPath = respProps.getProperty("security-zone-object-path");
         }
 
-        if (isValidErrorObject(error)) {
+        if (failed(error)) {
             responseBuilder.setResponseCode(error.getStatusCode());
             responseBuilder.setResponseMessage(error.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
@@ -1631,7 +1631,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(SecurityZoneTopologyOperationOutputBuilder responseBuilder, ErrorObject error) {
+    private void trySetResponseMessage(SecurityZoneTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -1713,7 +1713,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Call SLI sync method
         // Get SvcLogicService reference
-        ErrorObject error = new ErrorObject("200", "");
+        ResponseObject error = new ResponseObject("200", "");
         String ackFinal = "Y";
         String allottedResourceId = ERROR_NETWORK_ID;
         String serviceObjectPath = null;
@@ -1729,7 +1729,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             tunnelxconnObjectPath = respProps.getProperty("tunnelxconn-object-path");
         }
 
-        if (isValidErrorObject(error)) {
+        if (failed(error)) {
             responseBuilder.setResponseCode(error.getStatusCode());
             responseBuilder.setResponseMessage(error.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
@@ -1786,7 +1786,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(TunnelxconnTopologyOperationOutputBuilder responseBuilder, ErrorObject error) {
+    private void trySetResponseMessage(TunnelxconnTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -1798,7 +1798,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
-    private Properties tryGetProperties(String svcOperation, Properties parms, ErrorObject error) {
+    private Properties tryGetProperties(String svcOperation, Properties parms, ResponseObject error) {
         try {
             if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
 
@@ -1853,7 +1853,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Call SLI sync method
         // Get SvcLogicService reference
-        ErrorObject error = new ErrorObject("200", "");
+        ResponseObject error = new ResponseObject("200", "");
         String ackFinal = "Y";
         String allottedResourceId = ERROR_NETWORK_ID;
         String serviceObjectPath = null;
@@ -1869,7 +1869,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             brgObjectPath = respProps.getProperty("brg-object-path");
         }
 
-        if (isValidErrorObject(error)) {
+        if (failed(error)) {
             responseBuilder.setResponseCode(error.getStatusCode());
             responseBuilder.setResponseMessage(error.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
@@ -1926,7 +1926,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(BrgTopologyOperationOutputBuilder responseBuilder, ErrorObject error) {
+    private void trySetResponseMessage(BrgTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -2014,11 +2014,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Call SLI sync method
         // Get SvcLogicService reference
-        ErrorObject error = new ErrorObject("200", "");
+        ResponseObject error = new ResponseObject("200", "");
         Properties respProps = tryGetProperties(svcOperation, parms, error);
         String ackFinal = resolveAckFinal(error, respProps);
 
-        if (isValidErrorObject(error)) {
+        if (failed(error)) {
 
             responseBuilder.setResponseCode(error.getStatusCode());
             responseBuilder.setResponseMessage(error.getMessage());
@@ -2083,7 +2083,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private String resolveAckFinal(ErrorObject error, Properties respProps) {
+    private String resolveAckFinal(ResponseObject error, Properties respProps) {
         if (respProps != null) {
             error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
             error.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
@@ -2092,7 +2092,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return "Y";
     }
 
-    private void trySetResponseMessage(PreloadVnfTopologyOperationOutputBuilder responseBuilder, ErrorObject error) {
+    private void trySetResponseMessage(PreloadVnfTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -2206,12 +2206,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Call SLI sync method
         // Get SvcLogicService reference
-        ErrorObject error = new ErrorObject("200", "");
+        ResponseObject error = new ResponseObject("200", "");
         Properties respProps = tryGetProperties(svcOperation, parms, error);
 
         String ackFinal = resolveAckFinal(error, respProps);
 
-        if (isValidErrorObject(error)) {
+        if (failed(error)) {
 
             responseBuilder.setResponseCode(error.getStatusCode());
             responseBuilder.setResponseMessage(error.getMessage());
@@ -2277,7 +2277,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void trySetResponseMessage(PreloadNetworkTopologyOperationOutputBuilder responseBuilder,
-        ErrorObject error) {
+        ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }

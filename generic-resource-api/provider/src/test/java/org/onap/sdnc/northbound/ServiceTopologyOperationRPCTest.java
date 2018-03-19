@@ -21,24 +21,13 @@
 
 package org.onap.sdnc.northbound;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.onap.sdnc.northbound.util.PropBuilder;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader.SvcAction;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.information.ServiceInformation;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.model.infrastructure.Service;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatus;
-import org.opendaylight.yangtools.yang.common.RpcResult;
-
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
+import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
+import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
 import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
@@ -50,6 +39,30 @@ import static org.onap.sdnc.northbound.util.MDSALUtil.serviceResponseInformation
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceStatus;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceTopologyOperationInput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceTopologyOperationOutput;
+
+import javax.xml.crypto.Data;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.onap.sdnc.northbound.util.PropBuilder;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainClosedException;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader.SvcAction;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.information.ServiceInformation;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.model.infrastructure.Service;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatus;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 
 
 /**
@@ -70,12 +83,11 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
 
 
     /**
-     * Verify  ServiceTopologyOperation RPC executes a DG then produces the expected
-     * {@link ServiceTopologyOperationOutput} and persisted the expected {@link Service} in the {@link DataBroker}
+     * Verify  ServiceTopologyOperation RPC executes a DG then produces the expected {@link
+     * ServiceTopologyOperationOutput} and persisted the expected {@link Service} in the {@link DataBroker}
      */
     @Test
     public void testServiceTopologyOperationRPC_ExecuteDG_Success() throws Exception {
-
 
         //mock svcClient to perform a successful execution with the expected parameters
         svcClient.mockHasGraph(true);
@@ -87,103 +99,192 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
 
         //execute the mdsal exec
         ServiceTopologyOperationOutput actualServiceTopologyOperationOutput = exec(
-                genericResourceApiProvider::serviceTopologyOperation
-                , serviceTopologyOperationInput
-                , RpcResult::getResult
+            genericResourceApiProvider::serviceTopologyOperation
+            , serviceTopologyOperationInput
+            , RpcResult::getResult
         );
 
-
         //verify the returned ServiceTopologyOperationOutput
-        ServiceTopologyOperationOutput expectedServiceTopologyOperationOutput = createExpectedSTOO(svcResultProp,serviceTopologyOperationInput);
-        assertEquals(expectedServiceTopologyOperationOutput,actualServiceTopologyOperationOutput);
-
+        ServiceTopologyOperationOutput expectedServiceTopologyOperationOutput = createExpectedSTOO(svcResultProp,
+            serviceTopologyOperationInput);
+        assertEquals(expectedServiceTopologyOperationOutput, actualServiceTopologyOperationOutput);
 
         //verify the persisted Service
-        Service actualService = db.read(serviceTopologyOperationInput.getServiceInformation().getServiceInstanceId(), LogicalDatastoreType.CONFIGURATION);
+        Service actualService = db.read(serviceTopologyOperationInput.getServiceInformation().getServiceInstanceId(),
+            LogicalDatastoreType.CONFIGURATION);
         Service expectedService = createExpectedService(
-                expectedServiceTopologyOperationOutput,
-                serviceTopologyOperationInput,
-                actualService);
-        assertEquals(expectedService,actualService);
+            expectedServiceTopologyOperationOutput,
+            serviceTopologyOperationInput,
+            actualService);
+        assertEquals(expectedService, actualService);
 
         LOG.debug("done");
     }
 
+    @Test
+    public void serviceTopologyOperation_should_fail_when_service_info_not_present() throws Exception {
+        // create the ServiceTopologyOperationInput from the template
+        ServiceTopologyOperationInput input = build(
+            serviceTopologyOperationInput()
+                .setSdncRequestHeader(build(sdncRequestHeader()
+                .setSvcRequestId("svc-request-id: xyz")
+                .setSvcAction(SvcAction.Assign)
+            ))
+            .setRequestInformation(build(requestInformation()
+                .setRequestId("request-id: xyz")
+                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
+            )));
+
+        //execute the mdsal exec
+        ServiceTopologyOperationOutput output = exec(
+            genericResourceApiProvider::serviceTopologyOperation
+            , input
+            , RpcResult::getResult
+        );
+
+        assertEquals("404", output.getResponseCode());
+        assertEquals(NULL_OR_EMPTY_ERROR_PARAM, output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
 
 
-    private ServiceTopologyOperationInput createSTOI()
-    {
+    @Test
+    public void serviceTopologyOperation_should_fail_when_client_execution_failed() throws Exception {
+        svcClient.mockHasGraph(true);
+        svcClient.mockExecute(new RuntimeException("test exception"));
+
+        ServiceTopologyOperationInput input = createSTOI();
+
+        //execute the mdsal exec
+        ServiceTopologyOperationOutput output = exec(
+            genericResourceApiProvider::serviceTopologyOperation
+            , input
+            , RpcResult::getResult
+        );
+
+        assertEquals("500", output.getResponseCode());
+        assertEquals("test exception", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
+
+    @Test
+    public void serviceTopologyOperation_should_fail_when_client_has_no_graph() throws Exception {
+        svcClient.mockHasGraph(false);
+
+        ServiceTopologyOperationInput input = createSTOI();
+
+        //execute the mdsal exec
+        ServiceTopologyOperationOutput output = exec(
+            genericResourceApiProvider::serviceTopologyOperation
+            , input
+            , RpcResult::getResult
+        );
+
+        assertEquals("503", output.getResponseCode());
+        assertEquals(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + SVC_OPERATION + "'", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
+
+
+    @Test
+    public void serviceTopologyOperation_should_fail_when_failed_to_update_mdsal() throws Exception {
+
+        svcClient.mockHasGraph(true);
+        WriteTransaction mockWriteTransaction = mock(WriteTransaction.class);
+        when(mockWriteTransaction.submit()).thenThrow(new TransactionChainClosedException("test exception"));
+
+        DataBroker spyDataBroker = Mockito.spy(dataBroker);
+        when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);
+        genericResourceApiProvider.setDataBroker(spyDataBroker);
+
+        ServiceTopologyOperationInput input = createSTOI();
+
+        //execute the mdsal exec
+        ServiceTopologyOperationOutput output = exec(
+            genericResourceApiProvider::serviceTopologyOperation
+            , input
+            , RpcResult::getResult
+        );
+
+        assertEquals("500", output.getResponseCode());
+        assertEquals("test exception", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
+
+
+
+    private ServiceTopologyOperationInput createSTOI() {
 
         return build(
-                serviceTopologyOperationInput()
-                        .setSdncRequestHeader(build(sdncRequestHeader()
-                                .setSvcRequestId("svc-request-id: xyz")
-                                .setSvcAction(SvcAction.Assign)
-                        ))
-                        .setRequestInformation(build(requestInformation()
-                                .setRequestId("request-id: xyz")
-                                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-                        ))
-                        .setServiceInformation(build(serviceInformationBuilder()
-                                .setServiceInstanceId("service-instance-id: xyz")
-                        ))
+            serviceTopologyOperationInput()
+                .setSdncRequestHeader(build(sdncRequestHeader()
+                    .setSvcRequestId("svc-request-id: xyz")
+                    .setSvcAction(SvcAction.Assign)
+                ))
+                .setRequestInformation(build(requestInformation()
+                    .setRequestId("request-id: xyz")
+                    .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
+                ))
+                .setServiceInformation(build(serviceInformationBuilder()
+                    .setServiceInstanceId("service-instance-id: xyz")
+                ))
         );
     }
 
 
-    private ServiceTopologyOperationOutput createExpectedSTOO(PropBuilder expectedSvcResultProp,ServiceTopologyOperationInput expectedServiceTopologyOperationInput){
+    private ServiceTopologyOperationOutput createExpectedSTOO(PropBuilder expectedSvcResultProp,
+        ServiceTopologyOperationInput expectedServiceTopologyOperationInput) {
         return build(
-                serviceTopologyOperationOutput()
-                        .setSvcRequestId(expectedServiceTopologyOperationInput.getSdncRequestHeader().getSvcRequestId())
-                        .setResponseCode(expectedSvcResultProp.get(svcClient.errorCode))
-                        .setAckFinalIndicator(expectedSvcResultProp.get(svcClient.ackFinal))
-                        .setResponseMessage(expectedSvcResultProp.get(svcClient.errorMessage))
-                        .setServiceResponseInformation(build(serviceResponseInformation()
-                                .setInstanceId(expectedServiceTopologyOperationInput.getServiceInformation().getServiceInstanceId())
-                                .setObjectPath(expectedSvcResultProp.get(svcClient.serviceObjectPath))
-                        ))
+            serviceTopologyOperationOutput()
+                .setSvcRequestId(expectedServiceTopologyOperationInput.getSdncRequestHeader().getSvcRequestId())
+                .setResponseCode(expectedSvcResultProp.get(svcClient.errorCode))
+                .setAckFinalIndicator(expectedSvcResultProp.get(svcClient.ackFinal))
+                .setResponseMessage(expectedSvcResultProp.get(svcClient.errorMessage))
+                .setServiceResponseInformation(build(serviceResponseInformation()
+                    .setInstanceId(expectedServiceTopologyOperationInput.getServiceInformation().getServiceInstanceId())
+                    .setObjectPath(expectedSvcResultProp.get(svcClient.serviceObjectPath))
+                ))
         );
     }
 
     private Service createExpectedService(
-            ServiceTopologyOperationOutput expectedServiceTopologyOperationOutput,
-            ServiceTopologyOperationInput expectedServiceTopologyOperationInput,
-            Service actualService
-    ){
-
+        ServiceTopologyOperationOutput expectedServiceTopologyOperationOutput,
+        ServiceTopologyOperationInput expectedServiceTopologyOperationInput,
+        Service actualService
+    ) {
 
         //We cannot predict the timeStamp value so just steal it from the actual
         //we need this to prevent the equals method from returning false as a result of the timestamp
-        String responseTimeStamp = actualService == null || actualService.getServiceStatus() == null?
-                null : actualService.getServiceStatus().getResponseTimestamp();
+        String responseTimeStamp = actualService == null || actualService.getServiceStatus() == null ?
+            null : actualService.getServiceStatus().getResponseTimestamp();
 
         SdncRequestHeader expectedSdncRequestHeader = expectedServiceTopologyOperationInput.getSdncRequestHeader();
         ServiceInformation expectedServiceInformation = expectedServiceTopologyOperationInput.getServiceInformation();
         RequestInformation expectedRequestInformation = expectedServiceTopologyOperationInput.getRequestInformation();
 
         return build(
-               service()
+            service()
                 .setServiceInstanceId(expectedServiceInformation.getServiceInstanceId())
                 .setServiceData(build(serviceData()))
                 .setServiceStatus(
-                        build(
-                             serviceStatus()
-                                .setAction(expectedRequestInformation.getRequestAction().name())
-                                .setFinalIndicator(expectedServiceTopologyOperationOutput.getAckFinalIndicator())
-                                .setResponseCode(expectedServiceTopologyOperationOutput.getResponseCode())
-                                .setResponseMessage(expectedServiceTopologyOperationOutput.getResponseMessage())
-                                .setRpcAction(toRpcAction(expectedSdncRequestHeader.getSvcAction()))
-                                .setRpcName(SVC_OPERATION)
-                                .setRequestStatus(ServiceStatus.RequestStatus.Synccomplete)
-                                .setResponseTimestamp(responseTimeStamp)
-                        )
+                    build(
+                        serviceStatus()
+                            .setAction(expectedRequestInformation.getRequestAction().name())
+                            .setFinalIndicator(expectedServiceTopologyOperationOutput.getAckFinalIndicator())
+                            .setResponseCode(expectedServiceTopologyOperationOutput.getResponseCode())
+                            .setResponseMessage(expectedServiceTopologyOperationOutput.getResponseMessage())
+                            .setRpcAction(toRpcAction(expectedSdncRequestHeader.getSvcAction()))
+                            .setRpcName(SVC_OPERATION)
+                            .setRequestStatus(ServiceStatus.RequestStatus.Synccomplete)
+                            .setResponseTimestamp(responseTimeStamp)
+                    )
                 )
         );
 
     }
 
-    public ServiceStatus.RpcAction toRpcAction(SvcAction fromEnum){
-        return fromEnum == null? null : ServiceStatus.RpcAction.valueOf(fromEnum.name());
+    public ServiceStatus.RpcAction toRpcAction(SvcAction fromEnum) {
+        return fromEnum == null ? null : ServiceStatus.RpcAction.valueOf(fromEnum.name());
     }
 
 

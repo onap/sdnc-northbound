@@ -22,6 +22,7 @@
 package org.onap.sdnc.northbound;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.onap.sdnc.northbound.util.DataBrokerUtil;
 import org.onap.sdnc.northbound.util.GenericResourceApiSvcLogicServiceClientMockUtil;
@@ -36,12 +37,13 @@ import org.slf4j.LoggerFactory;
 
 public class GenericResourceApiProviderTest extends AbstractConcurrentDataBrokerTest {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(GenericResourceApiProvider.class);
     protected GenericResourceApiProvider genericResourceApiProvider;
     protected DataBroker dataBroker;
     protected @Mock NotificationPublishService mockNotificationPublishService;
     protected @Mock RpcProviderRegistry mockRpcProviderRegistry;
     protected @Mock GenericResourceApiSvcLogicServiceClient mockGenericResourceApiSvcLogicServiceClient;
-    protected static final Logger LOG = LoggerFactory.getLogger(GenericResourceApiProvider.class);
+
 
 
     protected DataBrokerUtil db;
@@ -70,6 +72,4 @@ public class GenericResourceApiProviderTest extends AbstractConcurrentDataBroker
     public static PropBuilder prop(){
         return (new PropBuilder());
     }
-
-
 }

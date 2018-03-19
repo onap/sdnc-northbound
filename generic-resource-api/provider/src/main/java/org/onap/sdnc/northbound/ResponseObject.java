@@ -1,13 +1,13 @@
 package org.onap.sdnc.northbound;
 
-public class ErrorObject {
+public class ResponseObject {
 
     private static final String EMPTY_STRING = "";
 
     private String statusCode;
     private String message;
 
-    public ErrorObject(String statusCode, String message) {
+    public ResponseObject(String statusCode, String message) {
         this.statusCode = statusCode == null ? EMPTY_STRING : statusCode;
         this.message = message == null ? EMPTY_STRING : message;
     }
