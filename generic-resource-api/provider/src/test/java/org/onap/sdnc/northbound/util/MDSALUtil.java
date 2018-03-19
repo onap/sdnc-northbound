@@ -21,10 +21,15 @@
 
 package org.onap.sdnc.northbound.util;
 
+import java.util.concurrent.Future;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.information.NetworkInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.response.information.NetworkResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformationBuilder;
@@ -35,12 +40,9 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.model.infrastructure.ServiceBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.response.information.ServiceResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatusBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.information.VnfInformationBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-
-import java.util.concurrent.Future;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 
 /**
@@ -70,12 +72,19 @@ import java.util.function.Function;
  */
 public class MDSALUtil {
 
+    public static VnfTopologyOperationInputBuilder vnfTopologyOperationInput() {
+        return new VnfTopologyOperationInputBuilder();
+    }
+
+    public static VnfTopologyOperationOutputBuilder vnfTopologyOperationOutput() {
+        return new VnfTopologyOperationOutputBuilder();
+    }
+
     public static ServiceTopologyOperationInputBuilder serviceTopologyOperationInput() {
         return new ServiceTopologyOperationInputBuilder();
     }
 
-
-    public static ServiceTopologyOperationOutputBuilder serviceTopologyOperationOutput(){
+    public static ServiceTopologyOperationOutputBuilder serviceTopologyOperationOutput() {
         return new ServiceTopologyOperationOutputBuilder();
     }
 
@@ -89,47 +98,68 @@ public class MDSALUtil {
         return new RequestInformationBuilder();
     }
 
-    public static ServiceResponseInformationBuilder serviceResponseInformation(){
-        return  new ServiceResponseInformationBuilder();
+    public static ServiceResponseInformationBuilder serviceResponseInformation() {
+        return new ServiceResponseInformationBuilder();
     }
 
     public static ServiceInformationBuilder serviceInformationBuilder() {
-        return  new ServiceInformationBuilder();
+        return new ServiceInformationBuilder();
+    }
+
+    public static VnfInformationBuilder vnfInformationBuilder() {
+        return new VnfInformationBuilder();
     }
 
 
-    public static ServiceBuilder service(){return new ServiceBuilder();}
+    public static ServiceBuilder service() {
+        return new ServiceBuilder();
+    }
 
 
-    public static ServiceDataBuilder serviceData(){return new ServiceDataBuilder();}
+    public static ServiceDataBuilder serviceData() {
+        return new ServiceDataBuilder();
+    }
 
 
-    public static ServiceStatusBuilder serviceStatus(){return new ServiceStatusBuilder();}
+    public static ServiceStatusBuilder serviceStatus() {
+        return new ServiceStatusBuilder();
+    }
 
-    public static NetworkInformationBuilder networkInformation(){return new NetworkInformationBuilder();}
+    public static NetworkInformationBuilder networkInformation() {
+        return new NetworkInformationBuilder();
+    }
 
-    public static NetworkTopologyOperationInputBuilder networkTopologyOperationInput() {return new NetworkTopologyOperationInputBuilder();}
+    public static NetworkTopologyOperationInputBuilder networkTopologyOperationInput() {
+        return new NetworkTopologyOperationInputBuilder();
+    }
 
-    public static NetworkTopologyOperationOutputBuilder networkTopologyOperationOutput() {return new NetworkTopologyOperationOutputBuilder();}
+    public static NetworkTopologyOperationOutputBuilder networkTopologyOperationOutput() {
+        return new NetworkTopologyOperationOutputBuilder();
+    }
 
-    public static NetworkResponseInformationBuilder networkResponseInformation(){return new NetworkResponseInformationBuilder();}
+    public static NetworkResponseInformationBuilder networkResponseInformation() {
+        return new NetworkResponseInformationBuilder();
+    }
 
-    public static ServiceLevelOperStatusBuilder serviceLevelOperStatus() {return new ServiceLevelOperStatusBuilder();}
+    public static ServiceLevelOperStatusBuilder serviceLevelOperStatus() {
+        return new ServiceLevelOperStatusBuilder();
+    }
 
     public static <P> P build(Builder<P> b) {
-        return b == null? null :b.build();
+        return b == null ? null : b.build();
     }
 
-    public static <P,B extends Builder<P>> P build(Function<P,B> builderConstructor,P sourceDataObject){
-        if(sourceDataObject == null){
+    public static <P, B extends Builder<P>> P build(Function<P, B> builderConstructor, P sourceDataObject) {
+        if (sourceDataObject == null) {
             return null;
         }
         B bp = builderConstructor.apply(sourceDataObject);
         return bp.build();
     }
 
-    public static <P,B extends Builder<P>> P build(Function<P,B> builderConstructor,P sourceDataObject,Consumer<B> builder){
-        if(sourceDataObject == null){
+    public static <P, B extends Builder<P>> P build(Function<P, B> builderConstructor, P sourceDataObject,
+        Consumer<B> builder) {
+        if (sourceDataObject == null) {
             return null;
         }
         B bp = builderConstructor.apply(sourceDataObject);
@@ -137,7 +167,8 @@ public class MDSALUtil {
         return bp.build();
     }
 
-    public static <I,O> O exec(Function<I,Future<RpcResult<O>>> rpc,I rpcParameter,Function<RpcResult<O>,O> rpcResult)  throws Exception {
+    public static <I, O> O exec(Function<I, Future<RpcResult<O>>> rpc, I rpcParameter,
+        Function<RpcResult<O>, O> rpcResult) throws Exception {
         Future<RpcResult<O>> future = rpc.apply(rpcParameter);
         return rpcResult.apply(future.get());
     }

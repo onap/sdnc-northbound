@@ -1,5 +1,8 @@
 package org.onap.sdnc.northbound;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.Futures;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -92,10 +94,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.Futures;
 
 /**
  * Defines a base implementation for your provider. This class extends from a helper class which provides storage for
@@ -704,7 +702,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         final String svcOperation = "vnf-topology-operation";
         ServiceData serviceData;
         ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
-        Properties parms = new Properties();
+        Properties properties = new Properties();
 
         log.info(CALLED_STR, svcOperation);
         // create a new response object
@@ -727,7 +725,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         trySetSvcRequestId(input, responseBuilder);
 
-        if (hasInvalidVnf(input)) {
+        if (hasInvalidVnfId(input)) {
             log.debug("exiting {} because of null or empty vnf-id", svcOperation);
             responseBuilder.setResponseCode("404");
             responseBuilder.setResponseMessage("invalid input, null or empty vnf-id");
@@ -770,34 +768,34 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         log.info(ADDING_INPUT_DATA_LOG, svcOperation, siid, input);
         VnfTopologyOperationInputBuilder inputBuilder = new VnfTopologyOperationInputBuilder(input);
-        GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+        GenericResourceApiUtil.toProperties(properties, inputBuilder.build());
 
         log.info(ADDING_OPERATIONAL_DATA_LOG, svcOperation, siid,
             operDataBuilder.build());
-        GenericResourceApiUtil.toProperties(parms, OPERATIONAL_DATA_PARAM, operDataBuilder);
+        GenericResourceApiUtil.toProperties(properties, OPERATIONAL_DATA_PARAM, operDataBuilder);
 
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        ResponseObject error = new ResponseObject("200", "");
+        ResponseObject responseObject = new ResponseObject("200", "");
         String ackFinal = "Y";
         String serviceObjectPath = null;
-        Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
+        Properties respProps = tryGetProperties(svcOperation, properties, serviceDataBuilder, responseObject);
 
         if (respProps != null) {
-            error.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
-            error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
+            responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
+            responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
             serviceObjectPath = respProps.getProperty("vnf-object-path");
         }
 
-        setServiceStatus(serviceStatusBuilder, error.getStatusCode(), error.getMessage(), ackFinal);
+        setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);
         serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
         serviceStatusBuilder.setRpcName(svcOperation);
 
-        if (failed(error)) {
-            responseBuilder.setResponseCode(error.getStatusCode());
-            responseBuilder.setResponseMessage(error.getMessage());
+        if (failed(responseObject)) {
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
 
             ServiceBuilder serviceBuilder = new ServiceBuilder();
@@ -847,7 +845,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         } catch (Exception e) {
             log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
             responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
+            responseBuilder.setResponseMessage(e.getMessage());
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
@@ -860,9 +858,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
 
         // Update succeeded
-        responseBuilder.setResponseCode(error.getStatusCode());
+        responseBuilder.setResponseCode(responseObject.getStatusCode());
         responseBuilder.setAckFinalIndicator(ackFinal);
-        trySetResponseMessage(responseBuilder, error);
+        trySetResponseMessage(responseBuilder, responseObject);
         log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
@@ -892,7 +890,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    private boolean hasInvalidVnf(VnfTopologyOperationInput input) {
+    private boolean hasInvalidVnfId(VnfTopologyOperationInput input) {
         return input.getVnfInformation() == null || input.getVnfInformation().getVnfId() == null
             || input.getVnfInformation().getVnfId().length() == 0;
     }
@@ -942,7 +940,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             return Futures.immediateFuture(rpcResult);
         }
 
-        if (hasInvalidVnf(input)) {
+        if (hasInvalidVnfId(input)) {
             log.debug("exiting {} because of null or empty vnf-id", svcOperation);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, null or empty vnf-id");
@@ -1128,7 +1126,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             || input.getVfModuleInformation().getVfModuleId().length() == 0;
     }
 
-    private boolean hasInvalidVnf(VfModuleTopologyOperationInput input) {
+    private boolean hasInvalidVnfId(VfModuleTopologyOperationInput input) {
         return input.getVnfInformation() == null || input.getVnfInformation().getVnfId() == null
             || input.getVnfInformation().getVnfId().length() == 0;
     }
@@ -1439,7 +1437,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(ContrailRouteTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
+    private void trySetResponseMessage(ContrailRouteTopologyOperationOutputBuilder responseBuilder,
+        ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -1469,7 +1468,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private Future<RpcResult<ContrailRouteTopologyOperationOutput>>
-                buildRpcResultFuture(ContrailRouteTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
+    buildRpcResultFuture(ContrailRouteTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
 
         responseBuilder.setResponseCode("404");
         responseBuilder.setResponseMessage(responseMessage);
@@ -1631,7 +1630,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(SecurityZoneTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
+    private void trySetResponseMessage(SecurityZoneTopologyOperationOutputBuilder responseBuilder,
+        ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -1665,7 +1665,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private Future<RpcResult<SecurityZoneTopologyOperationOutput>>
-                buildRpcResultFuture(SecurityZoneTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
+    buildRpcResultFuture(SecurityZoneTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
 
         responseBuilder.setResponseCode("404");
         responseBuilder.setResponseMessage(responseMessage);
@@ -1786,7 +1786,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private void trySetResponseMessage(TunnelxconnTopologyOperationOutputBuilder responseBuilder, ResponseObject error) {
+    private void trySetResponseMessage(TunnelxconnTopologyOperationOutputBuilder responseBuilder,
+        ResponseObject error) {
         if (!error.getMessage().isEmpty()) {
             responseBuilder.setResponseMessage(error.getMessage());
         }
@@ -2087,7 +2088,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         if (respProps != null) {
             error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
             error.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
-           return respProps.getProperty(ACK_FINAL_PARAM, "Y");
+            return respProps.getProperty(ACK_FINAL_PARAM, "Y");
         }
         return "Y";
     }

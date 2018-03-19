@@ -22,7 +22,6 @@
 package org.onap.sdnc.northbound;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
@@ -40,8 +39,6 @@ import static org.onap.sdnc.northbound.util.MDSALUtil.serviceStatus;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceTopologyOperationInput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceTopologyOperationOutput;
 
-import javax.xml.crypto.Data;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,8 +57,6 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.information.ServiceInformation;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.model.infrastructure.Service;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatus;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 
@@ -71,16 +66,13 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderTest {
 
-
     final String SVC_OPERATION = "service-topology-operation";
-
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
         svcClient.setScvOperation(SVC_OPERATION);
     }
-
 
     /**
      * Verify  ServiceTopologyOperation RPC executes a DG then produces the expected {@link
@@ -122,18 +114,18 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
     }
 
     @Test
-    public void serviceTopologyOperation_should_fail_when_service_info_not_present() throws Exception {
+    public void should_fail_when_service_info_not_present() throws Exception {
         // create the ServiceTopologyOperationInput from the template
         ServiceTopologyOperationInput input = build(
             serviceTopologyOperationInput()
                 .setSdncRequestHeader(build(sdncRequestHeader()
-                .setSvcRequestId("svc-request-id: xyz")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setRequestInformation(build(requestInformation()
-                .setRequestId("request-id: xyz")
-                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-            )));
+                    .setSvcRequestId("svc-request-id: xyz")
+                    .setSvcAction(SvcAction.Assign)
+                ))
+                .setRequestInformation(build(requestInformation()
+                    .setRequestId("request-id: xyz")
+                    .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
+                )));
 
         //execute the mdsal exec
         ServiceTopologyOperationOutput output = exec(
@@ -149,7 +141,7 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
 
 
     @Test
-    public void serviceTopologyOperation_should_fail_when_client_execution_failed() throws Exception {
+    public void should_fail_when_client_execution_failed() throws Exception {
         svcClient.mockHasGraph(true);
         svcClient.mockExecute(new RuntimeException("test exception"));
 
@@ -168,7 +160,7 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
     }
 
     @Test
-    public void serviceTopologyOperation_should_fail_when_client_has_no_graph() throws Exception {
+    public void should_fail_when_client_has_no_graph() throws Exception {
         svcClient.mockHasGraph(false);
 
         ServiceTopologyOperationInput input = createSTOI();
@@ -187,7 +179,7 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
 
 
     @Test
-    public void serviceTopologyOperation_should_fail_when_failed_to_update_mdsal() throws Exception {
+    public void should_fail_when_failed_to_update_mdsal() throws Exception {
 
         svcClient.mockHasGraph(true);
         WriteTransaction mockWriteTransaction = mock(WriteTransaction.class);
@@ -210,8 +202,6 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
         assertEquals("test exception", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
     }
-
-
 
     private ServiceTopologyOperationInput createSTOI() {
 
