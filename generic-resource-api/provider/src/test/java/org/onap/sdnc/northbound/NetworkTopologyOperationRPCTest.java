@@ -21,27 +21,13 @@
 
 package org.onap.sdnc.northbound;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.onap.sdnc.northbound.util.PropBuilder;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader.SvcAction;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceData;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.information.ServiceInformation;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.model.infrastructure.Service;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatus;
-import org.opendaylight.yangtools.yang.common.RpcResult;
-
-import java.time.Instant;
-
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
+import static org.onap.sdnc.northbound.GenericResourceApiProvider.INVALID_INPUT_ERROR_MESSAGE;
+import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
+import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
 import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.networkInformation;
@@ -56,10 +42,36 @@ import static org.onap.sdnc.northbound.util.MDSALUtil.serviceInformationBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceLevelOperStatus;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceResponseInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceStatus;
+import static org.onap.sdnc.northbound.util.MDSALUtil.vnfInformationBuilder;
+import static org.onap.sdnc.northbound.util.MDSALUtil.vnfTopologyOperationInput;
 import static org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.LastAction;
 import static org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.LastOrderStatus;
 import static org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.LastRpcAction;
 import static org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.OrderStatus;
+
+import java.time.Instant;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.onap.sdnc.northbound.util.PropBuilder;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainClosedException;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader.SvcAction;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceData;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.information.ServiceInformation;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.model.infrastructure.Service;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatus;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 
 
 /**
@@ -78,13 +90,115 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
         svcClient.setScvOperation(SVC_OPERATION);
     }
 
+    @Test
+    public void should_fail_when_service_instance_id_not_present() throws Exception {
+
+        NetworkTopologyOperationInput input = build(networkTopologyOperationInput());
+
+        NetworkTopologyOperationOutput output =
+            exec(genericResourceApiProvider::networkTopologyOperation, input, RpcResult::getResult);
+
+        assertEquals("404", output.getResponseCode());
+        assertEquals(NULL_OR_EMPTY_ERROR_PARAM, output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
+
+
+    @Test
+    public void should_fail_when_invalid_service_data() throws Exception {
+
+        NetworkTopologyOperationInput input = build(networkTopologyOperationInput()
+            .setServiceInformation(build(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id")
+            ))
+        );
+
+        NetworkTopologyOperationOutput output =
+            exec(genericResourceApiProvider::networkTopologyOperation, input, RpcResult::getResult);
+
+        assertEquals("404", output.getResponseCode());
+        assertEquals(INVALID_INPUT_ERROR_MESSAGE, output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
+
+
+    @Test
+    public void should_fail_when_client_execution_failed() throws Exception {
+
+        svcClient.mockHasGraph(true);
+        svcClient.mockExecute(new RuntimeException("test exception"));
+
+        NetworkTopologyOperationInput input = build(networkTopologyOperationInput()
+            .setServiceInformation(build(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id")
+            ))
+        );
+
+        persistServiceInDataBroker(input);
+
+        NetworkTopologyOperationOutput output =
+            exec(genericResourceApiProvider::networkTopologyOperation, input, RpcResult::getResult);
+
+        assertEquals("500", output.getResponseCode());
+        assertEquals("test exception", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
+
+    @Test
+    public void should_fail_when_client_has_no_graph() throws Exception {
+
+        svcClient.mockHasGraph(false);
+
+        NetworkTopologyOperationInput input = build(networkTopologyOperationInput()
+            .setServiceInformation(build(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id")
+            ))
+        );
+
+        persistServiceInDataBroker(input);
+
+        NetworkTopologyOperationOutput output =
+            exec(genericResourceApiProvider::networkTopologyOperation, input, RpcResult::getResult);
+
+        assertEquals("503", output.getResponseCode());
+        assertEquals(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + SVC_OPERATION + "'", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
+
+    @Test
+    public void should_fail_when_failed_to_update_mdsal() throws Exception {
+
+        PropBuilder svcResultProp = svcClient.createExecuteOKResult();
+        svcClient.mockExecute(svcResultProp);
+        svcClient.mockHasGraph(true);
+        WriteTransaction mockWriteTransaction = mock(WriteTransaction.class);
+        when(mockWriteTransaction.submit()).thenThrow(new TransactionChainClosedException("test exception"));
+
+        DataBroker spyDataBroker = Mockito.spy(dataBroker);
+        when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);
+        genericResourceApiProvider.setDataBroker(spyDataBroker);
+
+        NetworkTopologyOperationInput input = build(networkTopologyOperationInput()
+            .setServiceInformation(build(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id")
+            ))
+        );
+
+        persistServiceInDataBroker(input);
+        NetworkTopologyOperationOutput output =
+            exec(genericResourceApiProvider::networkTopologyOperation, input, RpcResult::getResult);
+
+        assertEquals("500", output.getResponseCode());
+        assertEquals("test exception", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
 
     /**
      * Verify  ServiceTopologyOperation RPC executes a DG then produces the expected
      * {@link NetworkTopologyOperationOutput} and persisted the expected {@link Service} in the {@link DataBroker}
      */
     @Test
-    public void testNetworkTopologyOperation() throws Exception {
+    public void should_success_when_no_errors_encountered() throws Exception {
 
         //mock svcClient to perform a successful execution with the expected parameters
         svcClient.mockHasGraph(true);
@@ -134,20 +248,20 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
 
         return build(
                 networkTopologyOperationInput()
-                        .setSdncRequestHeader(build(sdncRequestHeader()
-                                .setSvcRequestId("svc-request-id: xyz")
-                                .setSvcAction(SvcAction.Assign)
-                        ))
-                        .setRequestInformation(build(requestInformation()
-                                .setRequestId("request-id: xyz")
-                                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-                        ))
-                        .setServiceInformation(build(serviceInformationBuilder()
-                                .setServiceInstanceId("service-instance-id: xyz")
-                        ))
-                        .setNetworkInformation(build(
-                                networkInformation()
-                        ))
+                    .setSdncRequestHeader(build(sdncRequestHeader()
+                        .setSvcRequestId("svc-request-id: xyz")
+                        .setSvcAction(SvcAction.Assign)
+                    ))
+                    .setRequestInformation(build(requestInformation()
+                        .setRequestId("request-id: xyz")
+                        .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
+                    ))
+                    .setServiceInformation(build(serviceInformationBuilder()
+                        .setServiceInstanceId("service-instance-id: xyz")
+                    ))
+                    .setNetworkInformation(build(
+                        networkInformation()
+                    ))
         );
     }
 

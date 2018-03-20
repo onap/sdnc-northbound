@@ -61,7 +61,8 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
 
         VnfTopologyOperationInput input = build(vnfTopologyOperationInput()
             .setServiceInformation(build(serviceInformationBuilder().
-                setServiceInstanceId("test-service-instance-id")))
+                setServiceInstanceId("test-service-instance-id")
+            ))
         );
 
         VnfTopologyOperationOutput output =
@@ -81,9 +82,11 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
 
         VnfTopologyOperationInput input = build(vnfTopologyOperationInput()
             .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")))
+                .setServiceInstanceId("test-service-instance-id")
+            ))
             .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")))
+                .setVnfId("test-vnf-id")
+            ))
         );
 
         VnfTopologyOperationOutput output =
@@ -101,9 +104,11 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
 
         VnfTopologyOperationInput input = build(vnfTopologyOperationInput()
             .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")))
+                .setServiceInstanceId("test-service-instance-id")
+            ))
             .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")))
+                .setVnfId("test-vnf-id")
+            ))
         );
 
         VnfTopologyOperationOutput output =
@@ -129,9 +134,11 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
 
         VnfTopologyOperationInput input = build(vnfTopologyOperationInput()
             .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")))
+                .setServiceInstanceId("test-service-instance-id")
+            ))
             .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")))
+                .setVnfId("test-vnf-id")
+            ))
         );
 
         VnfTopologyOperationOutput output =
@@ -159,10 +166,11 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
                 .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
             ))
             .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")))
+                .setServiceInstanceId("test-service-instance-id")
+            ))
             .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")))
-
+                .setVnfId("test-vnf-id")
+            ))
         );
 
         VnfTopologyOperationOutput output =
