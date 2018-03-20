@@ -1322,7 +1322,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         final String svcOperation = "contrail-route-topology-operation";
         ServiceData serviceData;
         ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
-        Properties parms = new Properties();
+        Properties properties = new Properties();
 
         log.info(CALLED_STR, svcOperation);
         // create a new response object
@@ -1349,7 +1349,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         log.info("Adding INPUT data for " + svcOperation + " [" + siid + "] input: " + input);
         ContrailRouteTopologyOperationInputBuilder inputBuilder = new ContrailRouteTopologyOperationInputBuilder(input);
-        GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+        GenericResourceApiUtil.toProperties(properties, inputBuilder.build());
 
         // Call SLI sync method
         // Get SvcLogicService reference
@@ -1358,7 +1358,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         String allottedResourceId = ERROR_NETWORK_ID;
         String serviceObjectPath = null;
         String contrailRouteObjectPath = null;
-        Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
+        Properties respProps = tryGetProperties(svcOperation, properties, serviceDataBuilder, error);
 
         if (respProps != null) {
             error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
@@ -1410,7 +1410,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         } catch (IllegalStateException e) {
             log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
             responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
+            responseBuilder.setResponseMessage(e.getMessage());
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 

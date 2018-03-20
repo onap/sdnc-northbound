@@ -24,6 +24,8 @@ package org.onap.sdnc.northbound.util;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationInputBuilder;
@@ -74,6 +76,14 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
  * </pre>
  */
 public class MDSALUtil {
+
+    public static ContrailRouteTopologyOperationInputBuilder contrailRouteTopologyOperationInput() {
+        return new ContrailRouteTopologyOperationInputBuilder();
+    }
+
+    public static ContrailRouteTopologyOperationOutputBuilder contrailRouteTopologyOperationOutput() {
+        return new ContrailRouteTopologyOperationOutputBuilder();
+    }
 
     public static VfModuleTopologyOperationInputBuilder vfModuleTopologyOperationInput() {
         return new VfModuleTopologyOperationInputBuilder();
