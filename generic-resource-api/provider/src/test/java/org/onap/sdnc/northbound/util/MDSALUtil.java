@@ -28,6 +28,8 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VfModuleTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VfModuleTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.information.NetworkInformationBuilder;
@@ -40,6 +42,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.model.infrastructure.ServiceBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.response.information.ServiceResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatusBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vf.module.information.VfModuleInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.information.VnfInformationBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -71,6 +74,14 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
  * </pre>
  */
 public class MDSALUtil {
+
+    public static VfModuleTopologyOperationInputBuilder vfModuleTopologyOperationInput() {
+        return new VfModuleTopologyOperationInputBuilder();
+    }
+
+    public static VfModuleTopologyOperationOutputBuilder vfModuleTopologyOperationOutput() {
+        return new VfModuleTopologyOperationOutputBuilder();
+    }
 
     public static VnfTopologyOperationInputBuilder vnfTopologyOperationInput() {
         return new VnfTopologyOperationInputBuilder();
@@ -110,6 +121,9 @@ public class MDSALUtil {
         return new VnfInformationBuilder();
     }
 
+    public static VfModuleInformationBuilder vfModuleInformationBuilder() {
+        return new VfModuleInformationBuilder();
+    }
 
     public static ServiceBuilder service() {
         return new ServiceBuilder();

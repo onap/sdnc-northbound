@@ -950,7 +950,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             return Futures.immediateFuture(rpcResult);
         }
 
-        if (hasInvalidVfModule(input)) {
+        if (hasInvalidVfModuleId(input)) {
             log.debug("exiting {} because of null or empty vf-module-id", svcOperation);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, vf-module-id is null or empty");
@@ -1007,25 +1007,25 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Call SLI sync method
         // Get SvcLogicService reference
 
-        ResponseObject error = new ResponseObject("200", "");
+        ResponseObject responseObject = new ResponseObject("200", "");
         String ackFinal = "Y";
         String serviceObjectPath = null;
-        Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, error);
+        Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, responseObject);
 
         if (respProps != null) {
-            error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
-            error.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
+            responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
+            responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
             serviceObjectPath = respProps.getProperty("vf-module-object-path");
         }
 
-        setServiceStatus(serviceStatusBuilder, error.getStatusCode(), error.getMessage(), ackFinal);
+        setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);
         serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
         serviceStatusBuilder.setRpcName(svcOperation);
 
-        if (failed(error)) {
-            responseBuilder.setResponseCode(error.getStatusCode());
-            responseBuilder.setResponseMessage(error.getStatusCode());
+        if (failed(responseObject)) {
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
 
             ServiceBuilder serviceBuilder = new ServiceBuilder();
@@ -1069,7 +1069,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         } catch (Exception e) {
             log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
             responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
+            responseBuilder.setResponseMessage(e.getMessage());
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
@@ -1082,9 +1082,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
 
         // Update succeeded
-        responseBuilder.setResponseCode(error.getStatusCode());
+        responseBuilder.setResponseCode(responseObject.getStatusCode());
         responseBuilder.setAckFinalIndicator(ackFinal);
-        trySetResponseMessage(responseBuilder, error);
+        trySetResponseMessage(responseBuilder, responseObject);
         log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
@@ -1121,7 +1121,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    private boolean hasInvalidVfModule(VfModuleTopologyOperationInput input) {
+    private boolean hasInvalidVfModuleId(VfModuleTopologyOperationInput input) {
         return input.getVfModuleInformation() == null || input.getVfModuleInformation().getVfModuleId() == null
             || input.getVfModuleInformation().getVfModuleId().length() == 0;
     }
