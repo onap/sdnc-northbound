@@ -8,12 +8,12 @@ import static org.onap.sdnc.northbound.GenericResourceApiProvider.INVALID_INPUT_
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
 import static org.onap.sdnc.northbound.util.MDSALUtil.build;
-import static org.onap.sdnc.northbound.util.MDSALUtil.contrailRouteResponseInformation;
-import static org.onap.sdnc.northbound.util.MDSALUtil.contrailRouteTopologyOperationInput;
-import static org.onap.sdnc.northbound.util.MDSALUtil.contrailRouteTopologyOperationOutput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
+import static org.onap.sdnc.northbound.util.MDSALUtil.securityZoneResponseInformation;
+import static org.onap.sdnc.northbound.util.MDSALUtil.securityZoneTopologyOperationInput;
+import static org.onap.sdnc.northbound.util.MDSALUtil.securityZoneTopologyOperationOutput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.service;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceData;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceInformationBuilder;
@@ -32,12 +32,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainClosedException;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.LastAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.LastOrderStatus;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.LastRpcAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.OrderStatus;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.SecurityZoneTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.SecurityZoneTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader.SvcAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceData;
@@ -46,9 +46,10 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiProviderTest {
+public class SecurityZoneTopologyOperationRPCTest extends GenericResourceApiProviderTest {
 
-    private static final String SVC_OPERATION = "contrail-route-topology-operation";
+
+    private static final String SVC_OPERATION = "security-zone-topology-operation";
 
 
     @Before
@@ -60,10 +61,10 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
     @Test
     public void should_fail_when_service_instance_id_not_present() throws Exception {
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput());
+        SecurityZoneTopologyOperationInput input = build(securityZoneTopologyOperationInput());
 
-        ContrailRouteTopologyOperationOutput output =
-            exec(genericResourceApiProvider::contrailRouteTopologyOperation, input, RpcResult::getResult);
+        SecurityZoneTopologyOperationOutput output =
+            exec(genericResourceApiProvider::securityZoneTopologyOperation, input, RpcResult::getResult);
 
         assertEquals("404", output.getResponseCode());
         assertEquals(NULL_OR_EMPTY_ERROR_PARAM, output.getResponseMessage());
@@ -74,7 +75,7 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
     @Test
     public void should_fail_when_invalid_service_data() throws Exception {
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput()
+        SecurityZoneTopologyOperationInput input = build(securityZoneTopologyOperationInput()
             .setSdncRequestHeader(build(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
                 .setSvcAction(SvcAction.Assign)
@@ -84,8 +85,8 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
             ))
         );
 
-        ContrailRouteTopologyOperationOutput output =
-            exec(genericResourceApiProvider::contrailRouteTopologyOperation, input, RpcResult::getResult);
+        SecurityZoneTopologyOperationOutput output =
+            exec(genericResourceApiProvider::securityZoneTopologyOperation, input, RpcResult::getResult);
 
         assertEquals("404", output.getResponseCode());
         assertEquals(INVALID_INPUT_ERROR_MESSAGE, output.getResponseMessage());
@@ -99,7 +100,7 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
         svcClient.mockHasGraph(true);
         svcClient.mockExecute(new RuntimeException("test exception"));
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput()
+        SecurityZoneTopologyOperationInput input = build(securityZoneTopologyOperationInput()
             .setSdncRequestHeader(build(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
                 .setSvcAction(SvcAction.Assign)
@@ -111,8 +112,8 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
 
         persistServiceInDataBroker(input);
 
-        ContrailRouteTopologyOperationOutput output =
-            exec(genericResourceApiProvider::contrailRouteTopologyOperation, input, RpcResult::getResult);
+        SecurityZoneTopologyOperationOutput output =
+            exec(genericResourceApiProvider::securityZoneTopologyOperation, input, RpcResult::getResult);
 
         assertEquals("500", output.getResponseCode());
         assertEquals("test exception", output.getResponseMessage());
@@ -124,7 +125,7 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
 
         svcClient.mockHasGraph(false);
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput()
+        SecurityZoneTopologyOperationInput input = build(securityZoneTopologyOperationInput()
             .setSdncRequestHeader(build(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
                 .setSvcAction(SvcAction.Assign)
@@ -136,8 +137,8 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
 
         persistServiceInDataBroker(input);
 
-        ContrailRouteTopologyOperationOutput output =
-            exec(genericResourceApiProvider::contrailRouteTopologyOperation, input, RpcResult::getResult);
+        SecurityZoneTopologyOperationOutput output =
+            exec(genericResourceApiProvider::securityZoneTopologyOperation, input, RpcResult::getResult);
 
         assertEquals("503", output.getResponseCode());
         assertEquals(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + SVC_OPERATION + "'", output.getResponseMessage());
@@ -157,7 +158,7 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
         when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);
         genericResourceApiProvider.setDataBroker(spyDataBroker);
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput()
+        SecurityZoneTopologyOperationInput input = build(securityZoneTopologyOperationInput()
             .setSdncRequestHeader(build(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
                 .setSvcAction(SvcAction.Assign)
@@ -169,24 +170,23 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
 
         persistServiceInDataBroker(input);
 
-        ContrailRouteTopologyOperationOutput output =
-            exec(genericResourceApiProvider::contrailRouteTopologyOperation, input, RpcResult::getResult);
+        SecurityZoneTopologyOperationOutput output =
+            exec(genericResourceApiProvider::securityZoneTopologyOperation, input, RpcResult::getResult);
 
         assertEquals("500", output.getResponseCode());
         assertEquals("test exception", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
     }
 
-
     @Test
     public void should_success_when_no_errors_encountered() throws Exception {
 
         svcClient.mockHasGraph(true);
         PropBuilder svcResultProp = svcClient.createExecuteOKResult();
-        svcResultProp.set("contrail-route-object-path", "contrailRouteObjectPath: XYZ");
+        svcResultProp.set("security-zone-object-path", "securityZoneObjectPath: XYZ");
         svcClient.mockExecute(svcResultProp);
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput()
+        SecurityZoneTopologyOperationInput input = build(securityZoneTopologyOperationInput()
             .setSdncRequestHeader(build(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
                 .setSvcAction(SvcAction.Assign)
@@ -202,14 +202,14 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
 
         Service service = persistServiceInDataBroker(input);
 
-        ContrailRouteTopologyOperationOutput output =
-            exec(genericResourceApiProvider::contrailRouteTopologyOperation, input, RpcResult::getResult);
+        SecurityZoneTopologyOperationOutput output =
+            exec(genericResourceApiProvider::securityZoneTopologyOperation, input, RpcResult::getResult);
 
         assertEquals("200", output.getResponseCode());
         assertEquals("OK", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
 
-        ContrailRouteTopologyOperationOutput expectedOutput = createExpectedOutput(svcResultProp, input);
+        SecurityZoneTopologyOperationOutput expectedOutput = createExpectedOutput(svcResultProp, input);
         assertEquals(expectedOutput, output);
 
         Service actualService = db
@@ -219,7 +219,7 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
         assertEquals(expectedService, actualService);
     }
 
-    private Service persistServiceInDataBroker(ContrailRouteTopologyOperationInput input) throws Exception {
+    private Service persistServiceInDataBroker(SecurityZoneTopologyOperationInput input) throws Exception {
 
         Service service = build(service()
             .setServiceInstanceId(input.getServiceInformation().getServiceInstanceId())
@@ -239,12 +239,12 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
         return service;
     }
 
-    private ContrailRouteTopologyOperationOutput createExpectedOutput(PropBuilder propBuilder,
-        ContrailRouteTopologyOperationInput input) {
+    private SecurityZoneTopologyOperationOutput createExpectedOutput(PropBuilder propBuilder,
+        SecurityZoneTopologyOperationInput input) {
 
-        return build(contrailRouteTopologyOperationOutput()
-            .setContrailRouteResponseInformation(build(contrailRouteResponseInformation()
-                .setObjectPath(propBuilder.get("contrail-route-object-path"))))
+        return build(securityZoneTopologyOperationOutput()
+            .setSecurityZoneResponseInformation(build(securityZoneResponseInformation()
+                .setObjectPath(propBuilder.get("security-zone-object-path"))))
             .setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId())
             .setResponseCode(propBuilder.get(svcClient.errorCode))
             .setAckFinalIndicator(propBuilder.get(svcClient.ackFinal))
@@ -257,7 +257,7 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
     }
 
     private Service createExpectedService(
-        ContrailRouteTopologyOperationInput expectedInput, ServiceData expectedServiceData) {
+        SecurityZoneTopologyOperationInput expectedInput, ServiceData expectedServiceData) {
 
         ServiceInformation expectedServiceInformation = expectedInput.getServiceInformation();
 
@@ -268,4 +268,5 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
             .setServiceStatus(build(serviceStatus()))
         );
     }
+
 }

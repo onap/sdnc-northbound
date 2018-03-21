@@ -212,22 +212,20 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
         assertEquals("OK", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
 
-        VfModuleTopologyOperationOutput expectedOutput = createExpectedVMTOO(svcResultProp,
-            input);
+        VfModuleTopologyOperationOutput expectedOutput = createExpectedVMTOO(svcResultProp, input);
         assertEquals(expectedOutput, output);
     }
 
     private VfModuleTopologyOperationOutput createExpectedVMTOO(PropBuilder propBuilder,
         VfModuleTopologyOperationInput input) {
-        return build(
-            vfModuleTopologyOperationOutput()
+        return build(vfModuleTopologyOperationOutput()
                 .setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId())
                 .setResponseCode(propBuilder.get(svcClient.errorCode))
                 .setAckFinalIndicator(propBuilder.get(svcClient.ackFinal))
                 .setResponseMessage(propBuilder.get(svcClient.errorMessage))
                 .setServiceResponseInformation(build(serviceResponseInformation()
                     .setInstanceId(input.getServiceInformation().getServiceInstanceId())
-                    .setObjectPath(propBuilder.get("vnf-object-path"))
+                    .setObjectPath(propBuilder.get(svcClient.serviceObjectPath))
                 ))
         );
     }

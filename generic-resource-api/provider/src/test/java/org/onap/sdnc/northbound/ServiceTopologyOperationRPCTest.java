@@ -87,26 +87,30 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
         svcClient.mockExecute(svcResultProp);
 
         // create the ServiceTopologyOperationInput from the template
-        ServiceTopologyOperationInput serviceTopologyOperationInput = createSTOI();
+        ServiceTopologyOperationInput input = createSTOI();
 
         //execute the mdsal exec
-        ServiceTopologyOperationOutput actualServiceTopologyOperationOutput = exec(
+        ServiceTopologyOperationOutput output = exec(
             genericResourceApiProvider::serviceTopologyOperation
-            , serviceTopologyOperationInput
+            , input
             , RpcResult::getResult
         );
 
+        assertEquals("200", output.getResponseCode());
+        assertEquals("OK", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+
         //verify the returned ServiceTopologyOperationOutput
         ServiceTopologyOperationOutput expectedServiceTopologyOperationOutput = createExpectedSTOO(svcResultProp,
-            serviceTopologyOperationInput);
-        assertEquals(expectedServiceTopologyOperationOutput, actualServiceTopologyOperationOutput);
+            input);
+        assertEquals(expectedServiceTopologyOperationOutput, output);
 
         //verify the persisted Service
-        Service actualService = db.read(serviceTopologyOperationInput.getServiceInformation().getServiceInstanceId(),
+        Service actualService = db.read(input.getServiceInformation().getServiceInstanceId(),
             LogicalDatastoreType.CONFIGURATION);
         Service expectedService = createExpectedService(
             expectedServiceTopologyOperationOutput,
-            serviceTopologyOperationInput,
+            input,
             actualService);
         assertEquals(expectedService, actualService);
 

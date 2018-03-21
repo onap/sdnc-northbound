@@ -42,8 +42,6 @@ import static org.onap.sdnc.northbound.util.MDSALUtil.serviceInformationBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceLevelOperStatus;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceResponseInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceStatus;
-import static org.onap.sdnc.northbound.util.MDSALUtil.vnfInformationBuilder;
-import static org.onap.sdnc.northbound.util.MDSALUtil.vnfTopologyOperationInput;
 import static org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.LastAction;
 import static org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.LastOrderStatus;
 import static org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.OperStatusData.LastRpcAction;
@@ -62,8 +60,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainClosedException;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader.SvcAction;
@@ -194,8 +190,8 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
     }
 
     /**
-     * Verify  ServiceTopologyOperation RPC executes a DG then produces the expected
-     * {@link NetworkTopologyOperationOutput} and persisted the expected {@link Service} in the {@link DataBroker}
+     * Verify  ServiceTopologyOperation RPC executes a DG then produces the expected {@link
+     * NetworkTopologyOperationOutput} and persisted the expected {@link Service} in the {@link DataBroker}
      */
     @Test
     public void should_success_when_no_errors_encountered() throws Exception {
@@ -205,155 +201,146 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
         PropBuilder svcResultProp = svcClient.createExecuteOKResult();
         svcClient.mockExecute(svcResultProp);
 
-
         //construct the input parameter for the NetworkTopologyOperation
-        NetworkTopologyOperationInput networkTopologyOperationInput = createNTOI();
-
+        NetworkTopologyOperationInput input = createNTOI();
 
         //pre-populate the DataBroke with the required ServiceData.
-        Service service = persistServiceInDataBroker(networkTopologyOperationInput);
-
-
+        Service service = persistServiceInDataBroker(input);
 
         //execute the mdsal exec
-        NetworkTopologyOperationOutput actualNetworkTopologyOperationOutput = exec(
-                genericResourceApiProvider::networkTopologyOperation
-                , networkTopologyOperationInput
-                , RpcResult::getResult
+        NetworkTopologyOperationOutput output = exec(
+            genericResourceApiProvider::networkTopologyOperation
+            , input
+            , RpcResult::getResult
         );
+
+        assertEquals("200", output.getResponseCode());
+        assertEquals("OK", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
 
         //verify the returned NetworkTopologyOperationOutput
         NetworkTopologyOperationOutput expectedNetworkTopologyOperationOutput
-                = createExpectedNTOO(svcResultProp,networkTopologyOperationInput);
-        assertEquals(expectedNetworkTopologyOperationOutput,actualNetworkTopologyOperationOutput);
-
+            = createExpectedNTOO(svcResultProp, input);
+        assertEquals(expectedNetworkTopologyOperationOutput, output);
 
         //verify the persisted Service
         Service actualService = db.read(
-                networkTopologyOperationInput.getServiceInformation().getServiceInstanceId(),
-                LogicalDatastoreType.CONFIGURATION
+            input.getServiceInformation().getServiceInstanceId(),
+            LogicalDatastoreType.CONFIGURATION
         );
         Service expectedService = createExpectedService(
-                expectedNetworkTopologyOperationOutput,
-                networkTopologyOperationInput,
-                service.getServiceData(),
-                actualService);
-        assertEquals(expectedService,actualService);
+            expectedNetworkTopologyOperationOutput,
+            input,
+            service.getServiceData(),
+            actualService);
+        assertEquals(expectedService, actualService);
 
     }
 
 
-    private NetworkTopologyOperationInput createNTOI()
-    {
+    private NetworkTopologyOperationInput createNTOI() {
 
         return build(
-                networkTopologyOperationInput()
-                    .setSdncRequestHeader(build(sdncRequestHeader()
-                        .setSvcRequestId("svc-request-id: xyz")
-                        .setSvcAction(SvcAction.Assign)
-                    ))
-                    .setRequestInformation(build(requestInformation()
-                        .setRequestId("request-id: xyz")
-                        .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-                    ))
-                    .setServiceInformation(build(serviceInformationBuilder()
-                        .setServiceInstanceId("service-instance-id: xyz")
-                    ))
-                    .setNetworkInformation(build(
-                        networkInformation()
-                    ))
+            networkTopologyOperationInput()
+                .setSdncRequestHeader(build(sdncRequestHeader()
+                    .setSvcRequestId("svc-request-id: xyz")
+                    .setSvcAction(SvcAction.Assign)
+                ))
+                .setRequestInformation(build(requestInformation()
+                    .setRequestId("request-id: xyz")
+                    .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
+                ))
+                .setServiceInformation(build(serviceInformationBuilder()
+                    .setServiceInstanceId("service-instance-id: xyz")
+                ))
+                .setNetworkInformation(build(
+                    networkInformation()
+                ))
         );
     }
 
     private Service persistServiceInDataBroker(
-            NetworkTopologyOperationInput networkTopologyOperationInput
-    ) throws Exception{
+        NetworkTopologyOperationInput networkTopologyOperationInput
+    ) throws Exception {
         Service service = build(
-                service()
-                        .setServiceInstanceId(
-                                networkTopologyOperationInput.getServiceInformation().getServiceInstanceId()
-                        )
-                        .setServiceData(build(
-                                serviceData()
-                                        .setServiceLevelOperStatus(build(
-                                                serviceLevelOperStatus()
-                                                        .setOrderStatus(OrderStatus.Created)
-                                                        .setModifyTimestamp(Instant.now().toString())
-                                                        .setLastSvcRequestId("svc-request-id: abc")
-                                                        .setLastRpcAction(LastRpcAction.Activate)
-                                                        .setLastOrderStatus(LastOrderStatus.PendingAssignment)
-                                                        .setLastAction(LastAction.ActivateNetworkInstance)
-                                                        .setCreateTimestamp(Instant.now().toString())
-                                        ))
+            service()
+                .setServiceInstanceId(
+                    networkTopologyOperationInput.getServiceInformation().getServiceInstanceId()
+                )
+                .setServiceData(build(
+                    serviceData()
+                        .setServiceLevelOperStatus(build(
+                            serviceLevelOperStatus()
+                                .setOrderStatus(OrderStatus.Created)
+                                .setModifyTimestamp(Instant.now().toString())
+                                .setLastSvcRequestId("svc-request-id: abc")
+                                .setLastRpcAction(LastRpcAction.Activate)
+                                .setLastOrderStatus(LastOrderStatus.PendingAssignment)
+                                .setLastAction(LastAction.ActivateNetworkInstance)
+                                .setCreateTimestamp(Instant.now().toString())
                         ))
+                ))
 
         );
-        db.write(true,service, LogicalDatastoreType.CONFIGURATION);
+        db.write(true, service, LogicalDatastoreType.CONFIGURATION);
         return service;
     }
 
 
-
-
-
-
     private NetworkTopologyOperationOutput createExpectedNTOO(
-            PropBuilder expectedSvcResultProp,
-            NetworkTopologyOperationInput expectedNetworkTopologyOperationInput){
+        PropBuilder expectedSvcResultProp,
+        NetworkTopologyOperationInput expectedNetworkTopologyOperationInput) {
         return build(
-                networkTopologyOperationOutput()
-                        .setSvcRequestId(expectedNetworkTopologyOperationInput.getSdncRequestHeader().getSvcRequestId())
-                        .setResponseCode(expectedSvcResultProp.get(svcClient.errorCode))
-                        .setAckFinalIndicator(expectedSvcResultProp.get(svcClient.ackFinal))
-                        .setResponseMessage(expectedSvcResultProp.get(svcClient.errorMessage))
-                        .setServiceResponseInformation(build(serviceResponseInformation()
-                                .setInstanceId(expectedNetworkTopologyOperationInput.getServiceInformation().getServiceInstanceId())
-                                .setObjectPath(expectedSvcResultProp.get(svcClient.serviceObjectPath))
-                        ))
-                        .setNetworkResponseInformation(build(
-                                networkResponseInformation()
-                                .setInstanceId(expectedSvcResultProp.get(svcClient.networkId))
-                                .setObjectPath(expectedSvcResultProp.get(svcClient.networkObjectPath))
-                        ))
+            networkTopologyOperationOutput()
+                .setSvcRequestId(expectedNetworkTopologyOperationInput.getSdncRequestHeader().getSvcRequestId())
+                .setResponseCode(expectedSvcResultProp.get(svcClient.errorCode))
+                .setAckFinalIndicator(expectedSvcResultProp.get(svcClient.ackFinal))
+                .setResponseMessage(expectedSvcResultProp.get(svcClient.errorMessage))
+                .setServiceResponseInformation(build(serviceResponseInformation()
+                    .setInstanceId(expectedNetworkTopologyOperationInput.getServiceInformation().getServiceInstanceId())
+                    .setObjectPath(expectedSvcResultProp.get(svcClient.serviceObjectPath))
+                ))
+                .setNetworkResponseInformation(build(
+                    networkResponseInformation()
+                        .setInstanceId(expectedSvcResultProp.get(svcClient.networkId))
+                        .setObjectPath(expectedSvcResultProp.get(svcClient.networkObjectPath))
+                ))
         );
     }
 
     private Service createExpectedService(
-            NetworkTopologyOperationOutput expectedNetworkTopologyOperationOutput,
-            NetworkTopologyOperationInput expectedNetworkTopologyOperationInput,
-            ServiceData expectedServiceData,
-            Service actualService
-    ){
-
+        NetworkTopologyOperationOutput expectedNetworkTopologyOperationOutput,
+        NetworkTopologyOperationInput expectedNetworkTopologyOperationInput,
+        ServiceData expectedServiceData,
+        Service actualService
+    ) {
 
         //We cannot predict the timeStamp value so just steal it from the actual
         //we need this to prevent the equals method from returning false as a result of the timestamp
-        String responseTimeStamp = actualService == null || actualService.getServiceStatus() == null?
-                null : actualService.getServiceStatus().getResponseTimestamp();
+        String responseTimeStamp = actualService == null || actualService.getServiceStatus() == null ?
+            null : actualService.getServiceStatus().getResponseTimestamp();
 
         SdncRequestHeader expectedSdncRequestHeader = expectedNetworkTopologyOperationInput.getSdncRequestHeader();
         ServiceInformation expectedServiceInformation = expectedNetworkTopologyOperationInput.getServiceInformation();
         RequestInformation expectedRequestInformation = expectedNetworkTopologyOperationInput.getRequestInformation();
 
         return build(
-                service()
-                        .setServiceInstanceId(expectedServiceInformation.getServiceInstanceId())
-                        .setServiceData(build(serviceData()))
-                        .setServiceData(expectedServiceData)
-                        .setServiceStatus(
-                                build(
-                                        serviceStatus()
-                                )
-                        )
+            service()
+                .setServiceInstanceId(expectedServiceInformation.getServiceInstanceId())
+                .setServiceData(build(serviceData()))
+                .setServiceData(expectedServiceData)
+                .setServiceStatus(
+                    build(
+                        serviceStatus()
+                    )
+                )
         );
 
     }
 
-    public ServiceStatus.RpcAction toRpcAction(SvcAction fromEnum){
-        return fromEnum == null? null : ServiceStatus.RpcAction.valueOf(fromEnum.name());
+    public ServiceStatus.RpcAction toRpcAction(SvcAction fromEnum) {
+        return fromEnum == null ? null : ServiceStatus.RpcAction.valueOf(fromEnum.name());
     }
-
-
 
 
 }

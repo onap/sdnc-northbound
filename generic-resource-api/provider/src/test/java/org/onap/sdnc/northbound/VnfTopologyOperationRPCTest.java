@@ -13,6 +13,7 @@ import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceInformationBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceResponseInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vnfInformationBuilder;
+import static org.onap.sdnc.northbound.util.MDSALUtil.vnfResponseInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vnfTopologyOperationInput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vnfTopologyOperationOutput;
 
@@ -180,22 +181,22 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
         assertEquals("OK", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
 
-        VnfTopologyOperationOutput expectedVnfTopologyOperationOutput = createExpectedVTOO(svcResultProp,
+        VnfTopologyOperationOutput expectedVnfTopologyOperationOutput = createExpectedOutput(svcResultProp,
             input);
         assertEquals(expectedVnfTopologyOperationOutput, output);
     }
 
-    private VnfTopologyOperationOutput createExpectedVTOO(PropBuilder expectedSvcResultProp,
+    private VnfTopologyOperationOutput createExpectedOutput(PropBuilder svcResultProp,
         VnfTopologyOperationInput vnfTopologyOperationInput) {
         return build(
             vnfTopologyOperationOutput()
                 .setSvcRequestId(vnfTopologyOperationInput.getSdncRequestHeader().getSvcRequestId())
-                .setResponseCode(expectedSvcResultProp.get(svcClient.errorCode))
-                .setAckFinalIndicator(expectedSvcResultProp.get(svcClient.ackFinal))
-                .setResponseMessage(expectedSvcResultProp.get(svcClient.errorMessage))
+                .setResponseCode(svcResultProp.get(svcClient.errorCode))
+                .setAckFinalIndicator(svcResultProp.get(svcClient.ackFinal))
+                .setResponseMessage(svcResultProp.get(svcClient.errorMessage))
                 .setServiceResponseInformation(build(serviceResponseInformation()
                     .setInstanceId(vnfTopologyOperationInput.getServiceInformation().getServiceInstanceId())
-                    .setObjectPath(expectedSvcResultProp.get("vnf-object-path"))
+                    .setObjectPath(svcResultProp.get(svcClient.serviceObjectPath))
                 ))
         );
     }

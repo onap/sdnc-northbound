@@ -786,7 +786,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
-            serviceObjectPath = respProps.getProperty("vnf-object-path");
+
+            //FIXME if needed
+            /*before was "vfn-object-path", but it didn't make sense, since everywhere else,
+              when extracting service object path the "service-object-path" property is used*/
+            serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
         }
 
         setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);
@@ -1016,7 +1020,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
             responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
-            serviceObjectPath = respProps.getProperty("vf-module-object-path");
+
+
+            //FIXME if needed
+            /*before was "vf-module-object-path", but it didnt make sense, since everywhere else,
+              when extracting service object path the "service-object-path" property is used*/
+            serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
         }
 
         setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);
@@ -1526,7 +1535,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         Properties respProps = null;
 
-        ResponseObject error = new ResponseObject("200", "");
+        ResponseObject responseObject = new ResponseObject("200", "");
         String ackFinal = "Y";
         String allottedResourceId = ERROR_NETWORK_ID;
         String serviceObjectPath = null;
@@ -1539,31 +1548,31 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                     respProps = svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", serviceDataBuilder, parms);
                 } catch (Exception e) {
                     log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-                    error.setMessage(e.getMessage());
-                    error.setStatusCode("500");
+                    responseObject.setMessage(e.getMessage());
+                    responseObject.setStatusCode("500");
                 }
             } else {
-                error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-                error.setStatusCode("503");
+                responseObject.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
+                responseObject.setStatusCode("503");
             }
         } catch (Exception e) {
-            error.setStatusCode("500");
-            error.setMessage(e.getMessage());
+            responseObject.setStatusCode("500");
+            responseObject.setMessage(e.getMessage());
             log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
         }
 
         if (respProps != null) {
-            error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
-            error.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
+            responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
+            responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
             allottedResourceId = respProps.getProperty(ALLOTTED_RESOURCE_ID_PARAM);
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
             securityZoneObjectPath = respProps.getProperty("security-zone-object-path");
         }
 
-        if (failed(error)) {
-            responseBuilder.setResponseCode(error.getStatusCode());
-            responseBuilder.setResponseMessage(error.getMessage());
+        if (failed(responseObject)) {
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
@@ -1603,7 +1612,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         } catch (IllegalStateException e) {
             log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
             responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
+            responseBuilder.setResponseMessage(e.getMessage());
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
@@ -1616,9 +1625,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
 
         // Update succeeded
-        responseBuilder.setResponseCode(error.getStatusCode());
+        responseBuilder.setResponseCode(responseObject.getStatusCode());
         responseBuilder.setAckFinalIndicator(ackFinal);
-        trySetResponseMessage(responseBuilder, error);
+        trySetResponseMessage(responseBuilder, responseObject);
         log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
