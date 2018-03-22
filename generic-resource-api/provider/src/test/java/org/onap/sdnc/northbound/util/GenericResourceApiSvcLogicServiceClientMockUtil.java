@@ -56,21 +56,24 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
     private final GenericResourceApiSvcLogicServiceClient mockGenericResourceApiSvcLogicServiceClient;
 
 
-
-    public GenericResourceApiSvcLogicServiceClientMockUtil(GenericResourceApiSvcLogicServiceClient mockGenericResourceApiSvcLogicServiceClient) {
+    public GenericResourceApiSvcLogicServiceClientMockUtil(
+        GenericResourceApiSvcLogicServiceClient mockGenericResourceApiSvcLogicServiceClient) {
         this.mockGenericResourceApiSvcLogicServiceClient = mockGenericResourceApiSvcLogicServiceClient;
     }
 
 
-    /** @param scvOperation -  The scvOperation parameter to use on the {@link GenericResourceApiSvcLogicServiceClient} methods */
+    /**
+     * @param scvOperation -  The scvOperation parameter to use on the {@link GenericResourceApiSvcLogicServiceClient}
+     * methods
+     */
     public void setScvOperation(String scvOperation) {
         this.scvOperation = scvOperation;
     }
 
     /**
-     * Configure {@link GenericResourceApiSvcLogicServiceClient#hasGraph(String, String, String, String)}
-     * to return the specified value when when invoked with the parameters
-     * {@link #MODULE}, {@link #MODE}, {@link #VERSION} and {@link #scvOperation}
+     * Configure {@link GenericResourceApiSvcLogicServiceClient#hasGraph(String, String, String, String)} to return the
+     * specified value when when invoked with the parameters {@link #MODULE}, {@link #MODE}, {@link #VERSION} and {@link
+     * #scvOperation}
      */
     public void mockHasGraph(Boolean isHasGraph) throws Exception {
         when(
@@ -85,29 +88,27 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
 
 
     /**
-     * @return
-     * PropBuilder - A PropBuilder populated with the expected properties returned from
-     * {@link GenericResourceApiSvcLogicServiceClient#execute(String, String, String, String, ServiceDataBuilder, Properties)}
+     * @return PropBuilder - A PropBuilder populated with the expected properties returned from {@link
+     * GenericResourceApiSvcLogicServiceClient#execute(String, String, String, String, ServiceDataBuilder, Properties)}
      */
-    public PropBuilder createExecuteOKResult(){
+    public PropBuilder createExecuteOKResult() {
         return propBuilder()
-                .set(errorCode,"200")
-                .set(errorMessage,"OK")
-                .set(ackFinal,"Y")
-                .set(serviceObjectPath,"serviceObjectPath: XYZ")
-                .set(networkObjectPath,"networkObjectPath: XYZ")
-                .set(networkId,"networkId: XYZ");
+            .set(errorCode, "200")
+            .set(errorMessage, "OK")
+            .set(ackFinal, "Y")
+            .set(serviceObjectPath, "serviceObjectPath: XYZ")
+            .set(networkObjectPath, "networkObjectPath: XYZ")
+            .set(networkId, "networkId: XYZ");
 
     }
 
 
     /**
-     * Configure
-     * {@link GenericResourceApiSvcLogicServiceClient#execute(String, String, String, String, ServiceDataBuilder, Properties)}
-     * to return the specified svcResultProp when when invoked with the parameters
+     * Configure {@link GenericResourceApiSvcLogicServiceClient#execute(String, String, String, String,
+     * ServiceDataBuilder, Properties)} to return the specified svcResultProp when when invoked with the parameters
      * {@link #MODULE}, {@link #MODE}, {@link #VERSION} and {@link #scvOperation}
      */
-    public void mockExecute(PropBuilder svcResultProp) throws Exception{
+    public void mockExecute(PropBuilder svcResultProp) throws Exception {
         when(
             mockGenericResourceApiSvcLogicServiceClient
                 .execute(
@@ -120,7 +121,7 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
         ).thenReturn(build(svcResultProp));
     }
 
-    public void mockExecute(RuntimeException exception) throws Exception{
+    public void mockExecute(RuntimeException exception) throws Exception {
         when(
             mockGenericResourceApiSvcLogicServiceClient
                 .execute(
@@ -133,5 +134,32 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
                 )
         ).thenThrow(exception);
     }
+
+
+    public void mockExecuteWoServiceData(PropBuilder svcResultProp) throws Exception {
+        when(
+            mockGenericResourceApiSvcLogicServiceClient
+                .execute(
+                    eq(MODULE),
+                    eq(scvOperation),
+                    eq(VERSION),
+                    eq(MODE),
+                    isA(Properties.class))
+        ).thenReturn(build(svcResultProp));
+    }
+
+    public void mockExecuteWoServiceData(RuntimeException exception) throws Exception {
+        when(
+            mockGenericResourceApiSvcLogicServiceClient
+                .execute(
+                    eq(MODULE),
+                    eq(scvOperation),
+                    eq(VERSION),
+                    eq(MODE),
+                    isA(Properties.class)
+                )
+        ).thenThrow(exception);
+    }
+
 
 }

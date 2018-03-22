@@ -1722,25 +1722,25 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Call SLI sync method
         // Get SvcLogicService reference
-        ResponseObject error = new ResponseObject("200", "");
+        ResponseObject responseObject = new ResponseObject("200", "");
         String ackFinal = "Y";
         String allottedResourceId = ERROR_NETWORK_ID;
         String serviceObjectPath = null;
         String tunnelxconnObjectPath = null;
-        Properties respProps = tryGetProperties(svcOperation, parms, error);
+        Properties respProps = tryGetProperties(svcOperation, parms, responseObject);
 
         if (respProps != null) {
-            error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
-            error.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
+            responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
+            responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
             allottedResourceId = respProps.getProperty(ALLOTTED_RESOURCE_ID_PARAM);
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
             tunnelxconnObjectPath = respProps.getProperty("tunnelxconn-object-path");
         }
 
-        if (failed(error)) {
-            responseBuilder.setResponseCode(error.getStatusCode());
-            responseBuilder.setResponseMessage(error.getMessage());
+        if (failed(responseObject)) {
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
 
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
@@ -1781,9 +1781,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
 
         // Update succeeded
-        responseBuilder.setResponseCode(error.getStatusCode());
+        responseBuilder.setResponseCode(responseObject.getStatusCode());
         responseBuilder.setAckFinalIndicator(ackFinal);
-        trySetResponseMessage(responseBuilder, error);
+        trySetResponseMessage(responseBuilder, responseObject);
         log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
@@ -1808,7 +1808,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
-    private Properties tryGetProperties(String svcOperation, Properties parms, ResponseObject error) {
+    private Properties tryGetProperties(String svcOperation, Properties parms, ResponseObject responseObject) {
         try {
             if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
 
@@ -1816,16 +1816,16 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                     return svcLogicClient.execute(APP_NAME, svcOperation, null, "sync", parms);
                 } catch (Exception e) {
                     log.error(SERVICE_LOGIC_EXECUTION_ERROR_MESSAGE, svcOperation, e);
-                    error.setMessage(e.getMessage());
-                    error.setStatusCode("500");
+                    responseObject.setMessage(e.getMessage());
+                    responseObject.setStatusCode("500");
                 }
             } else {
-                error.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
-                error.setStatusCode("503");
+                responseObject.setMessage(NO_SERVICE_LOGIC_ACTIVE + APP_NAME + ": '" + svcOperation + "'");
+                responseObject.setStatusCode("503");
             }
         } catch (Exception e) {
-            error.setMessage(e.getMessage());
-            error.setStatusCode("500");
+            responseObject.setMessage(e.getMessage());
+            responseObject.setStatusCode("500");
             log.error(SERVICE_LOGIC_SEARCH_ERROR_MESSAGE, e);
         }
         return null;
