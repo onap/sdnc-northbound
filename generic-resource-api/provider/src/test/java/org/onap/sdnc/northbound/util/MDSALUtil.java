@@ -30,6 +30,10 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PreloadNetworkTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PreloadNetworkTopologyOperationOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PreloadVnfTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PreloadVnfTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.SecurityZoneTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.SecurityZoneTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationInputBuilder;
@@ -44,6 +48,8 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.contrail.route.response.information.ContrailRouteResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.information.NetworkInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.response.information.NetworkResponseInformationBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.topology.identifier.NetworkTopologyIdentifierBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.topology.information.NetworkTopologyInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeaderBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.security.zone.response.information.SecurityZoneResponseInformationBuilder;
@@ -57,6 +63,8 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vf.module.information.VfModuleInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.information.VnfInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.response.information.VnfResponseInformationBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.topology.identifier.VnfTopologyIdentifierBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.topology.information.VnfTopologyInformationBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
@@ -87,6 +95,22 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
  * </pre>
  */
 public class MDSALUtil {
+
+    public static PreloadVnfTopologyOperationInputBuilder preloadVnfTopologyOperationInput() {
+        return new PreloadVnfTopologyOperationInputBuilder();
+    }
+
+    public static PreloadVnfTopologyOperationOutputBuilder preloadVnfTopologyOperationOutput() {
+        return new PreloadVnfTopologyOperationOutputBuilder();
+    }
+
+    public static PreloadNetworkTopologyOperationInputBuilder preloadNetworkTopologyOperationInput() {
+        return new PreloadNetworkTopologyOperationInputBuilder();
+    }
+
+    public static PreloadNetworkTopologyOperationOutputBuilder preloadNetworkTopologyOperationOutput() {
+        return new PreloadNetworkTopologyOperationOutputBuilder();
+    }
 
     public static BrgTopologyOperationInputBuilder brgTopologyOperationInput() {
         return new BrgTopologyOperationInputBuilder();
@@ -180,6 +204,22 @@ public class MDSALUtil {
 
     public static ServiceInformationBuilder serviceInformationBuilder() {
         return new ServiceInformationBuilder();
+    }
+
+    public static VnfTopologyInformationBuilder vnfTopologyInformationBuilder() {
+        return new VnfTopologyInformationBuilder();
+    }
+
+    public static NetworkTopologyInformationBuilder networkTopologyInformationBuilder() {
+        return new NetworkTopologyInformationBuilder();
+    }
+
+    public static NetworkTopologyIdentifierBuilder networkTopologyIdentifierBuilder(){
+        return new NetworkTopologyIdentifierBuilder();
+    }
+
+    public static VnfTopologyIdentifierBuilder vnfTopologyIdentifierBuilder() {
+        return new VnfTopologyIdentifierBuilder();
     }
 
     public static VnfInformationBuilder vnfInformationBuilder() {

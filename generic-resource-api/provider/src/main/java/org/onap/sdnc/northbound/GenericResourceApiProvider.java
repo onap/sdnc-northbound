@@ -1979,7 +1979,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         String preloadType = input.getVnfTopologyInformation().getVnfTopologyIdentifier().getVnfType();
 
         // Make sure we have a preload_name and preload_type
-        if (isValidPreloadData(preloadName, preloadType)) {
+        if (invalidPreloadData(preloadName, preloadType)) {
             log.debug("exiting {} vnf-name or vnf-type is null or empty", svcOperation);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input: vnf-name or vnf-type is null or empty");
@@ -1993,7 +1993,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             return Futures.immediateFuture(rpcResult);
         }
 
-        this.trySetSvcRequestId(input, responseBuilder);
+        trySetSvcRequestId(input, responseBuilder);
 
         PreloadDataBuilder preloadDataBuilder = new PreloadDataBuilder();
         getPreloadData(preloadName, preloadType, preloadDataBuilder);
@@ -2024,14 +2024,14 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Call SLI sync method
         // Get SvcLogicService reference
-        ResponseObject error = new ResponseObject("200", "");
-        Properties respProps = tryGetProperties(svcOperation, parms, error);
-        String ackFinal = resolveAckFinal(error, respProps);
+        ResponseObject responseObject = new ResponseObject("200", "");
+        Properties respProps = tryGetProperties(svcOperation, parms, responseObject);
+        String ackFinal = resolveAckFinal(responseObject, respProps);
 
-        if (failed(error)) {
+        if (failed(responseObject)) {
 
-            responseBuilder.setResponseCode(error.getStatusCode());
-            responseBuilder.setResponseMessage(error.getMessage());
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
 
             VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
@@ -2039,7 +2039,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             preloadVnfListBuilder.setVnfType(preloadType);
             preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
             log.error("Returned FAILED for {} [{},{}] error code: '{}', Reason: '{}'", svcOperation, preloadName,
-                preloadType, error.getStatusCode(), error.getMessage());
+                preloadType, responseObject.getStatusCode(), responseObject.getMessage());
             try {
                 savePreloadList(preloadVnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
             } catch (Exception e) {
@@ -2063,7 +2063,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(UPDATING_MDSAL_ERROR_MESSAGE_2, svcOperation, preloadName, preloadType,
                 e);
             responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
+            responseBuilder.setResponseMessage(e.getMessage());
             responseBuilder.setAckFinalIndicator("Y");
             log.error("Returned FAILED for {} [{},{}] {}", svcOperation, preloadName, preloadType,
                 responseBuilder.build());
@@ -2077,9 +2077,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
 
         // Update succeeded
-        responseBuilder.setResponseCode(error.getStatusCode());
+        responseBuilder.setResponseCode(responseObject.getStatusCode());
         responseBuilder.setAckFinalIndicator(ackFinal);
-        trySetResponseMessage(responseBuilder, error);
+        trySetResponseMessage(responseBuilder, responseObject);
 
         log.info("Updated MD-SAL for {} [{},{}]", svcOperation, preloadName, preloadType);
         log.info("Returned SUCCESS for {} [{},{}] {}", svcOperation, preloadName, preloadType,
@@ -2093,10 +2093,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    private String resolveAckFinal(ResponseObject error, Properties respProps) {
+    private String resolveAckFinal(ResponseObject responseObject, Properties respProps) {
         if (respProps != null) {
-            error.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
-            error.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
+            responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
+            responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             return respProps.getProperty(ACK_FINAL_PARAM, "Y");
         }
         return "Y";
@@ -2169,10 +2169,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         String preloadType = input.getNetworkTopologyInformation().getNetworkTopologyIdentifier().getNetworkType();
 
         // Make sure we have a preload_name and preload_type
-        if (isValidPreloadData(preloadName, preloadType)) {
-            log.debug("exiting {} because of invalid preload-name", svcOperation);
+        if (invalidPreloadData(preloadName, preloadType)) {
+            log.debug("exiting {} because of invalid preload-name or preload-type", svcOperation);
             responseBuilder.setResponseCode("403");
-            responseBuilder.setResponseMessage("input, invalid preload-name");
+            responseBuilder.setResponseMessage("invalid input: network-name or network-type is null or empty");
             responseBuilder.setAckFinalIndicator("Y");
 
             RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
@@ -2216,15 +2216,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Call SLI sync method
         // Get SvcLogicService reference
-        ResponseObject error = new ResponseObject("200", "");
-        Properties respProps = tryGetProperties(svcOperation, parms, error);
+        ResponseObject responseObject = new ResponseObject("200", "");
+        Properties respProps = tryGetProperties(svcOperation, parms, responseObject);
 
-        String ackFinal = resolveAckFinal(error, respProps);
+        String ackFinal = resolveAckFinal(responseObject, respProps);
 
-        if (failed(error)) {
+        if (failed(responseObject)) {
 
-            responseBuilder.setResponseCode(error.getStatusCode());
-            responseBuilder.setResponseMessage(error.getMessage());
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
             responseBuilder.setAckFinalIndicator(ackFinal);
 
             VnfPreloadListBuilder preloadVnfListBuilder = new VnfPreloadListBuilder();
@@ -2232,7 +2232,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             preloadVnfListBuilder.setVnfType(preloadType);
             preloadVnfListBuilder.setPreloadData(preloadDataBuilder.build());
             log.error("Returned FAILED for {} [{},{}] error code: '{}', Reason: '{}'", svcOperation, preloadName,
-                preloadType, error.getStatusCode(), error.getMessage());
+                preloadType, responseObject.getStatusCode(), responseObject.getMessage());
             try {
                 savePreloadList(preloadVnfListBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
             } catch (Exception e) {
@@ -2256,7 +2256,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         } catch (Exception e) {
             log.error(UPDATING_MDSAL_ERROR_MESSAGE_2, svcOperation, preloadName, preloadType, e);
             responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
+            responseBuilder.setResponseMessage(e.getMessage());
             responseBuilder.setAckFinalIndicator("Y");
             log.error("Returned FAILED for {} [{},{}] {}", svcOperation, preloadName, preloadType,
                 responseBuilder.build());
@@ -2270,9 +2270,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
 
         // Update succeeded
-        responseBuilder.setResponseCode(error.getStatusCode());
+        responseBuilder.setResponseCode(responseObject.getStatusCode());
         responseBuilder.setAckFinalIndicator(ackFinal);
-        trySetResponseMessage(responseBuilder, error);
+        trySetResponseMessage(responseBuilder, responseObject);
 
         log.info("Updated MD-SAL for {} [{},{}]", svcOperation, preloadName, preloadType);
         log.info("Returned SUCCESS for {} [{},{}] {}", svcOperation, preloadName, preloadType,
@@ -2300,7 +2300,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    private boolean isValidPreloadData(String preloadName, String preloadType) {
+    private boolean invalidPreloadData(String preloadName, String preloadType) {
         return preloadName == null || preloadName.length() == 0 || preloadType == null || preloadType.length() == 0;
     }
 
