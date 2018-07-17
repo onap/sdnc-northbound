@@ -25,6 +25,7 @@
 		<module>generic-resource-api</module>
 		<module>vnfapi</module>
 		<module>vnftools</module>
+		<module>features</module>
 	</modules>
 
 	<scm>
