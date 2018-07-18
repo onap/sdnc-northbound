@@ -25,6 +25,8 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ConnectionAttachmentTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ConnectionAttachmentTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationOutput;
@@ -1793,6 +1795,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             .build();
 
         return Futures.immediateFuture(rpcResult);
+    }
+
+    @Override
+    public Future<RpcResult<ConnectionAttachmentTopologyOperationOutput>> connectionAttachmentTopologyOperation(
+        ConnectionAttachmentTopologyOperationInput input) {
+        //TODO after YANG review
+        return null;
     }
 
     private void trySetResponseMessage(TunnelxconnTopologyOperationOutputBuilder responseBuilder,

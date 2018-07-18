@@ -880,6 +880,37 @@ module GENERIC-RESOURCE-API {
 	       }
 	   }
    }
+
+   grouping connection-attachment-operation-information {
+      uses sdnc-request-header;
+      uses request-information;
+      uses service-information;
+      uses allotted-resource-information;
+      uses connection-attachment-request-input;
+   }
+
+   grouping connection-attachment-request-input {
+      container connection-attachment-request-input {
+         uses param;
+      }
+   }
+
+   grouping connection-attachment-topology {
+      container brg-topology {
+         uses allotted-resource-identifiers;
+         uses onap-model-information;
+         uses connection-attachment-assignments;
+         container connection-attachment-parameters {
+            uses param;
+         }
+      }
+   }
+
+   grouping connection-attachment-assignments {
+      container connection-attachment-assignments {
+      }
+   }
+
    grouping allotted-resource-information {
       container allotted-resource-information {
          leaf allotted-resource-id {
@@ -1247,6 +1278,11 @@ module GENERIC-RESOURCE-API {
        container brg-response-information {
            uses instance-reference;
        }
+   }
+   grouping connection-attachment-response-information {
+      container connection-attachment-response-information {
+         uses instance-reference;
+      }
    }
    grouping preload-model-information {
       list vnf-preload-list {
@@ -1728,6 +1764,26 @@ module GENERIC-RESOURCE-API {
            uses allotted-resource-status;
        }
    }
+   container connection-attachment-allotted-resources {
+      list connection-attachment-allotted-resource {
+         key "allotted-resource-id";
+         leaf allotted-resource-id {
+            type string;
+            mandatory true;
+         }
+         container allotted-resource-data {
+            container allotted-resource-operation-information {
+               uses connection-attachment-operation-information;
+            }
+            uses connection-attachment-topology;
+            container connection-attachment-parameters {
+               uses param;
+            }
+            uses allotted-resource-oper-status;
+         }
+         uses allotted-resource-status;
+      }
+   }
    rpc service-topology-operation {
       input {
          uses service-operation-information;
@@ -1830,6 +1886,17 @@ module GENERIC-RESOURCE-API {
       output {
          uses vnf-topology-response-body;
       }
+   }
+
+   rpc connection-attachment-topology-operation {
+       input {
+           uses connection-attachment-operation-information;
+       }
+       output {
+           uses topology-response-common;
+           uses connection-attachment-response-information;
+           uses service-response-information;
+       }
    }
 
 } ////closes the module
