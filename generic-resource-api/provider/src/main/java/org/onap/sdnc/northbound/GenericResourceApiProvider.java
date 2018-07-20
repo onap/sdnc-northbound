@@ -26,7 +26,9 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ConnectionAttachmentTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ConnectionAttachmentTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ConnectionAttachmentTopologyOperationOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ConnectionAttachmentTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ContrailRouteTopologyOperationOutput;
@@ -69,6 +71,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.brg.response.information.BrgResponseInformationBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.connection.attachment.response.information.ConnectionAttachmentResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.contrail.route.response.information.ContrailRouteResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.response.information.NetworkResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.preload.data.PreloadData;
@@ -1797,11 +1800,186 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
+    private boolean hasInvalidServiceId(ConnectionAttachmentTopologyOperationInput input) {
+        return input == null || input.getServiceInformation() == null
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
+    }
+
+    private void trySetResponseMessage(ConnectionAttachmentTopologyOperationOutputBuilder responseBuilder,
+        ResponseObject error) {
+        if (!error.getMessage().isEmpty()) {
+            responseBuilder.setResponseMessage(error.getMessage());
+        }
+    }
+
+    private void trySetSvcRequestId(ConnectionAttachmentTopologyOperationInput input,
+        ConnectionAttachmentTopologyOperationOutputBuilder responseBuilder) {
+        if (input.getSdncRequestHeader() != null) {
+            responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
+        }
+    }
+
+    private Future<RpcResult<ConnectionAttachmentTopologyOperationOutput>>
+    buildRpcResultFuture(ConnectionAttachmentTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
+
+        responseBuilder.setResponseCode("404");
+        responseBuilder.setResponseMessage(responseMessage);
+        responseBuilder.setAckFinalIndicator("Y");
+
+        RpcResult<ConnectionAttachmentTopologyOperationOutput> rpcResult = RpcResultBuilder
+            .<ConnectionAttachmentTopologyOperationOutput>status(true)
+            .withResult(responseBuilder.build())
+            .build();
+
+        return Futures.immediateFuture(rpcResult);
+    }
+
+    private void trySaveService(ConnectionAttachmentTopologyOperationInput input, ServiceBuilder serviceBuilder) {
+        if (isValidRequest(input) &&
+            (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign) ||
+                input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
+            // Only update operational tree on activate or delete
+            log.info(UPDATING_TREE_INFO_MESSAGE);
+            saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+        }
+    }
+
+    private boolean isValidRequest(ConnectionAttachmentTopologyOperationInput input) {
+        return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
+    }
+
     @Override
-    public Future<RpcResult<ConnectionAttachmentTopologyOperationOutput>> connectionAttachmentTopologyOperation(
-        ConnectionAttachmentTopologyOperationInput input) {
-        //TODO after YANG review
-        return null;
+    public Future<RpcResult<ConnectionAttachmentTopologyOperationOutput>> connectionAttachmentTopologyOperation(ConnectionAttachmentTopologyOperationInput input) {
+        final String svcOperation = "connectionAttachment-topology-operation";
+        Properties parms = new Properties();
+        log.info(CALLED_STR, svcOperation);
+
+        // create a new response object
+        ConnectionAttachmentTopologyOperationOutputBuilder responseBuilder = new ConnectionAttachmentTopologyOperationOutputBuilder();
+        if (hasInvalidServiceId(input)) {
+            log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
+            responseBuilder.setResponseCode("404");
+            responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
+            responseBuilder.setAckFinalIndicator("Y");
+
+            RpcResult<ConnectionAttachmentTopologyOperationOutput> rpcResult = RpcResultBuilder
+                .<ConnectionAttachmentTopologyOperationOutput>status(true)
+                .withResult(responseBuilder.build())
+                .build();
+
+            return Futures.immediateFuture(rpcResult);
+        }
+
+        ServiceData serviceData;
+        ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
+        Properties properties = new Properties();
+
+        String siid = input.getServiceInformation().getServiceInstanceId();
+        log.info(ADDING_INPUT_DATA_LOG, svcOperation, siid, input);
+
+        // Get the service-instance service data from MD-SAL
+        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+        getServiceData(siid, serviceDataBuilder);
+
+        trySetSvcRequestId(input, responseBuilder);
+
+        ServiceData sd = serviceDataBuilder.build();
+        if (isInvalidServiceData(sd)) {
+            log.debug(EMPTY_SERVICE_INSTANCE_MESSAGE, svcOperation);
+            return buildRpcResultFuture(responseBuilder, INVALID_INPUT_ERROR_MESSAGE);
+        }
+
+        ConnectionAttachmentTopologyOperationInputBuilder inputBuilder = new ConnectionAttachmentTopologyOperationInputBuilder(input);
+        GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+
+        // Call SLI sync method
+        // Get SvcLogicService reference
+        ResponseObject responseObject = new ResponseObject("200", "");
+        String ackFinal = "Y";
+        String allottedResourceId = ERROR_NETWORK_ID;
+        String serviceObjectPath = null;
+        String connectionAttachmentObjectPath = null;
+
+        Properties respProps = tryGetProperties(svcOperation, properties, serviceDataBuilder, responseObject);
+
+        if (respProps != null) {
+            responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
+            responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
+            ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
+            allottedResourceId = respProps.getProperty(ALLOTTED_RESOURCE_ID_PARAM);
+            serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
+            connectionAttachmentObjectPath = respProps.getProperty("connectionAttachment-object-path");
+        }
+
+        if (failed(responseObject)) {
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
+            responseBuilder.setAckFinalIndicator(ackFinal);
+
+            log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
+
+            RpcResult<ConnectionAttachmentTopologyOperationOutput> rpcResult = RpcResultBuilder
+                .<ConnectionAttachmentTopologyOperationOutput>status(true)
+                .withResult(responseBuilder.build())
+                .build();
+
+            return Futures.immediateFuture(rpcResult);
+        }
+
+        // Got success from SLI
+        try {
+
+            serviceData = serviceDataBuilder.build();
+            log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, serviceData);
+
+            // service object
+            ServiceBuilder serviceBuilder = new ServiceBuilder();
+            serviceBuilder.setServiceData(serviceData);
+            serviceBuilder.setServiceInstanceId(siid);
+            serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+            saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+
+            trySaveService(input, serviceBuilder);
+
+            ConnectionAttachmentResponseInformationBuilder connectionAttachmentResponseInformationBuilder = new ConnectionAttachmentResponseInformationBuilder();
+            connectionAttachmentResponseInformationBuilder.setInstanceId(allottedResourceId);
+            connectionAttachmentResponseInformationBuilder.setObjectPath(connectionAttachmentObjectPath);
+            responseBuilder.setConnectionAttachmentResponseInformation(connectionAttachmentResponseInformationBuilder.build());
+
+            ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
+            serviceResponseInformationBuilder.setInstanceId(siid);
+            serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
+            responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
+
+        } catch (IllegalStateException e) {
+            log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
+            responseBuilder.setResponseCode("500");
+            responseBuilder.setResponseMessage(e.toString());
+            responseBuilder.setAckFinalIndicator("Y");
+            log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
+
+            RpcResult<ConnectionAttachmentTopologyOperationOutput> rpcResult = RpcResultBuilder
+                .<ConnectionAttachmentTopologyOperationOutput>status(true)
+                .withResult(responseBuilder.build())
+                .build();
+
+            return Futures.immediateFuture(rpcResult);
+        }
+
+        // Update succeeded
+        responseBuilder.setResponseCode(responseObject.getStatusCode());
+        responseBuilder.setAckFinalIndicator(ackFinal);
+        trySetResponseMessage(responseBuilder, responseObject);
+        log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
+        log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
+
+        RpcResult<ConnectionAttachmentTopologyOperationOutput> rpcResult = RpcResultBuilder
+            .<ConnectionAttachmentTopologyOperationOutput>status(true)
+            .withResult(responseBuilder.build())
+            .build();
+
+        return Futures.immediateFuture(rpcResult);
     }
 
     private void trySetResponseMessage(TunnelxconnTopologyOperationOutputBuilder responseBuilder,
