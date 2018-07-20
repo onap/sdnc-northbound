@@ -1071,6 +1071,18 @@ module GENERIC-RESOURCE-API {
                enum "DeleteTunnelXConnInstance";
                enum "CreateBRGInstance";
                enum "DeleteBRGInstance";
+               enum "CreateSOTNConnectivityInstance";
+               enum "ActivateSOTNConnectivityInstance";
+               enum "DeactivateSOTNConnectivityInstance";
+               enum "DeleteSOTNConnectivityInstance";
+               enum "CreateSOTNAttachmentInstance";
+               enum "ActivateSOTNAttachmentInstance";
+               enum "DeactivateSOTNAttachmentInstance";
+               enum "DeleteSOTNAttachmentInstance";
+               enum "CreateSiteInstance";
+               enum "ActivateSiteInstance";
+               enum "DeactivateSiteInstance";
+               enum "DeleteSiteInstance";
             }
          }
          leaf source {
@@ -1213,6 +1225,18 @@ module GENERIC-RESOURCE-API {
             enum "DeleteTunnelXConnInstance";
             enum "CreateBRGInstance";
             enum "DeleteBRGInstance";
+            enum "CreateSOTNConnectivityInstance";
+            enum "ActivateSOTNConnectivityInstance";
+            enum "DeactivateSOTNConnectivityInstance";
+            enum "DeleteSOTNConnectivityInstance";
+            enum "CreateSOTNAttachmentInstance";
+            enum "ActivateSOTNAttachmentInstance";
+            enum "DeactivateSOTNAttachmentInstance";
+            enum "DeleteSOTNAttachmentInstance";
+            enum "CreateSiteInstance";
+            enum "ActivateSiteInstance";
+            enum "DeactivateSiteInstance";
+            enum "DeleteSiteInstance";
          }
       }
       leaf last-svc-request-id {
