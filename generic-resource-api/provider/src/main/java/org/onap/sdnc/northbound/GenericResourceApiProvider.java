@@ -1851,7 +1851,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public Future<RpcResult<ConnectionAttachmentTopologyOperationOutput>> connectionAttachmentTopologyOperation(ConnectionAttachmentTopologyOperationInput input) {
-        final String svcOperation = "connectionAttachment-topology-operation";
+        final String svcOperation = "connection-attachment-topology-operation";
         Properties parms = new Properties();
         log.info(CALLED_STR, svcOperation);
 
@@ -1909,7 +1909,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
             allottedResourceId = respProps.getProperty(ALLOTTED_RESOURCE_ID_PARAM);
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
-            connectionAttachmentObjectPath = respProps.getProperty("connectionAttachment-object-path");
+            connectionAttachmentObjectPath = respProps.getProperty("connection-attachment-object-path");
         }
 
         if (failed(responseObject)) {
@@ -1955,7 +1955,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         } catch (IllegalStateException e) {
             log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
             responseBuilder.setResponseCode("500");
-            responseBuilder.setResponseMessage(e.toString());
+            responseBuilder.setResponseMessage(e.getMessage());
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
