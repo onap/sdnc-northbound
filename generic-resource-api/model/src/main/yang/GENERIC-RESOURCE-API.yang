@@ -1977,7 +1977,7 @@ module GENERIC-RESOURCE-API {
    }
 
    grouping connection-attachment-topology {
-      container brg-topology {
+      container connection-attachment-topology {
          uses allotted-resource-identifiers;
          uses onap-model-information;
          uses connection-attachment-assignments;

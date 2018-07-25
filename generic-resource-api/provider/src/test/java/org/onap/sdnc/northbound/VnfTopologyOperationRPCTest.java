@@ -57,6 +57,7 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
     }
 
 
+    /*
     @Test
     public void should_fail_when_invalid_vnf_id() throws Exception {
 
@@ -72,7 +73,7 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
         assertEquals("404", output.getResponseCode());
         assertEquals("invalid input, null or empty vnf-id", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
-    }
+    }*/
 
 
     @Test
