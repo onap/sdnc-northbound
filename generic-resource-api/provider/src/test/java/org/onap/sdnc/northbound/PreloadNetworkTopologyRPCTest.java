@@ -7,8 +7,8 @@ import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
-import static org.onap.sdnc.northbound.util.MDSALUtil.networkTopologyIdentifierBuilder;
-import static org.onap.sdnc.northbound.util.MDSALUtil.networkTopologyInformationBuilder;
+import static org.onap.sdnc.northbound.util.MDSALUtil.networkTopologyIdentifierStructureBuilder;
+import static org.onap.sdnc.northbound.util.MDSALUtil.preloadNetworkTopologyInformationBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.preloadNetworkTopologyOperationInput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.preloadNetworkTopologyOperationOutput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
@@ -41,7 +41,7 @@ public class PreloadNetworkTopologyRPCTest extends GenericResourceApiProviderTes
     }
 
     @Test
-    public void should_fail_when_invalid_vnf_topology() throws Exception {
+    public void should_fail_when_invalid_network_topology() throws Exception {
 
         PreloadNetworkTopologyOperationInput input = build(preloadNetworkTopologyOperationInput());
 
@@ -49,25 +49,7 @@ public class PreloadNetworkTopologyRPCTest extends GenericResourceApiProviderTes
             exec(genericResourceApiProvider::preloadNetworkTopologyOperation, input, RpcResult::getResult);
 
         assertEquals("403", output.getResponseCode());
-        assertEquals("input is null", output.getResponseMessage());
-        assertEquals("Y", output.getAckFinalIndicator());
-    }
-
-
-    @Test
-    public void should_fail_when_invalid_preload_data() throws Exception {
-
-        PreloadNetworkTopologyOperationInput input = build(preloadNetworkTopologyOperationInput()
-            .setNetworkTopologyInformation(build(networkTopologyInformationBuilder()
-                .setNetworkTopologyIdentifier(build(networkTopologyIdentifierBuilder()
-                    .setNetworkName("test-network-name")))))
-        );
-
-        PreloadNetworkTopologyOperationOutput output =
-            exec(genericResourceApiProvider::preloadNetworkTopologyOperation, input, RpcResult::getResult);
-
-        assertEquals("403", output.getResponseCode());
-        assertEquals("invalid input: network-name or network-type is null or empty", output.getResponseMessage());
+        assertEquals("invalid input, null or empty preload-network-topology-information", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
     }
 
@@ -76,11 +58,11 @@ public class PreloadNetworkTopologyRPCTest extends GenericResourceApiProviderTes
     public void should_fail_when_client_execution_failed() throws Exception {
 
         svcClient.mockHasGraph(true);
-        svcClient.mockExecuteWoServiceData(new RuntimeException("test exception"));
+        svcClient.mockExecuteWoServiceDataPreload(new RuntimeException("test exception"));
 
         PreloadNetworkTopologyOperationInput input = build(preloadNetworkTopologyOperationInput()
-            .setNetworkTopologyInformation(build(networkTopologyInformationBuilder()
-                .setNetworkTopologyIdentifier(build(networkTopologyIdentifierBuilder()
+            .setPreloadNetworkTopologyInformation(build(preloadNetworkTopologyInformationBuilder()
+                .setNetworkTopologyIdentifierStructure(build(networkTopologyIdentifierStructureBuilder()
                     .setNetworkName("test-network-name")
                     .setNetworkType("test-network-type")))))
         );
@@ -99,8 +81,8 @@ public class PreloadNetworkTopologyRPCTest extends GenericResourceApiProviderTes
         svcClient.mockHasGraph(false);
 
         PreloadNetworkTopologyOperationInput input = build(preloadNetworkTopologyOperationInput()
-            .setNetworkTopologyInformation(build(networkTopologyInformationBuilder()
-                .setNetworkTopologyIdentifier(build(networkTopologyIdentifierBuilder()
+            .setPreloadNetworkTopologyInformation(build(preloadNetworkTopologyInformationBuilder()
+                .setNetworkTopologyIdentifierStructure(build(networkTopologyIdentifierStructureBuilder()
                     .setNetworkName("test-network-name")
                     .setNetworkType("test-network-type")))))
         );
@@ -127,8 +109,8 @@ public class PreloadNetworkTopologyRPCTest extends GenericResourceApiProviderTes
         genericResourceApiProvider.setDataBroker(spyDataBroker);
 
         PreloadNetworkTopologyOperationInput input = build(preloadNetworkTopologyOperationInput()
-            .setNetworkTopologyInformation(build(networkTopologyInformationBuilder()
-                .setNetworkTopologyIdentifier(build(networkTopologyIdentifierBuilder()
+            .setPreloadNetworkTopologyInformation(build(preloadNetworkTopologyInformationBuilder()
+                .setNetworkTopologyIdentifierStructure(build(networkTopologyIdentifierStructureBuilder()
                     .setNetworkName("test-network-name")
                     .setNetworkType("test-network-type")))))
         );
@@ -149,8 +131,8 @@ public class PreloadNetworkTopologyRPCTest extends GenericResourceApiProviderTes
         svcClient.mockExecute(svcResultProp);
 
         PreloadNetworkTopologyOperationInput input = build(preloadNetworkTopologyOperationInput()
-            .setNetworkTopologyInformation(build(networkTopologyInformationBuilder()
-                .setNetworkTopologyIdentifier(build(networkTopologyIdentifierBuilder()
+            .setPreloadNetworkTopologyInformation(build(preloadNetworkTopologyInformationBuilder()
+                .setNetworkTopologyIdentifierStructure(build(networkTopologyIdentifierStructureBuilder()
                     .setNetworkName("test-network-name")
                     .setNetworkType("test-network-type")))))
             .setSdncRequestHeader(build(sdncRequestHeader()

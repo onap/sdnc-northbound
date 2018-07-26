@@ -12,6 +12,8 @@ import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceInformationBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceResponseInformation;
+import static org.onap.sdnc.northbound.util.MDSALUtil.vnfResponseInformation;
+import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleResponseInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleInformationBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleTopologyOperationInput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleTopologyOperationOutput;
@@ -225,8 +227,16 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
                 .setResponseMessage(propBuilder.get(svcClient.errorMessage))
                 .setServiceResponseInformation(build(serviceResponseInformation()
                     .setInstanceId(input.getServiceInformation().getServiceInstanceId())
-                    .setObjectPath(propBuilder.get(svcClient.serviceObjectPath))
-                ))
+                    .setObjectPath(propBuilder.get(svcClient.serviceObjectPath)))
+                )
+                .setVnfResponseInformation(build(vnfResponseInformation()
+                        .setInstanceId(input.getVnfInformation().getVnfId())
+                        .setObjectPath(propBuilder.get(svcClient.vnfObjectPath)))
+                    )
+                .setVfModuleResponseInformation(build(vfModuleResponseInformation()
+                        .setInstanceId(input.getVfModuleInformation().getVfModuleId())
+                        .setObjectPath(propBuilder.get(svcClient.vfModuleObjectPath)))
+                    )
         );
     }
 }
