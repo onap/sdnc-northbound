@@ -198,6 +198,10 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
                     .setInstanceId(vnfTopologyOperationInput.getServiceInformation().getServiceInstanceId())
                     .setObjectPath(svcResultProp.get(svcClient.serviceObjectPath))
                 ))
+                .setVnfResponseInformation(build(vnfResponseInformation()
+                    .setInstanceId(vnfTopologyOperationInput.getVnfInformation().getVnfId())
+                    .setObjectPath(svcResultProp.get(svcClient.vnfObjectPath))
+                ))
         );
     }
 }

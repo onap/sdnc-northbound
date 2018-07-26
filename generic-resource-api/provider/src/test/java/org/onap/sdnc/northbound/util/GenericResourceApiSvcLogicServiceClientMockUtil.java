@@ -29,6 +29,7 @@ import static org.onap.sdnc.northbound.util.PropBuilder.propBuilder;
 
 import java.util.Properties;
 import org.onap.sdnc.northbound.GenericResourceApiSvcLogicServiceClient;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.preload.data.PreloadDataBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceDataBuilder;
 
 
@@ -44,17 +45,16 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
     private final String VERSION = null;
     private String scvOperation = null;
 
-
     public final String errorCode = "error-code";
     public final String errorMessage = "error-message";
     public final String ackFinal = "ack-final";
     public final String serviceObjectPath = "service-object-path";
     public final String networkObjectPath = "network-object-path";
+    public final String vnfObjectPath = "vnf-object-path";
+    public final String vfModuleObjectPath = "vf-module-object-path";
     public final String networkId = "networkId";
 
-
     private final GenericResourceApiSvcLogicServiceClient mockGenericResourceApiSvcLogicServiceClient;
-
 
     public GenericResourceApiSvcLogicServiceClientMockUtil(
         GenericResourceApiSvcLogicServiceClient mockGenericResourceApiSvcLogicServiceClient) {
@@ -98,8 +98,9 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
             .set(ackFinal, "Y")
             .set(serviceObjectPath, "serviceObjectPath: XYZ")
             .set(networkObjectPath, "networkObjectPath: XYZ")
+            .set(vnfObjectPath,  "vnfObjectPath: XYZ")
+            .set(vfModuleObjectPath,  "vfModuleObjectPath: XYZ")
             .set(networkId, "networkId: XYZ");
-
     }
 
 
@@ -156,6 +157,20 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
                     eq(scvOperation),
                     eq(VERSION),
                     eq(MODE),
+                    isA(Properties.class)
+                )
+        ).thenThrow(exception);
+    }
+
+    public void mockExecuteWoServiceDataPreload(RuntimeException exception) throws Exception {
+        when(
+            mockGenericResourceApiSvcLogicServiceClient
+                .execute(
+                    eq(MODULE),
+                    eq(scvOperation),
+                    eq(VERSION),
+                    eq(MODE),
+                    isA(PreloadDataBuilder.class),
                     isA(Properties.class)
                 )
         ).thenThrow(exception);
