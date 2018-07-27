@@ -255,6 +255,9 @@ module GENERIC-RESOURCE-API {
          leaf network-type {
             type string;
          }
+         leaf network-technology {
+             type string;
+         }
          leaf from-preload {
             description "Indicates if source is preload data";
             type boolean;
@@ -312,6 +315,15 @@ module GENERIC-RESOURCE-API {
          }
          leaf eipam-v6-address-plan {
             type string;
+         }
+         leaf is-trunked {
+             type boolean;
+         }
+         leaf segmentation-id {
+            type string;
+         }
+         container related-networks {
+            uses related-network;
          }
       }
    }
@@ -418,6 +430,7 @@ module GENERIC-RESOURCE-API {
       uses service-information;
       uses vnf-information;
       uses vnf-request-input;
+      uses license-information;
    }
    grouping vnf-information {
       container vnf-information {
@@ -579,8 +592,29 @@ module GENERIC-RESOURCE-API {
                   enum "N";
                }
             }
+            leaf network-start-address {
+               description "start-address of the subnet";
+               type inet:ip-address;
+            }
+            leaf gateway-address {
+               description "subnet gateway address";
+               type inet:ip-address;
+            }
+            leaf cidr-mask {
+               description "cidr mask";
+               type string;
+            }
          }
       }
+      leaf is-trunked {
+          type boolean;
+       }
+       leaf segmentation-id {
+          type string;
+       }
+       container related-networks {
+          uses related-network;
+       }
    }
    grouping vnf-level-oper-status {
       container vnf-level-oper-status {
@@ -675,6 +709,7 @@ module GENERIC-RESOURCE-API {
          type string;
          mandatory true;
       }
+      uses onap-model-information;
       leaf nfc-naming-code {
          description "used in vm naming(draft 29: changed from nfc-code)";
          type string;
@@ -712,14 +747,13 @@ module GENERIC-RESOURCE-API {
       list vnfc-network-data {
          key "vnfc-network-role";
          leaf vnfc-network-role {
-            description "e.g. dummy net - parent port network role ";
             type string;
             mandatory true;
          }
          leaf vnfc-type {
-            description "Vm-type e.g. FW,";
             type string;
          }
+         uses connection-point;
          container vnfc-ports {
             list vnfc-port {
                key "vnfc-port-id";
@@ -847,27 +881,14 @@ module GENERIC-RESOURCE-API {
             ordered-by user;
          }
       }
-      container sriov-parameters {
-         container heat-vlan-filters {
-            leaf-list heat-vlan-filter {
-               type string;
-               ordered-by user;
-            }
-         }
-         container application-tags {
-            container c-tags {
-               leaf-list c-tag {
-                  type string;
-                  ordered-by user;
-               }
-            }
-            container s-tags {
-               leaf-list s-tag {
-                  type string;
-                  ordered-by user;
-               }
-            }
-         }
+      leaf is-trunked {
+         type boolean;
+      }
+      leaf segmentation-id {
+         type string;
+      }
+      container related-networks {
+         uses related-network;
       }
    }
    grouping vf-module-level-oper-status {
@@ -1157,6 +1178,9 @@ module GENERIC-RESOURCE-API {
          leaf lower-tag-id {
             type uint32;
          }
+         leaf is-private {
+            type boolean;
+         }
       }
    }
    grouping vlan-vnfc-instance-groups {
@@ -1376,6 +1400,92 @@ module GENERIC-RESOURCE-API {
          list vf-module {
             key "vf-module-id";
             leaf vf-module-id {
+               type string;
+            }
+         }
+      }
+   }
+   grouping license-information {
+      container license-information {
+         list entitlement-pool-list {
+            key "entitlement-pool-uuid action";
+            leaf entitlement-pool-uuid {
+               type string;
+               mandatory true;
+            }
+            leaf action {
+               type string;
+               mandatory true;
+            }
+            leaf entitlement-pool-invariant-uuid {
+               type string;
+            }
+            leaf entitlement-uuid {
+               description "assigned by ALTS";
+               type string;
+            }
+         }
+         list license-key-group-list {
+            key "license-key-group-uuid action";
+            leaf license-key-group-uuid {
+               type string;
+               mandatory true;
+            }
+            leaf action {
+               type string;
+               mandatory true;
+            }
+            leaf license-key-group-invariant-uuid {
+               type string;
+            }
+            leaf license-key {
+               description "assigned by ALTS";
+               type string;
+            }
+            leaf license-uuid {
+               description "assigned by ALTS";
+               type string;
+            }
+         }
+      }
+   }
+   grouping related-network {
+      list related-network {
+         key "network-id";
+         leaf network-id {
+            description "Key to l3-network object";
+            type string;
+         }
+         leaf network-role {
+            type string;
+         }
+         uses vlan-tags;
+      }
+   }
+   grouping connection-point {
+      container connection-point {
+         leaf connection-point-id {
+            description "Key to CP object in A&AI";
+            type string;
+         }
+         leaf port-id {
+            description "port-index when multiple CPs connect to same network. Default zero (0)";
+            type string;
+         }
+         list vlan-tags {
+            key "vlan-uuid";
+            leaf vlan-uuid {
+               description "Key to vlan-tag uuid object in A&AI Generated by vlan mS";
+               type string;
+            }
+            leaf vlan-tag-id {
+               type string;
+            }
+            leaf vlan-tag-description {
+               type string;
+            }
+            leaf vlan-role {
+               description "Inner/Outer roles";
                type string;
             }
          }
