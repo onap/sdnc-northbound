@@ -2268,6 +2268,22 @@ module GENERIC-RESOURCE-API {
                enum "CreateForwardingPathInstance";
                enum "DeleteForwardingPathInstance";
                enum "UpdateForwardingPathInstance";
+               enum "CreateSDWANConnectivityInstance";
+               enum "ActivateSDWANConnectivityInstance";
+               enum "DeactivateSDWANConnectivityInstance";
+               enum "DeleteSDWANConnectivityInstance";
+               enum "CreateSDWANDeviceInstance";
+               enum "ActivateSDWANDeviceInstance";
+               enum "DeactivateSDWANDeviceInstance";
+               enum "DeleteSDWANDeviceInstance";
+               enum "CreateSDWANPortInstance";
+               enum "ActivateSDWANPortInstance";
+               enum "DeactivateSDWANPortInstance";
+               enum "DeleteSDWANPortInstance";
+               enum "CreateSDWANAttachmentInstance";
+               enum "ActivateSDWANAttachmentInstance";
+               enum "DeactivateSDWANAttachmentInstance";
+               enum "DeleteSDWANAttachmentInstance";
             }
          }
          leaf source {
@@ -2472,6 +2488,22 @@ module GENERIC-RESOURCE-API {
             enum "CreateForwardingPathInstance";
             enum "DeleteForwardingPathInstance";
             enum "UpdateForwardingPathInstance";
+            enum "CreateSDWANConnectivityInstance";
+            enum "ActivateSDWANConnectivityInstance";
+            enum "DeactivateSDWANConnectivityInstance";
+            enum "DeleteSDWANConnectivityInstance";
+            enum "CreateSDWANDeviceInstance";
+            enum "ActivateSDWANDeviceInstance";
+            enum "DeactivateSDWANDeviceInstance";
+            enum "DeleteSDWANDeviceInstance";
+            enum "CreateSDWANPortInstance";
+            enum "ActivateSDWANPortInstance";
+            enum "DeactivateSDWANPortInstance";
+            enum "DeleteSDWANPortInstance";
+            enum "CreateSDWANAttachmentInstance";
+            enum "ActivateSDWANAttachmentInstance";
+            enum "DeactivateSDWANAttachmentInstance";
+            enum "DeleteSDWANAttachmentInstance";
          }
       }
       leaf last-svc-request-id {
