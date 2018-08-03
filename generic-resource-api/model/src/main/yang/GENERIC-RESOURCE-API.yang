@@ -881,6 +881,28 @@ module GENERIC-RESOURCE-API {
             ordered-by user;
          }
       }
+      container sriov-parameters {
+         container heat-vlan-filters {
+            leaf-list heat-vlan-filter {
+               type string;
+               ordered-by user;
+            }
+         }
+         container application-tags {
+            container c-tags {
+               leaf-list c-tag {
+                  type string;
+                  ordered-by user;
+               }
+            }
+            container s-tags {
+               leaf-list s-tag {
+                  type string;
+                  ordered-by user;
+               }
+            }
+         }
+      }
       leaf is-trunked {
          type boolean;
       }
