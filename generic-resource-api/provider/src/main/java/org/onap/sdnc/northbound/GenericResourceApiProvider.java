@@ -1813,7 +1813,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         ServiceData serviceData;
         ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
-        Properties properties = new Properties();
 
         String siid = input.getServiceInformation().getServiceInstanceId();
         log.info(ADDING_INPUT_DATA_LOG, svcOperation, siid, input);
@@ -1841,7 +1840,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         String serviceObjectPath = null;
         String connectionAttachmentObjectPath = null;
 
-        Properties respProps = tryGetProperties(svcOperation, properties, serviceDataBuilder, responseObject);
+        Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, responseObject);
 
         if (respProps != null) {
             responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
