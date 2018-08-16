@@ -369,11 +369,11 @@ module VNF-API {
                }
                leaf vnfc-address-ipv4 {
                     description "Either IpV4 IP addresses or IpV6 IP addresses should be present,  but not both within one VnfcVersion. ";
-                    type inet:ip-address;
+                    type ietf:ip-address;
                }
                leaf vnfc-address-ipv6 {
                     description "Either IpV4 IP addresses or IpV6 IP addresses should be present,  but not both within one VnfcVersion.";
-                    type inet:ipv6-address;
+                    type ietf:ipv6-address;
                }
             }
          }
