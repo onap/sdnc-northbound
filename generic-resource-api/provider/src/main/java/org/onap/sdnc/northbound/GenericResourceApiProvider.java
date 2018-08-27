@@ -822,7 +822,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
         */
 
-        String vnfId = input.getVnfInformation().getVnfId();
         ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
         getServiceData(siid, serviceDataBuilder);
 
@@ -862,6 +861,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         ResponseObject responseObject = new ResponseObject("200", "");
         String ackFinal = "Y";
         String serviceObjectPath = null;
+        String vnfId = "error";
         String vnfObjectPath = null;
         Properties respProps = tryGetProperties(svcOperation, properties, serviceDataBuilder, responseObject);
 
@@ -869,6 +869,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
+            vnfId = respProps.getProperty("vnfId");
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
             vnfObjectPath = respProps.getProperty(VNF_OBJECT_PATH_PARAM);
         }
