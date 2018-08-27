@@ -869,6 +869,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
+            if (vnfId == null) {
+                vnfId = respProps.getProperty("vnfId");
+            }
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
             vnfObjectPath = respProps.getProperty(VNF_OBJECT_PATH_PARAM);
         }
