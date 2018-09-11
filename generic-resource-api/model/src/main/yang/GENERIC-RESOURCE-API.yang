@@ -2228,6 +2228,7 @@ module GENERIC-RESOURCE-API {
                enum "disable";
                enum "enable";
                enum "update";
+               enum "reoptimize";
             }
          }
          leaf svc-notification-url {
@@ -2306,6 +2307,7 @@ module GENERIC-RESOURCE-API {
                enum "ActivateSDWANAttachmentInstance";
                enum "DeactivateSDWANAttachmentInstance";
                enum "DeleteSDWANAttachmentInstance";
+               enum "ReoptimizeSOTNInstance";
             }
          }
          leaf source {
@@ -2460,6 +2462,7 @@ module GENERIC-RESOURCE-API {
             enum "deactivate";
             enum "create";
             enum "changeassign";
+            enum "reoptimize";
          }
       }
       leaf last-action {
@@ -2526,6 +2529,7 @@ module GENERIC-RESOURCE-API {
             enum "ActivateSDWANAttachmentInstance";
             enum "DeactivateSDWANAttachmentInstance";
             enum "DeleteSDWANAttachmentInstance";
+            enum "ReoptimizeSOTNInstance";
          }
       }
       leaf last-svc-request-id {
