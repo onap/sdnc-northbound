@@ -135,16 +135,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.ArrayList;
 import java.util.concurrent.Future;
 
 /**
@@ -437,20 +434,14 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     }
 
     private static class Iso8601Util {
-
-
-        private static TimeZone tz = TimeZone.getTimeZone("UTC");
-        private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                                                                            .withZone(java.time.ZoneId.of("UTC"));
 
         private Iso8601Util() {
         }
 
-        static {
-            df.setTimeZone(tz);
-        }
-
         private static String now() {
-            return df.format(new Date());
+            return (LocalDateTime.now()).format(formatter);
         }
     }
 
