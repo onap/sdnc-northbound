@@ -453,98 +453,112 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         serviceStatusBuilder.setResponseTimestamp(Iso8601Util.now());
     }
 
-    private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, RequestInformation requestInformation) {
-        if (requestInformation != null && requestInformation.getRequestAction() != null) {
-            switch (requestInformation.getRequestAction()) {
-                case VNFActivateRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.VNFActivateRequest);
-                    break;
-                case ChangeVNFActivateRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.ChangeVNFActivateRequest);
-                    break;
-                case DisconnectVNFRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.DisconnectVNFRequest);
-                    break;
-                case PreloadVNFRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.PreloadVNFRequest);
-                    break;
-                case DeletePreloadVNFRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.DeletePreloadVNFRequest);
-                    break;
-                // 1610 vnf-instance Requests
-                case VnfInstanceActivateRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.VnfInstanceActivateRequest);
-                    break;
-                case ChangeVnfInstanceActivateRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.ChangeVnfInstanceActivateRequest);
-                    break;
-                case DisconnectVnfInstanceRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.DisconnectVnfInstanceRequest);
-                    break;
-                case PreloadVnfInstanceRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.PreloadVnfInstanceRequest);
-                    break;
-                // 1610 vf-module Requests
-                case VfModuleActivateRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.VfModuleActivateRequest);
-                    break;
-                case ChangeVfModuleActivateRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.ChangeVfModuleActivateRequest);
-                    break;
-                case DisconnectVfModuleRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.DisconnectVfModuleRequest);
-                    break;
-                case PreloadVfModuleRequest:
-                    serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.PreloadVfModuleRequest);
-                    break;
-                default:
-                    log.error("Unknown RequestAction: " + requestInformation.getRequestAction());
-                    break;
-            }
+    private void setVNFServiceSubAction(ServiceStatusBuilder serviceStatusBuilder, RequestInformation.RequestSubAction requestSubAction){
+        switch (requestSubAction) {
+            case SUPP:
+                serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.SUPP);
+                break;
+            case CANCEL:
+                serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.CANCEL);
+                break;
+            default:
+                log.error("Unknown RequestSubAction: " + requestSubAction);
+                break;
         }
-        if (requestInformation != null && requestInformation.getRequestSubAction() != null) {
-            switch (requestInformation.getRequestSubAction()) {
-                case SUPP:
-                    serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.SUPP);
-                    break;
-                case CANCEL:
-                    serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.CANCEL);
-                    break;
-                default:
-                    log.error("Unknown RequestSubAction: " + requestInformation.getRequestSubAction());
-                    break;
-            }
+    }
+
+    private void setVNFServiceAction(ServiceStatusBuilder serviceStatusBuilder, RequestInformation.RequestAction requestAction) {
+        switch (requestAction) {
+            case VNFActivateRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.VNFActivateRequest);
+                break;
+            case ChangeVNFActivateRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.ChangeVNFActivateRequest);
+                break;
+            case DisconnectVNFRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.DisconnectVNFRequest);
+                break;
+            case PreloadVNFRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.PreloadVNFRequest);
+                break;
+            case DeletePreloadVNFRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.DeletePreloadVNFRequest);
+                break;
+            // 1610 vnf-instance Requests
+            case VnfInstanceActivateRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.VnfInstanceActivateRequest);
+                break;
+            case ChangeVnfInstanceActivateRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.ChangeVnfInstanceActivateRequest);
+                break;
+            case DisconnectVnfInstanceRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.DisconnectVnfInstanceRequest);
+                break;
+            case PreloadVnfInstanceRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.PreloadVnfInstanceRequest);
+                break;
+            // 1610 vf-module Requests
+            case VfModuleActivateRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.VfModuleActivateRequest);
+                break;
+            case ChangeVfModuleActivateRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.ChangeVfModuleActivateRequest);
+                break;
+            case DisconnectVfModuleRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.DisconnectVfModuleRequest);
+                break;
+            case PreloadVfModuleRequest:
+                serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.PreloadVfModuleRequest);
+                break;
+            default:
+                log.error("Unknown RequestAction: " + requestAction);
+                break;
+        }
+
+    }
+
+    private void setRPCAction(ServiceStatusBuilder serviceStatusBuilder, SdncRequestHeader.SvcAction svcAction) {
+        switch (svcAction) {
+            case Reserve:
+                serviceStatusBuilder.setRpcAction(RpcAction.Reserve);
+                break;
+            case Activate:
+                serviceStatusBuilder.setRpcAction(RpcAction.Activate);
+                break;
+            case Assign:
+                serviceStatusBuilder.setRpcAction(RpcAction.Assign);
+                break;
+            case Delete:
+                serviceStatusBuilder.setRpcAction(RpcAction.Delete);
+                break;
+            case Changeassign:
+                serviceStatusBuilder.setRpcAction(RpcAction.Changeassign);
+                break;
+            case Changedelete:
+                serviceStatusBuilder.setRpcAction(RpcAction.Changedelete);
+                break;
+            case Rollback:
+                serviceStatusBuilder.setRpcAction(RpcAction.Rollback);
+                break;
+            default:
+                log.error("Unknown SvcAction: " + svcAction);
+                break;
+        }
+    }
+
+    private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, RequestInformation requestInformation) {
+        if (requestInformation != null) {
+            if (requestInformation.getRequestAction() != null)
+                setVNFServiceAction(serviceStatusBuilder, requestInformation.getRequestAction());
+
+            if (requestInformation.getRequestSubAction() != null)
+                setVNFServiceSubAction(serviceStatusBuilder, requestInformation.getRequestSubAction());
         }
     }
 
     private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, SdncRequestHeader requestHeader) {
         if (requestHeader != null && requestHeader.getSvcAction() != null) {
-            switch (requestHeader.getSvcAction()) {
-                case Reserve:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Reserve);
-                    break;
-                case Activate:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Activate);
-                    break;
-                case Assign:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Assign);
-                    break;
-                case Delete:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Delete);
-                    break;
-                case Changeassign:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Changeassign);
-                    break;
-                case Changedelete:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Changedelete);
-                    break;
-                case Rollback:
-                    serviceStatusBuilder.setRpcAction(RpcAction.Rollback);
-                    break;
-                default:
-                    log.error("Unknown SvcAction: " + requestHeader.getSvcAction());
-                    break;
-            }
+            setRPCAction(serviceStatusBuilder, requestHeader.getSvcAction());
         }
     }
 
@@ -1104,10 +1118,10 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             saveVnfInstanceList(vnfInstanceListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
             if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
                 // Only update operational tree on Delete or Activate
-                if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) || input.getSdncRequestHeader()
-                    .getSvcAction().equals(SvcAction.Activate)) {
-                    log.info(UPDATING_OPERATIONAL_TREE_STR);
-                    saveVnfInstanceList(vnfInstanceListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+                if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) ||
+                    input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
+                        log.info(UPDATING_OPERATIONAL_TREE_STR);
+                        saveVnfInstanceList(vnfInstanceListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
                 }
             }
             VnfInstanceInformationBuilder vnfInstanceInformationBuilder = new VnfInstanceInformationBuilder();
@@ -1340,10 +1354,10 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
             saveVfModuleList(vfModuleListBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
             if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
                 // Only update operational tree on Delete or Activate
-                if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) || input.getSdncRequestHeader()
-                    .getSvcAction().equals(SvcAction.Activate)) {
-                    log.info(UPDATING_OPERATIONAL_TREE_STR);
-                    saveVfModuleList(vfModuleListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+                if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) ||
+                    input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
+                        log.info(UPDATING_OPERATIONAL_TREE_STR);
+                        saveVfModuleList(vfModuleListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
                 }
             }
             VfModuleInformationBuilder vfModuleInformationBuilder = new VfModuleInformationBuilder();
@@ -1532,8 +1546,8 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
                     log.info(UPDATING_OPERATIONAL_TREE_STR);
                     saveVnfList(vnfListBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
-                } else if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) || input
-                    .getSdncRequestHeader().getSvcAction().equals(SvcAction.Rollback)) {
+                } else if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete) ||
+                           input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Rollback)) {
                     log.info("Delete OPERATIONAL tree.");
                     deleteVnfList(vnfListBuilder.build(), LogicalDatastoreType.CONFIGURATION);
                     deleteVnfList(vnfListBuilder.build(), LogicalDatastoreType.OPERATIONAL);
