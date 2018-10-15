@@ -2378,6 +2378,10 @@ module GENERIC-RESOURCE-API {
          description "The AIC cloud region which maps to contrail versions";
          type string;
       }
+      leaf cloud-owner {
+         description "The cloud owner provided by the caller";
+         type string;
+      }
       leaf aic-clli {
          description "Not expected to be used";
          type string;
