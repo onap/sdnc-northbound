@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: David Stilwell <stilwelld@att.com>
+Code-Review+2: Dan Timoney <dtimoney@att.com>
+Submitted-by: David Stilwell <stilwelld@att.com>
+Submitted-at: Tue, 23 Oct 2018 15:16:37 +0000
+Reviewed-on: https://gerrit.onap.org/r/71063
+Project: sdnc/northbound
+Branch: refs/heads/casablanca
