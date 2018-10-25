@@ -385,6 +385,7 @@ module GENERIC-RESOURCE-API {
                type string;
             }
          }
+         uses aggregate-routes;
          uses subnets;
          leaf subnet-key-value {
             description "key-value provided to EIPAM when  creating shared subnet";
@@ -1513,6 +1514,25 @@ module GENERIC-RESOURCE-API {
          }
       }
    }
+   grouping aggregate-routes {
+      list aggregate-routes {
+         key "route-id";
+         leaf route-id {
+            description "Unique id";
+            type string;
+         }
+         leaf start-address {
+            type inet:ip-address;
+         }
+         leaf cidr-mask {
+            type string;
+         }
+         leaf ip-version {
+            description "Use values 4 or 6.";
+            type string;
+         }
+      }
+   }
    grouping pnf-information {
       container pnf-information {
          leaf pnf-name {
@@ -1865,6 +1885,16 @@ module GENERIC-RESOURCE-API {
          container input-parameters {
             uses param;
          }
+         leaf rebuild {
+            description "Value will indicate what to rebuild";
+            type string;
+         }
+         list configuration-ids {
+            key "configuration-id";
+            leaf configuration-id {
+               type string;
+            }
+         }
       }
    }
    grouping vnr-parameters {
@@ -2014,6 +2044,43 @@ module GENERIC-RESOURCE-API {
       }
    }
 
+   grouping vnf-vnr-rebuild-data {
+      container vnf-vnr-rebuild-data {
+         leaf vnf-id {
+            type string;
+         }
+         leaf vnf-service-instance-id {
+            type string;
+         }
+         list vnrs-data {
+            key "configuration-id";
+            leaf configuration-id {
+               type string;
+            }
+            leaf network-instance-group-id {
+               type string;
+            }
+            leaf network-id {
+               type string;
+            }
+            leaf vnfc-instance-group-function {
+               type string;
+            }
+            leaf network-instance-group-function {
+               type string;
+            }
+            leaf parent-port-role {
+               type string;
+            }
+            leaf upper-tag-id {
+               type uint32;
+            }
+            leaf lower-tag-id {
+               type uint32;
+            }
+         }
+      }
+   }
    grouping allotted-resource-information {
       container allotted-resource-information {
          leaf allotted-resource-id {
@@ -2229,6 +2296,7 @@ module GENERIC-RESOURCE-API {
                enum "enable";
                enum "update";
                enum "reoptimize";
+               enum "rebuild";
             }
          }
          leaf svc-notification-url {
@@ -2283,6 +2351,7 @@ module GENERIC-RESOURCE-API {
                enum "DeletePortMirrorConfigurationInstance";
                enum "ChangePortMirrorConfigurationInstance";
                enum "CreateGenericConfigurationInstance";
+               enum "RebuildGenericConfigurationInstance";
                enum "DeleteGenericConfigurationInstance";
                enum "PreloadVfModuleRequest";
                enum "DeletePreloadVfModuleRequest";
@@ -2848,6 +2917,7 @@ module GENERIC-RESOURCE-API {
             type string;
          }
          uses vnr-parameters;
+         uses vnf-vnr-rebuild-data;
       }
    }
    container services {

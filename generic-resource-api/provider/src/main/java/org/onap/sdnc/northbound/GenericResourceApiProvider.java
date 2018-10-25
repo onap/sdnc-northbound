@@ -2276,7 +2276,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, preloadId, responseBuilder.build());
             RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PreloadNetworkTopologyOperationOutput>status(false).withResult(responseBuilder.build()).build();
+                    .<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -2455,7 +2455,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, preloadId, responseBuilder.build());
             RpcResult<PreloadVfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PreloadVfModuleTopologyOperationOutput>status(false).withResult(responseBuilder.build()).build();
+                    .<PreloadVfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
