@@ -1882,6 +1882,10 @@ module GENERIC-RESOURCE-API {
          leaf vnf-id {
             type string;
          }
+         leaf vf-module-id { 
+            description "This is mandatory in case of rebuild"; 
+            type string;
+         } 
          container input-parameters {
             uses param;
          }
