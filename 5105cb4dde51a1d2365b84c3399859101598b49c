@@ -1,0 +1,8 @@
+Code-Review+1: Steve Smokowski <ss835w@att.com>
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Dan Timoney <dtimoney@att.com>
+Submitted-by: Dan Timoney <dtimoney@att.com>
+Submitted-at: Thu, 15 Nov 2018 20:14:01 +0000
+Reviewed-on: https://gerrit.onap.org/r/72814
+Project: sdnc/northbound
+Branch: refs/heads/master
