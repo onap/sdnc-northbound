@@ -74,6 +74,7 @@
                                 <sourceFolder>src/main/java</sourceFolder>
                                 <useBeanValidation>true</useBeanValidation>
                                 <interfaceOnly>true</interfaceOnly>
+								<serializableModel>true</serializableModel>
                             </configOptions>
                         </configuration>
                     </execution>
