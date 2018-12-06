@@ -2248,6 +2248,7 @@ module GENERIC-RESOURCE-API {
             type enumeration {
                enum "CreateNetworkInstance";
                enum "ActivateNetworkInstance";
+               enum "DeActivateNetworkInstance";
                enum "CreateServiceInstance";
                enum "DeleteServiceInstance";
                enum "DeleteNetworkInstance";
@@ -2474,6 +2475,7 @@ module GENERIC-RESOURCE-API {
          type enumeration {
             enum "CreateNetworkInstance";
             enum "ActivateNetworkInstance";
+            enum "DeActivateNetworkInstance";
             enum "CreateServiceInstance";
             enum "DeleteServiceInstance";
             enum "DeleteNetworkInstance";
