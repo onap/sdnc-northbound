@@ -3,6 +3,8 @@ package org.onap.sdnc.northbound;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,6 +39,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GENERICRESOURCEAPIService;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationNotificationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationNotificationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationNotificationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationTopologyOperationOutput;
@@ -400,7 +403,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Each entry will be identifiable by a unique key, we have to create that
         // identifier
         InstanceIdentifier<Service> path = InstanceIdentifier.builder(Services.class)
-                .child(Service.class, entry.getKey()).build();
+                .child(Service.class, entry.key()).build();
 
         trySaveEntry(entry, merge, storeType, path);
     }
@@ -441,7 +444,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Each entry will be identifiable by a unique key, we have to create
         // that identifier
         InstanceIdentifier<Service> path = InstanceIdentifier.builder(Services.class)
-                .child(Service.class, entry.getKey()).build();
+                .child(Service.class, entry.key()).build();
 
         tryDeleteEntry(storeType, path);
     }
@@ -516,7 +519,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Each entry will be identifiable by a unique key, we have to create that
         // identifier
         InstanceIdentifier.InstanceIdentifierBuilder<PreloadList> preloadListBuilder = InstanceIdentifier
-                .<PreloadInformation>builder(PreloadInformation.class).child(PreloadList.class, entry.getKey());
+                .<PreloadInformation>builder(PreloadInformation.class).child(PreloadList.class, entry.key());
         InstanceIdentifier<PreloadList> path = preloadListBuilder.build();
         int tries = 2;
         while (true) {
@@ -549,7 +552,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Each entry will be identifiable by a unique key, we have to create
         // that identifier
         InstanceIdentifier<PreloadList> path = InstanceIdentifier.builder(PreloadInformation.class)
-                .child(PreloadList.class, entry.getKey()).build();
+                .child(PreloadList.class, entry.key()).build();
 
         tryDeletePreloadListEntry(storeType, path);
     }
@@ -582,7 +585,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<ServiceTopologyOperationOutput>> serviceTopologyOperation(
+    public ListenableFuture<RpcResult<ServiceTopologyOperationOutput>> serviceTopologyOperation(
             ServiceTopologyOperationInput input) {
 
         final String svcOperation = "service-topology-operation";
@@ -780,7 +783,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(VnfTopologyOperationInput input) {
+    public ListenableFuture<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(VnfTopologyOperationInput input) {
 
         final String svcOperation = "vnf-topology-operation";
         ServiceData serviceData;
@@ -998,7 +1001,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<VfModuleTopologyOperationOutput>> vfModuleTopologyOperation(
+    public ListenableFuture<RpcResult<VfModuleTopologyOperationOutput>> vfModuleTopologyOperation(
             VfModuleTopologyOperationInput input) {
 
         final String svcOperation = "vf-module-topology-operation";
@@ -1231,7 +1234,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<NetworkTopologyOperationOutput>> networkTopologyOperation(
+    public ListenableFuture<RpcResult<NetworkTopologyOperationOutput>> networkTopologyOperation(
             NetworkTopologyOperationInput input) {
 
         final String svcOperation = "network-topology-operation";
@@ -1377,7 +1380,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
-    private Future<RpcResult<NetworkTopologyOperationOutput>> buildRpcResultFuture(
+    private ListenableFuture<RpcResult<NetworkTopologyOperationOutput>> buildRpcResultFuture(
             NetworkTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
 
         responseBuilder.setResponseCode("404");
@@ -1395,7 +1398,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<ContrailRouteTopologyOperationOutput>> contrailRouteTopologyOperation(
+    public ListenableFuture<RpcResult<ContrailRouteTopologyOperationOutput>> contrailRouteTopologyOperation(
             ContrailRouteTopologyOperationInput input) {
 
         final String svcOperation = "contrail-route-topology-operation";
@@ -1539,7 +1542,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
-    private Future<RpcResult<ContrailRouteTopologyOperationOutput>> buildRpcResultFuture(
+    private ListenableFuture<RpcResult<ContrailRouteTopologyOperationOutput>> buildRpcResultFuture(
             ContrailRouteTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
         responseBuilder.setResponseCode("404");
         responseBuilder.setResponseMessage(responseMessage);
@@ -1556,7 +1559,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<SecurityZoneTopologyOperationOutput>> securityZoneTopologyOperation(
+    public ListenableFuture<RpcResult<SecurityZoneTopologyOperationOutput>> securityZoneTopologyOperation(
             SecurityZoneTopologyOperationInput input) {
 
         final String svcOperation = "security-zone-topology-operation";
@@ -1725,7 +1728,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
-    private Future<RpcResult<SecurityZoneTopologyOperationOutput>> buildRpcResultFuture(
+    private ListenableFuture<RpcResult<SecurityZoneTopologyOperationOutput>> buildRpcResultFuture(
             SecurityZoneTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
 
         responseBuilder.setResponseCode("404");
@@ -1763,7 +1766,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    private Future<RpcResult<ConnectionAttachmentTopologyOperationOutput>>
+    private ListenableFuture<RpcResult<ConnectionAttachmentTopologyOperationOutput>>
     buildRpcResultFuture(ConnectionAttachmentTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
 
         responseBuilder.setResponseCode("404");
@@ -1793,7 +1796,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<ConnectionAttachmentTopologyOperationOutput>> connectionAttachmentTopologyOperation(ConnectionAttachmentTopologyOperationInput input) {
+    public ListenableFuture<RpcResult<ConnectionAttachmentTopologyOperationOutput>> connectionAttachmentTopologyOperation(ConnectionAttachmentTopologyOperationInput input) {
         final String svcOperation = "connection-attachment-topology-operation";
         Properties parms = new Properties();
         log.info(CALLED_STR, svcOperation);
@@ -1925,7 +1928,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<TunnelxconnTopologyOperationOutput>> tunnelxconnTopologyOperation(
+    public ListenableFuture<RpcResult<TunnelxconnTopologyOperationOutput>> tunnelxconnTopologyOperation(
             TunnelxconnTopologyOperationInput input) {
 
         final String svcOperation = "tunnelxconn-topology-operation";
@@ -2056,7 +2059,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<BrgTopologyOperationOutput>> brgTopologyOperation(BrgTopologyOperationInput input) {
+    public ListenableFuture<RpcResult<BrgTopologyOperationOutput>> brgTopologyOperation(BrgTopologyOperationInput input) {
         final String svcOperation = "brg-topology-operation";
         Properties parms = new Properties();
 
@@ -2175,7 +2178,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<PreloadNetworkTopologyOperationOutput>> preloadNetworkTopologyOperation(
+    public ListenableFuture<RpcResult<PreloadNetworkTopologyOperationOutput>> preloadNetworkTopologyOperation(
             PreloadNetworkTopologyOperationInput input) {
 
         final String svcOperation = "preload-network-topology-operation";
@@ -2350,7 +2353,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<PreloadVfModuleTopologyOperationOutput>> preloadVfModuleTopologyOperation(
+    public ListenableFuture<RpcResult<PreloadVfModuleTopologyOperationOutput>> preloadVfModuleTopologyOperation(
             PreloadVfModuleTopologyOperationInput input) {
 
         final String svcOperation = "preload-vf-module-topology-operation";
@@ -2505,7 +2508,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<GenericConfigurationTopologyOperationOutput>> genericConfigurationTopologyOperation(
+    public ListenableFuture<RpcResult<GenericConfigurationTopologyOperationOutput>> genericConfigurationTopologyOperation(
             GenericConfigurationTopologyOperationInput input) {
 
         final String svcOperation = "generic-configuration-topology-operation";
@@ -2680,7 +2683,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<Void>> genericConfigurationNotification(GenericConfigurationNotificationInput input) {
+    public ListenableFuture<RpcResult<GenericConfigurationNotificationOutput>> genericConfigurationNotification(GenericConfigurationNotificationInput input) {
 
         final String svcOperation = "generic-configuration-notification";
         ServiceData serviceData;
@@ -2735,8 +2738,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             } catch (Exception e) {
                 log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
             }
+            
+            
+            
 
-            RpcResult<Void> rpcResult = RpcResultBuilder.<Void>status(true).build();
+            RpcResult<GenericConfigurationNotificationOutput> rpcResult = RpcResultBuilder.<GenericConfigurationNotificationOutput>status(true).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2757,7 +2763,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         } catch (Exception e) {
             log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
-            RpcResult<Void> rpcResult = RpcResultBuilder.<Void>status(true).build();
+            RpcResult<GenericConfigurationNotificationOutput> rpcResult = RpcResultBuilder.<GenericConfigurationNotificationOutput>status(true).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2765,13 +2771,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Update succeeded
         log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
 
-        RpcResult<Void> rpcResult = RpcResultBuilder.<Void>status(true).build();
+        RpcResult<GenericConfigurationNotificationOutput> rpcResult = RpcResultBuilder.<GenericConfigurationNotificationOutput>status(true).build();
 
         return Futures.immediateFuture(rpcResult);
     }
 
     @Override
-    public Future<RpcResult<GetpathsegmentTopologyOperationOutput>> getpathsegmentTopologyOperation(
+    public ListenableFuture<RpcResult<GetpathsegmentTopologyOperationOutput>> getpathsegmentTopologyOperation(
             GetpathsegmentTopologyOperationInput input) {
 
         final String svcOperation = "getpathsegment-topology-operation";
@@ -2936,7 +2942,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<PolicyUpdateNotifyOperationOutput>> policyUpdateNotifyOperation(
+    public ListenableFuture<RpcResult<PolicyUpdateNotifyOperationOutput>> policyUpdateNotifyOperation(
             PolicyUpdateNotifyOperationInput input) {
 
         final String svcOperation = "policy-update-notify-operation";
@@ -3002,7 +3008,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<PortMirrorTopologyOperationOutput>> portMirrorTopologyOperation(
+    public ListenableFuture<RpcResult<PortMirrorTopologyOperationOutput>> portMirrorTopologyOperation(
             final PortMirrorTopologyOperationInput input) {
 
         final String svcOperation = "port-mirror-topology-operation";
@@ -3291,7 +3297,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public Future<RpcResult<VnfGetResourceRequestOutput>> vnfGetResourceRequest(VnfGetResourceRequestInput input) {
+    public ListenableFuture<RpcResult<VnfGetResourceRequestOutput>> vnfGetResourceRequest(VnfGetResourceRequestInput input) {
 
         final String svcOperation = "vnf-get-resource-request";
         ServiceData serviceData;

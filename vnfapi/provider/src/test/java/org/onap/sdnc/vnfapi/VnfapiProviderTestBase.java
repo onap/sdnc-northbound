@@ -31,11 +31,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
@@ -105,6 +106,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.powermock.reflect.Whitebox;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -171,11 +174,15 @@ public class VnfapiProviderTestBase {
         verify(vnfapiServiceRpcRegistration, times(1)).close();
     }
 
-    @Test public void onDataChanged() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> asyncDataChangeEvent = mock(AsyncDataChangeEvent.class);
+    @Test public void onDataTreeChanged() throws Exception {
+    	DataTreeModification dtm = mock(DataTreeModification.class);
+    	DataObjectModification dom = mock(DataObjectModification.class);
+    	
+  
         // instance of Vnfs
         Vnfs vnfs = mock(Vnfs.class);
-        doReturn(vnfs).when(asyncDataChangeEvent).getUpdatedSubtree();
+        doReturn(dom).when(dtm).getRootNode();
+        doReturn(vnfs).when(dom).getDataAfter();
         VnfList vnfList = mock(VnfList.class);
         ServiceData serviceData = mock(ServiceData.class);
         doReturn(serviceData).when(vnfList).getServiceData();
@@ -189,13 +196,16 @@ public class VnfapiProviderTestBase {
         doReturn(readWriteTransactionInDataChanged).when(dataBroker).newWriteOnlyTransaction();
         doReturn(checkedFuture).when(readWriteTransactionInDataChanged).submit();
 
-        vnfapiProvider.onDataChanged(asyncDataChangeEvent);
+        Collection dtmList = new LinkedList<DataTreeModification>();
+        dtmList.add(dtm);
+        
+        vnfapiProvider.onDataTreeChanged(dtmList);
 
         verify(readWriteTransactionInDataChanged, times(1)).submit();
 
         // instance of PreloadVnfs
         PreloadVnfs preloadVnfs = mock(PreloadVnfs.class);
-        doReturn(preloadVnfs).when(asyncDataChangeEvent).getUpdatedSubtree();
+        doReturn(preloadVnfs).when(dom).getDataAfter();
         ArrayList<VnfPreloadList> vnfPreloadLists = new ArrayList<>();
         doReturn(vnfPreloadLists).when(preloadVnfs).getVnfPreloadList();
         PreloadData preloadData = mock(PreloadData.class);
@@ -203,13 +213,13 @@ public class VnfapiProviderTestBase {
         doReturn(preloadData).when(vnfPreloadList).getPreloadData();
         vnfPreloadLists.add(vnfPreloadList);
 
-        vnfapiProvider.onDataChanged(asyncDataChangeEvent);
+        vnfapiProvider.onDataTreeChanged(dtmList);
 
         verify(readWriteTransactionInDataChanged, times(2)).submit();
 
         // instance of PreloadVnfInstances
         PreloadVnfInstances preloadVnfInstances = mock(PreloadVnfInstances.class);
-        doReturn(preloadVnfInstances).when(asyncDataChangeEvent).getUpdatedSubtree();
+        doReturn(preloadVnfInstances).when(dom).getDataAfter();
         ArrayList<VnfInstancePreloadList> vnfInstancePreloadLists = new ArrayList<>();
         doReturn(vnfInstancePreloadLists).when(preloadVnfInstances).getVnfInstancePreloadList();
         VnfInstancePreloadList vnfInstancePreloadList = mock(VnfInstancePreloadList.class);
@@ -217,13 +227,13 @@ public class VnfapiProviderTestBase {
         doReturn(vnfInstancePreloadData).when(vnfInstancePreloadList).getVnfInstancePreloadData();
         vnfInstancePreloadLists.add(vnfInstancePreloadList);
 
-        vnfapiProvider.onDataChanged(asyncDataChangeEvent);
+        vnfapiProvider.onDataTreeChanged(dtmList);
 
         verify(readWriteTransactionInDataChanged, times(3)).submit();
 
         // instance of VnfInstances
         VnfInstances vnfInstances = mock(VnfInstances.class);
-        doReturn(vnfInstances).when(asyncDataChangeEvent).getUpdatedSubtree();
+        doReturn(vnfInstances).when(dom).getDataAfter();
         ArrayList<VnfInstanceList> vnfInstanceLists = new ArrayList<>();
         doReturn(vnfInstanceLists).when(vnfInstances).getVnfInstanceList();
         VnfInstanceList vnfInstanceList = mock(VnfInstanceList.class);
@@ -232,13 +242,13 @@ public class VnfapiProviderTestBase {
         doReturn(vnfInstanceServiceData).when(vnfInstanceList).getVnfInstanceServiceData();
         doReturn(serviceStatus).when(vnfInstanceList).getServiceStatus();
 
-        vnfapiProvider.onDataChanged(asyncDataChangeEvent);
+        vnfapiProvider.onDataTreeChanged(dtmList);
 
         verify(readWriteTransactionInDataChanged, times(4)).submit();
 
         // instance of PreloadVfModules
         PreloadVfModules preloadVfModules = mock(PreloadVfModules.class);
-        doReturn(preloadVfModules).when(asyncDataChangeEvent).getUpdatedSubtree();
+        doReturn(preloadVfModules).when(dom).getDataAfter();
         ArrayList<VfModulePreloadList> vfModulePreloadLists = new ArrayList<>();
         doReturn(vfModulePreloadLists).when(preloadVfModules).getVfModulePreloadList();
         VfModulePreloadList vfModulePreloadList = mock(VfModulePreloadList.class);
@@ -246,13 +256,13 @@ public class VnfapiProviderTestBase {
         VfModulePreloadData vfModulePreloadData = mock(VfModulePreloadData.class);
         doReturn(vfModulePreloadData).when(vfModulePreloadList).getVfModulePreloadData();
 
-        vnfapiProvider.onDataChanged(asyncDataChangeEvent);
+        vnfapiProvider.onDataTreeChanged(dtmList);
 
         verify(readWriteTransactionInDataChanged, times(5)).submit();
 
         // instance of VfModules
         VfModules vfModules = mock(VfModules.class);
-        doReturn(preloadVfModules).when(asyncDataChangeEvent).getUpdatedSubtree();
+        doReturn(preloadVfModules).when(dom).getDataAfter();
         ArrayList<VfModuleList> vfModuleLists = new ArrayList<>();
         doReturn(vfModuleLists).when(vfModules).getVfModuleList();
         VfModuleList vfModuleList = mock(VfModuleList.class);
@@ -261,7 +271,7 @@ public class VnfapiProviderTestBase {
         doReturn(vfModuleServiceData).when(vfModuleList).getVfModuleServiceData();
         doReturn(serviceStatus).when(vfModuleList).getServiceStatus();
 
-        vnfapiProvider.onDataChanged(asyncDataChangeEvent);
+        vnfapiProvider.onDataTreeChanged(dtmList);
 
         verify(readWriteTransactionInDataChanged, times(6)).submit();
     }
@@ -1497,7 +1507,7 @@ public class VnfapiProviderTestBase {
         LogicalDatastoreType configuration = LogicalDatastoreType.CONFIGURATION;
         VnfList vnfList = mock(VnfList.class);
         VnfListKey vnfListKey = mock(VnfListKey.class);
-        doReturn(vnfListKey).when(vnfList).getKey();
+        doReturn(vnfListKey).when(vnfList).key();
         InstanceIdentifier<VnfList> vnfListInstanceIdentifier = mock(InstanceIdentifier.class);
         dataBroker.newWriteOnlyTransaction().put(configuration, vnfListInstanceIdentifier, vnfList);
 
