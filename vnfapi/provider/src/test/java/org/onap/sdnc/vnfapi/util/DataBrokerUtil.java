@@ -71,7 +71,7 @@ public class DataBrokerUtil {
         // Each entry will be identifiable by a unique key, we have to create that
         // identifier
         InstanceIdentifier.InstanceIdentifierBuilder<VnfList> VnfListBuilder = InstanceIdentifier
-                .<Vnfs>builder(Vnfs.class).child(VnfList.class, VnfList.getKey());
+                .<Vnfs>builder(Vnfs.class).child(VnfList.class, VnfList.key());
         InstanceIdentifier<VnfList> path = VnfListBuilder.build();
 
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();

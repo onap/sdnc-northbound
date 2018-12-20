@@ -24,13 +24,14 @@ package org.onap.sdnc.vnfapi;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -145,6 +146,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.Future;
 
 /**
@@ -153,7 +155,7 @@ import java.util.concurrent.Future;
  * initialization / clean up methods.
  */
 
-public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeListener {
+public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataTreeChangeListener {
     protected DataBroker dataBroker;
     protected NotificationPublishService notificationService;
     protected RpcProviderRegistry rpcRegistry;
@@ -276,60 +278,69 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     }
 
     // On data change not used
-    @Override
-    public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
+	@Override
+	public void onDataTreeChanged(Collection changes) {
 
-        log.info("   IN ON DATA CHANGE: ");
+		log.info("   IN ON DATA CHANGE: ");
 
-        boolean changed = false;
-        WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
-        DataObject updatedSubTree = change.getUpdatedSubtree();
+		for (Object changeObj : changes) {
 
-        if (updatedSubTree != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("updatedSubTree was non-null:" + updatedSubTree);
-            }
-            if (updatedSubTree instanceof Vnfs) {
-                changed = isChanged(changed, (Vnfs) updatedSubTree);
-            }
-            if (updatedSubTree instanceof PreloadVnfs) {
-                changed = isChanged(changed, (PreloadVnfs) updatedSubTree);
-            }
-            //1610
-            if (updatedSubTree instanceof PreloadVnfInstances) {
-                changed = isChanged(changed, (PreloadVnfInstances) updatedSubTree);
-            }
-            //1610
-            if (updatedSubTree instanceof VnfInstances) {
-                changed = isChanged(changed, (VnfInstances) updatedSubTree);
-            }
-            //1610
-            if (updatedSubTree instanceof PreloadVfModules) {
-                changed = isChanged(changed, (PreloadVfModules) updatedSubTree);
-            }
-            //1610
-            if (updatedSubTree instanceof VfModules) {
-                changed = isChanged(changed, (VfModules) updatedSubTree);
-            }
-        }
+			if (changeObj instanceof DataTreeModification) {
+				
+				DataTreeModification change = (DataTreeModification) changeObj;
+				
 
-        // Do the write transaction only if something changed.
-        if (changed) {
-            CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = writeTransaction.submit();
-            Futures.addCallback(checkedFuture, new FutureCallback<Void>() {
+				boolean changed = false;
+				WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
+				DataObject updatedSubTree = change.getRootNode().getDataAfter();
 
-                @Override
-                public void onSuccess(Void arg0) {
-                    log.debug("Successfully updated Service Status");
-                }
+				if (updatedSubTree != null) {
+					if (log.isDebugEnabled()) {
+						log.debug("updatedSubTree was non-null:" + updatedSubTree);
+					}
+					if (updatedSubTree instanceof Vnfs) {
+						changed = isChanged(changed, (Vnfs) updatedSubTree);
+					}
+					if (updatedSubTree instanceof PreloadVnfs) {
+						changed = isChanged(changed, (PreloadVnfs) updatedSubTree);
+					}
+					// 1610
+					if (updatedSubTree instanceof PreloadVnfInstances) {
+						changed = isChanged(changed, (PreloadVnfInstances) updatedSubTree);
+					}
+					// 1610
+					if (updatedSubTree instanceof VnfInstances) {
+						changed = isChanged(changed, (VnfInstances) updatedSubTree);
+					}
+					// 1610
+					if (updatedSubTree instanceof PreloadVfModules) {
+						changed = isChanged(changed, (PreloadVfModules) updatedSubTree);
+					}
+					// 1610
+					if (updatedSubTree instanceof VfModules) {
+						changed = isChanged(changed, (VfModules) updatedSubTree);
+					}
+				}
 
-                @Override
-                public void onFailure(Throwable e) {
-                    log.debug("Failed updating Service Status", e);
-                }
-            }, executor);
-        }
-    }
+				// Do the write transaction only if something changed.
+				if (changed) {
+					CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = writeTransaction.submit();
+					Futures.addCallback(checkedFuture, new FutureCallback<Void>() {
+
+						@Override
+						public void onSuccess(Void arg0) {
+							log.debug("Successfully updated Service Status");
+						}
+
+						@Override
+						public void onFailure(Throwable e) {
+							log.debug("Failed updating Service Status", e);
+						}
+					}, executor);
+				}
+			}
+		}
+	}
 
     private boolean isChanged(boolean changed, VfModules updatedSubTree) {
         ArrayList<VfModuleList> vfModuleList =
@@ -813,7 +824,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Each entry will be identifiable by a unique key, we have to create that identifier
         InstanceIdentifier<VnfList> path = InstanceIdentifier
             .builder(Vnfs.class)
-            .child(VnfList.class, entry.getKey())
+            .child(VnfList.class, entry.key())
             .build();
 
         int optimisticLockTries = 2;
@@ -834,13 +845,22 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 tryAgain = true;
 
             } catch (final TransactionCommitFailedException e) {
+            	Throwable eCause = e.getCause();
+            	
+            	
+            	if (eCause instanceof org.opendaylight.mdsal.common.api.TransactionCommitFailedException) {
+            		log.debug("Nested TransactionCommitFailed exception - getting next cause");
+            		eCause = eCause.getCause();
+            	} else {
+            		log.debug("Got TransactionCommitFailedException, caused by {}", eCause.getClass().getName());
+            	}
 
-                if (e.getCause() instanceof ModifiedNodeDoesNotExistException) {
-                    log.debug("Ignoring MpdifiedNodeDoesNotExistException");
+                if (eCause instanceof ModifiedNodeDoesNotExistException) {
+                    log.debug("Ignoring ModifiedNodeDoesNotExistException");
                     break;
                 }
 
-                log.debug("Delete DataStore failed");
+                log.debug("Delete DataStore failed due to exception", eCause);
                 throw new IllegalStateException(e);
             }
         }
@@ -850,7 +870,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Each entry will be identifiable by a unique key, we have to create that identifier
         InstanceIdentifier<VnfList> path = InstanceIdentifier
             .builder(Vnfs.class)
-            .child(VnfList.class, entry.getKey())
+            .child(VnfList.class, entry.key())
             .build();
 
         tryUpdateDataStore(entry, merge, storeType, path);
@@ -861,7 +881,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Each entry will be identifiable by a unique key, we have to create that identifier
         InstanceIdentifier<VnfInstanceList> path = InstanceIdentifier
             .builder(VnfInstances.class)
-            .child(VnfInstanceList.class, entry.getKey())
+            .child(VnfInstanceList.class, entry.key())
             .build();
 
         tryUpdateDataStore(entry, merge, storeType, path);
@@ -872,7 +892,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Each entry will be identifiable by a unique key, we have to create that identifier
         InstanceIdentifier<VfModuleList> path = InstanceIdentifier
             .builder(VfModules.class)
-            .child(VfModuleList.class, entry.getKey())
+            .child(VfModuleList.class, entry.key())
             .build();
 
         tryUpdateDataStore(entry, merge, storeType, path);
@@ -883,7 +903,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Each entry will be identifiable by a unique key, we have to create that identifier
         InstanceIdentifier<VnfPreloadList> path = InstanceIdentifier
             .builder(PreloadVnfs.class)
-            .child(VnfPreloadList.class, entry.getKey())
+            .child(VnfPreloadList.class, entry.key())
             .build();
 
         tryUpdateDataStore(entry, merge, storeType, path);
@@ -896,7 +916,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Each entry will be identifiable by a unique key, we have to create that identifier
         InstanceIdentifier<VnfInstancePreloadList> path = InstanceIdentifier
             .builder(PreloadVnfInstances.class)
-            .child(VnfInstancePreloadList.class, entry.getKey())
+            .child(VnfInstancePreloadList.class, entry.key())
             .build();
 
         tryUpdateDataStore(entry, merge, storeType, path);
@@ -909,7 +929,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
         // Each entry will be identifiable by a unique key, we have to create that identifier
         InstanceIdentifier<VfModulePreloadList> path = InstanceIdentifier
             .builder(PreloadVfModules.class)
-            .child(VfModulePreloadList.class, entry.getKey())
+            .child(VfModulePreloadList.class, entry.key())
             .build();
 
         tryUpdateDataStore(entry, merge, storeType, path);
@@ -957,7 +977,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 && input.getVnfInstanceRequestInformation().getVnfInstanceId().length() != 0;
     }
 
-    private Future<RpcResult<VnfInstanceTopologyOperationOutput>> buildVnfInstanceTopologyOperationOutputWithtError(
+    private ListenableFuture<RpcResult<VnfInstanceTopologyOperationOutput>> buildVnfInstanceTopologyOperationOutputWithtError(
             String responseCode, String responseMessage, String ackFinalIndicator) {
         VnfInstanceTopologyOperationOutputBuilder responseBuilder = new VnfInstanceTopologyOperationOutputBuilder();
         responseBuilder.setResponseCode(responseCode);
@@ -970,7 +990,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     }
 
     @Override
-    public Future<RpcResult<VnfInstanceTopologyOperationOutput>> vnfInstanceTopologyOperation(
+    public ListenableFuture<RpcResult<VnfInstanceTopologyOperationOutput>> vnfInstanceTopologyOperation(
         VnfInstanceTopologyOperationInput input) {
 
         final String svcOperation = "vnf-instance-topology-operation";
@@ -1156,7 +1176,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
     //1610 vf-module-topology-operation
     @Override
-    public Future<RpcResult<VfModuleTopologyOperationOutput>> vfModuleTopologyOperation(
+    public ListenableFuture<RpcResult<VfModuleTopologyOperationOutput>> vfModuleTopologyOperation(
         VfModuleTopologyOperationInput input) {
 
         final String svcOperation = "vf-module-topology-operation";
@@ -1388,7 +1408,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     }
 
     @Override
-    public Future<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(VnfTopologyOperationInput input) {
+    public ListenableFuture<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(VnfTopologyOperationInput input) {
         final String svcOperation = "vnf-topology-operation";
         ServiceData serviceData;
         ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
@@ -1580,7 +1600,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     }
 
     @Override
-    public Future<RpcResult<NetworkTopologyOperationOutput>> networkTopologyOperation(
+    public ListenableFuture<RpcResult<NetworkTopologyOperationOutput>> networkTopologyOperation(
         NetworkTopologyOperationInput input) {
 
         final String svcOperation = "network-topology-operation";
@@ -1722,7 +1742,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
     }
 
     @Override
-    public Future<RpcResult<PreloadVnfTopologyOperationOutput>> preloadVnfTopologyOperation(
+    public ListenableFuture<RpcResult<PreloadVnfTopologyOperationOutput>> preloadVnfTopologyOperation(
         PreloadVnfTopologyOperationInput input) {
 
         final String svcOperation = "preload-vnf-topology-operation";
@@ -1909,7 +1929,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
     //1610 preload-vnf-instance-topology-operation
     @Override
-    public Future<RpcResult<PreloadVnfInstanceTopologyOperationOutput>> preloadVnfInstanceTopologyOperation(
+    public ListenableFuture<RpcResult<PreloadVnfInstanceTopologyOperationOutput>> preloadVnfInstanceTopologyOperation(
         PreloadVnfInstanceTopologyOperationInput input) {
 
         final String svcOperation = "preload-vnf-instance-topology-operation";
@@ -2098,7 +2118,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
     //1610 preload-vf-module-topology-operation
     @Override
-    public Future<RpcResult<PreloadVfModuleTopologyOperationOutput>> preloadVfModuleTopologyOperation(
+    public ListenableFuture<RpcResult<PreloadVfModuleTopologyOperationOutput>> preloadVfModuleTopologyOperation(
         PreloadVfModuleTopologyOperationInput input) {
 
         final String svcOperation = "preload-vf-module-topology-operation";
@@ -2288,7 +2308,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
 
 
     @Override
-    public Future<RpcResult<PreloadNetworkTopologyOperationOutput>> preloadNetworkTopologyOperation(
+    public ListenableFuture<RpcResult<PreloadNetworkTopologyOperationOutput>> preloadNetworkTopologyOperation(
         PreloadNetworkTopologyOperationInput input) {
 
         final String svcOperation = "preload-network-topology-operation";
@@ -2477,4 +2497,6 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService, DataChangeL
                 .build();
         return Futures.immediateFuture(rpcResult);
     }
+
+
 }

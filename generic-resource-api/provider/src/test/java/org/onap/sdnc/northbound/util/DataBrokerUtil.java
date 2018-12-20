@@ -87,7 +87,7 @@ public class DataBrokerUtil {
         // Each entry will be identifiable by a unique key, we have to create that
         // identifier
         InstanceIdentifier.InstanceIdentifierBuilder<Service> serviceBuilder = InstanceIdentifier
-                .<Services>builder(Services.class).child(Service.class, service.getKey());
+                .<Services>builder(Services.class).child(Service.class, service.key());
         InstanceIdentifier<Service> path = serviceBuilder.build();
 
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
