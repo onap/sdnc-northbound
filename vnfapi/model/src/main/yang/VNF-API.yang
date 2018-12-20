@@ -6,7 +6,7 @@ module VNF-API {
 
     prefix vnfapi;
 
-    import ietf-inet-types { prefix "ietf"; revision-date "2010-09-24"; }
+    import ietf-inet-types { prefix "ietf"; revision-date "2013-07-15"; }
 
     include "vnfsubmodule";
 

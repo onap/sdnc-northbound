@@ -4,7 +4,7 @@ module GENERIC-RESOURCE-API {
 
    prefix generic-resource-api;
 
-   import ietf-inet-types { prefix "inet"; revision-date "2010-09-24"; }
+   import ietf-inet-types { prefix "inet"; revision-date "2013-07-15"; }
 
    import ietf-yang-types { prefix yang; }
 
