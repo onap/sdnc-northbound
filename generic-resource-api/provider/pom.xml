@@ -1,12 +1,12 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.onap.ccsdk.parent</groupId>
         <artifactId>binding-parent</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
-        <relativePath />
+        <version>1.2.1-SNAPSHOT</version>
+        <relativePath/>
     </parent>
 
     <groupId>org.onap.sdnc.northbound</groupId>
@@ -16,6 +16,17 @@
 
     <name>sdnc-northbound :: generic-resource-api :: ${project.artifactId}</name>
 
+	<dependencyManagement>
+	    <dependencies>
+	    	<dependency>
+	    	    <groupId>org.onap.ccsdk.sli.core</groupId>
+	    	    <artifactId>sli-core-artifacts</artifactId>
+	    	    <version>${ccsdk.sli.core.version}</version>
+	    	    <type>pom</type>
+	    	    <scope>import</scope>
+	    	</dependency>
+	    </dependencies>
+	</dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.onap.sdnc.northbound</groupId>
@@ -33,11 +44,6 @@
         <dependency>
             <groupId>org.onap.ccsdk.sli.core</groupId>
             <artifactId>sli-provider</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-binding-config</artifactId>
         </dependency>
 
         <dependency>

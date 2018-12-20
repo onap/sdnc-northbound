@@ -35,7 +35,6 @@ import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
@@ -171,7 +170,7 @@ public class VnfapiProviderTestBase {
         verify(vnfapiServiceRpcRegistration, times(1)).close();
     }
 
-    @Test public void onDataChanged() throws Exception {
+    @Test public void onDataTreeChanged() throws Exception {
         AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> asyncDataChangeEvent = mock(AsyncDataChangeEvent.class);
         // instance of Vnfs
         Vnfs vnfs = mock(Vnfs.class);
