@@ -399,6 +399,10 @@ module GENERIC-RESOURCE-API {
                   type string;
                   mandatory true;
                }
+               leaf neutron-network-id {
+                  description "Neutron-network-id assigned by PO/RO";
+                  type string;
+               }
                uses vpn-bindings;
                leaf vlan-tag-id {
                   type uint32;
@@ -1292,6 +1296,20 @@ module GENERIC-RESOURCE-API {
             description "network-collection-customization-uuid stored in Network IsntanceGroup.customization-uuid in A&AI";
             type string;
          }
+         container networks {
+            list network {
+               key "network-id";
+               leaf network-id {
+                  description "Index into network-topology-identifier structure";
+                  type string;
+                  mandatory true;
+               }
+               leaf neutron-network-id {
+                  description "Neutron-network-id assigned by PO/RO";
+                  type string;
+               }
+            }
+         }
          container vnf-floating-ip {
             uses ip-addresses;
          }
@@ -1331,6 +1349,10 @@ module GENERIC-RESOURCE-API {
             description "Subinterface network id (UUID in A&AI)";
             type string;
             mandatory true;
+         }
+         leaf neutron-network-id {
+            description "Neutron network id assigned by PO/RP";
+            type string;
          }
          leaf network-name {
             description "Subinterface network name";
