@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Dan Timoney <dtimoney@att.com>
+Code-Review+2: David Stilwell <stilwelld@att.com>
+Submitted-by: David Stilwell <stilwelld@att.com>
+Submitted-at: Sun, 20 Jan 2019 14:03:01 +0000
+Reviewed-on: https://gerrit.onap.org/r/75019
+Project: sdnc/northbound
+Branch: refs/heads/master
