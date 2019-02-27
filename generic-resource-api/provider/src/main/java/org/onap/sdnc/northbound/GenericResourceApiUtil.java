@@ -114,5 +114,23 @@ public class GenericResourceApiUtil extends MdsalHelper {
         org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.topology.identifier.structure.VnfTopologyIdentifierStructureBuilder u107 = new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.topology.identifier.structure.VnfTopologyIdentifierStructureBuilder();
         org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationInputBuilder u110 = new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationInputBuilder();
         org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutputBuilder u111 = new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutputBuilder();
+        org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.service.data.PnfsBuilder u112 = new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.res
+ource.rev170824.service.data.service.data.PnfsBuilder();
+        org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.service.data.pnfs.PnfBuilder u113 = new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic
+.resource.rev170824.service.data.service.data.pnfs.PnfBuilder();
+        org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.service.data.pnfs.pnf.PnfDataBuilder u114 = new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound
+.generic.resource.rev170824.service.data.service.data.pnfs.pnf.PnfDataBuilder();
+        org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.pnf.request.input.PnfRequestInputBuilder u115 = new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.
+resource.rev170824.pnf.request.input.PnfRequestInputBuilder();
+        org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.pnf.request.input.pnf.request.input.PnfInputParametersBuilder u116 = new org.opendaylight.yang.gen.v1.org.onap.sdn
+c.northbound.generic.resource.rev170824.pnf.request.input.pnf.request.input.PnfInputParametersBuilder();
+        org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.response.information.PnfResponseInformationBuilder u117 = new org.opendaylight.yang.gen.v1.org.onap.sdnc.nort
+hbound.generic.resource.rev170824.vnf.response.information.PnfResponseInformationBuilder();
+        org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.topology.identifier.structure.PnfTopologyIdentifierStructureBuilder u118 = new org.opendaylight.yang.gen.v1.o
+rg.onap.sdnc.northbound.generic.resource.rev170824.vnf.topology.identifier.structure.PnfTopologyIdentifierStructureBuilder();
+        org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationInputBuilder u119 = new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resourc
+e.rev170824.PnfTopologyOperationInputBuilder();
+        org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationOutputBuilder u120 = new org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resour
+ce.rev170824.PnfTopologyOperationOutputBuilder();
     }
 }
