@@ -188,8 +188,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     private static final String ACK_FINAL_PARAM = "ack-final";
     private static final String SERVICE_OBJECT_PATH_PARAM = "service-object-path";
     private static final String NETWORK_OBJECT_PATH_PARAM = "network-object-path";
-    private static final String VNF_OBJECT_PATH_PARAM = "vnf-object-path";
     private static final String PNF_OBJECT_PATH_PARAM = "pnf-object-path";
+    private static final String VNF_OBJECT_PATH_PARAM = "vnf-object-path";
     private static final String VF_MODULE_OBJECT_PATH_PARAM = "vf-module-object-path";
     private static final String UPDATING_MDSAL_ERROR_MESSAGE = "Caught Exception updating MD-SAL for {} [{}] \n";
     private static final String UPDATING_MDSAL_ERROR_MESSAGE_2 = "Caught Exception updating MD-SAL for {} [{},{}] \n";
@@ -1004,7 +1004,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     private boolean isValidRequest(PnfTopologyOperationInput input) {
         return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
     }
-
 
     @Override
     public ListenableFuture<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(VnfTopologyOperationInput input) {
