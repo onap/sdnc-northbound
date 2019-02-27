@@ -51,6 +51,20 @@ module GENERIC-RESOURCE-API {
                }
             }
          }
+         container pnfs {
+            list pnf {
+               key "pnf-id";
+               leaf pnf-id {
+                  type string;
+                  mandatory true;
+               }
+               container pnf-data {
+                  uses pnf-operation-information;
+                  uses pnf-topology;
+                  uses pnf-level-oper-status;
+               }
+            }
+         }
          container vnfs {
             list vnf {
                key "vnf-id";
@@ -426,6 +440,79 @@ module GENERIC-RESOURCE-API {
    }
    grouping network-level-oper-status {
       container network-level-oper-status {
+         uses oper-status-data;
+      }
+   }
+   grouping pnf-operation-information {
+      uses sdnc-request-header;
+      uses request-information;
+      uses service-information;
+      uses pnf-details;
+      uses pnf-request-input;
+   }
+   grouping pnf-details {
+      container pnf-details {
+         leaf pnf-id {
+            description "pnfId*Identifier of this Pnf information element. CORRELATIONID = PNF-NAME (A&AI)";
+            type string;
+            mandatory true;
+         }
+         leaf pnf-type {
+            description "pnfType (template)*Type of Resource. NEW type: PNF (pre-defined in SDC)";
+            type string;
+         }
+         leaf pnf-name {
+            type string;
+         }
+         uses onap-model-information;
+      }
+   }
+   grouping pnf-request-input {
+      container pnf-request-input {
+         leaf request-version {
+            description "keep this? e.g. 1702";
+            type string;
+         }
+         leaf pnf-name {
+            type string;
+         }
+         uses region-identifier;
+         container pnf-input-parameters {
+            uses param;
+         }
+      }
+   }
+   grouping pnf-topology {
+      container pnf-topology {
+         uses pnf-topology-identifier-structure;
+         uses region-identifier;
+         uses onap-model-information;
+         container pnf-parameters-data {
+            uses param;
+         }
+         leaf sdnc-generated-cloud-resources {
+            description "Indicate if source is sdnc generated cloud param.When true, the parameters are literal HEAT template parameter names;When false, the parameters need to be converted to HEAT format";
+            type boolean;
+         }
+      }
+   }
+   grouping pnf-topology-identifier-structure {
+      container pnf-topology-identifier-structure {
+         leaf pnf-id {
+            type string;
+         }
+         leaf pnf-type {
+            description "In preload tree, this label is used for the vf-module-type";
+            type string;
+         }
+         leaf pnf-name {
+            description "optionally comes from pnf-request-input container or is assigned by sdn-c";
+            type string;
+         }
+      }
+   }
+   grouping pnf-level-oper-status {
+      container pnf-level-oper-status {
          uses oper-status-data;
       }
    }
@@ -2353,6 +2440,9 @@ module GENERIC-RESOURCE-API {
                enum "CreateVnfInstance";
                enum "ActivateVnfInstance";
                enum "DeleteVnfInstance";
+               enum "CreatePnfInstance";
+               enum "ActivatePnfInstance";
+               enum "DeletePnfInstance";
                enum "CreateVfModuleInstance";
                enum "ActivateVfModuleInstance";
                enum "DeleteVfModuleInstance";
@@ -2580,12 +2670,15 @@ module GENERIC-RESOURCE-API {
             enum "CreateNetworkInstance";
             enum "ActivateNetworkInstance";
             enum "DeActivateNetworkInstance";
+            enum "DeleteNetworkInstance";
             enum "CreateServiceInstance";
             enum "DeleteServiceInstance";
-            enum "DeleteNetworkInstance";
             enum "CreateVnfInstance";
             enum "ActivateVnfInstance";
             enum "DeleteVnfInstance";
+            enum "CreatePnfInstance";
+            enum "ActivatePnfInstance";
+            enum "DeletePnfInstance";
             enum "CreateVfModuleInstance";
             enum "ActivateVfModuleInstance";
             enum "DeleteVfModuleInstance";
@@ -2687,6 +2780,11 @@ module GENERIC-RESOURCE-API {
    }
    grouping vf-module-response-information {
       container vf-module-response-information {
+         uses instance-reference;
+      }
+   }
+   grouping pnf-response-information {
+      container pnf-response-information {
          uses instance-reference;
       }
    }
@@ -3132,6 +3230,16 @@ module GENERIC-RESOURCE-API {
          uses topology-response-common;
          uses vf-module-response-information;
          uses vnf-response-information;
+         uses service-response-information;
+      }
+   }
+   rpc pnf-topology-operation {
+      input {
+         uses pnf-operation-information;
+      }
+      output {
+         uses topology-response-common;
+         uses pnf-response-information;
          uses service-response-information;
       }
    }
