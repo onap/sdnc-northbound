@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "858d8429_6f04ce0c",
+        "filename": "generic-resource-api/model/src/main/yang/GENERIC-RESOURCE-API.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 2397,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2019-03-06T06:44:55Z",
+      "side": 1,
+      "message": "can be removed",
+      "range": {
+        "startLine": 2394,
+        "startChar": 0,
+        "endLine": 2397,
+        "endChar": 54
+      },
+      "revId": "c1551a2b303aea86849927cd51300f3d4a7e33c5",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc6f529a_62499b59",
+        "filename": "generic-resource-api/model/src/main/yang/GENERIC-RESOURCE-API.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 2410,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2019-03-06T06:44:55Z",
+      "side": 1,
+      "message": "SDWANLanPortInstance",
+      "range": {
+        "startLine": 2407,
+        "startChar": 0,
+        "endLine": 2410,
+        "endChar": 46
+      },
+      "revId": "c1551a2b303aea86849927cd51300f3d4a7e33c5",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79dfecc3_21a2cb14",
+        "filename": "generic-resource-api/model/src/main/yang/GENERIC-RESOURCE-API.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 2414,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2019-03-06T06:44:55Z",
+      "side": 1,
+      "message": "SDWANVpnInstance",
+      "range": {
+        "startLine": 2411,
+        "startChar": 0,
+        "endLine": 2414,
+        "endChar": 53
+      },
+      "revId": "c1551a2b303aea86849927cd51300f3d4a7e33c5",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77f02f48_ca9b2415",
+        "filename": "generic-resource-api/model/src/main/yang/GENERIC-RESOURCE-API.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 2418,
+      "author": {
+        "id": 1443
+      },
+      "writtenOn": "2019-03-06T06:44:55Z",
+      "side": 1,
+      "message": "SDWANSiteInstance is good enough, can remove resource keyword",
+      "range": {
+        "startLine": 2415,
+        "startChar": 0,
+        "endLine": 2418,
+        "endChar": 54
+      },
+      "revId": "c1551a2b303aea86849927cd51300f3d4a7e33c5",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
