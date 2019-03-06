@@ -2403,11 +2403,16 @@ module GENERIC-RESOURCE-API {
                enum "ActivateSDWANPortInstance";
                enum "DeactivateSDWANPortInstance";
                enum "DeleteSDWANPortInstance";
-               enum "CreateSDWANAttachmentInstance";
-               enum "ActivateSDWANAttachmentInstance";
-               enum "DeactivateSDWANAttachmentInstance";
-               enum "DeleteSDWANAttachmentInstance";
                enum "ReoptimizeSOTNInstance";
+               enum "CreateSDWANVpnResourceInstance";
+               enum "ActivateSDWANVpnResourceInstance";
+               enum "DeactivateSDWANVpnResourceInstance";
+               enum "DeleteSDWANVpnResourceInstance";
+               enum "CreateSDWANSiteResourceInstance";
+               enum "ActivateSDWANSiteResourceInstance";
+               enum "DeactivateSDWANSiteResourceInstance";
+               enum "DeleteSDWANSiteResourceInstance";
+               enum "SdwanBandwidthChange";
             }
          }
          leaf source {
@@ -2630,11 +2635,16 @@ module GENERIC-RESOURCE-API {
             enum "ActivateSDWANPortInstance";
             enum "DeactivateSDWANPortInstance";
             enum "DeleteSDWANPortInstance";
-            enum "CreateSDWANAttachmentInstance";
-            enum "ActivateSDWANAttachmentInstance";
-            enum "DeactivateSDWANAttachmentInstance";
-            enum "DeleteSDWANAttachmentInstance";
             enum "ReoptimizeSOTNInstance";
+            enum "CreateSDWANVpnResourceInstance";
+            enum "ActivateSDWANVpnResourceInstance";
+            enum "DeactivateSDWANVpnResourceInstance";
+            enum "DeleteSDWANVpnResourceInstance";
+            enum "CreateSDWANSiteResourceInstance";
+            enum "ActivateSDWANSiteResourceInstance";
+            enum "DeactivateSDWANSiteResourceInstance";
+            enum "DeleteSDWANSiteResourceInstance";
+            enum "SdwanBandwidthChange";
          }
       }
       leaf last-svc-request-id {
