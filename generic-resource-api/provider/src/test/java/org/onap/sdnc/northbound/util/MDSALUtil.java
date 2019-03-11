@@ -46,6 +46,8 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VfModuleTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.brg.response.information.BrgResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.connection.attachment.response.information.ConnectionAttachmentResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.contrail.route.response.information.ContrailRouteResponseInformationBuilder;
@@ -71,6 +73,9 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.information.VnfInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.response.information.VnfResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.topology.identifier.structure.VnfTopologyIdentifierStructureBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.pnf.details.PnfDetailsBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.pnf.response.information.PnfResponseInformationBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.pnf.topology.identifier.structure.PnfTopologyIdentifierStructureBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
@@ -158,6 +163,14 @@ public class MDSALUtil {
         return new VfModuleTopologyOperationOutputBuilder();
     }
 
+    public static PnfTopologyOperationInputBuilder pnfTopologyOperationInput() {
+        return new PnfTopologyOperationInputBuilder();
+    }
+
+    public static PnfTopologyOperationOutputBuilder pnfTopologyOperationOutput() {
+        return new PnfTopologyOperationOutputBuilder();
+    }
+
     public static VnfTopologyOperationInputBuilder vnfTopologyOperationInput() {
         return new VnfTopologyOperationInputBuilder();
     }
@@ -204,6 +217,10 @@ public class MDSALUtil {
         return new ContrailRouteResponseInformationBuilder();
     }
 
+    public static PnfResponseInformationBuilder pnfResponseInformation() {
+        return new PnfResponseInformationBuilder();
+    }
+
     public static VnfResponseInformationBuilder vnfResponseInformation() {
         return new VnfResponseInformationBuilder();
     }
@@ -222,6 +239,10 @@ public class MDSALUtil {
 
     public static NetworkTopologyIdentifierStructureBuilder networkTopologyIdentifierStructureBuilder(){
         return new NetworkTopologyIdentifierStructureBuilder();
+    }
+
+    public static PnfDetailsBuilder pnfDetailsBuilder() {
+        return new PnfDetailsBuilder();
     }
 
     public static VnfInformationBuilder vnfInformationBuilder() {
@@ -254,6 +275,10 @@ public class MDSALUtil {
 
     public static NetworkTopologyOperationOutputBuilder networkTopologyOperationOutput() {
         return new NetworkTopologyOperationOutputBuilder();
+    }
+
+    public static PnfTopologyIdentifierStructureBuilder pnfTopologyIdentifierStructureBuilder() {
+        return new PnfTopologyIdentifierStructureBuilder();
     }
 
     public static VnfTopologyIdentifierStructureBuilder vnfTopologyIdentifierStructureBuilder() {
