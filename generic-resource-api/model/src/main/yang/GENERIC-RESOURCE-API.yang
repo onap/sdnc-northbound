@@ -707,6 +707,21 @@ module GENERIC-RESOURCE-API {
             }
          }
          uses vlan-vnfc-instance-groups;
+         container dhcp-subnet-assignments {
+            list dhcp-subnet-assignment {
+               key "neutron-subnet-id";
+               leaf neutron-subnet-id {
+                  description "Same as subnet-id in subnet-data structure";
+                  type string;
+               }
+               leaf network-role {
+                  type string;
+               }
+               leaf ip-version {
+                  type string;
+               }
+            }
+         }
       }
    }
    grouping vm-topology-data {
