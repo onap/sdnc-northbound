@@ -50,6 +50,7 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
     public final String ackFinal = "ack-final";
     public final String serviceObjectPath = "service-object-path";
     public final String networkObjectPath = "network-object-path";
+    public final String pnfObjectPath = "pnf-object-path";
     public final String vnfObjectPath = "vnf-object-path";
     public final String vfModuleObjectPath = "vf-module-object-path";
     public final String networkId = "networkId";
@@ -98,6 +99,7 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
             .set(ackFinal, "Y")
             .set(serviceObjectPath, "serviceObjectPath: XYZ")
             .set(networkObjectPath, "networkObjectPath: XYZ")
+            .set(pnfObjectPath,  "pnfObjectPath: XYZ")
             .set(vnfObjectPath,  "vnfObjectPath: XYZ")
             .set(vfModuleObjectPath,  "vfModuleObjectPath: XYZ")
             .set(networkId, "networkId: XYZ");
