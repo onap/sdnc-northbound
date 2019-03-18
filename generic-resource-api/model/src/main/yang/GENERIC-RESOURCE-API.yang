@@ -2518,6 +2518,11 @@ module GENERIC-RESOURCE-API {
                enum "DeactivateSDWANSiteInstance";
                enum "DeleteSDWANSiteInstance";
                enum "SdwanBandwidthChange";
+               enum "CreateAccessConnectivityInstance";
+               enum "DeleteAccessConnectivityInstance";
+               enum "CreateInternetProfileInstance";
+               enum "ChangeInternetProfileInstance";
+               enum "DeleteInternetProfileInstance";
             }
          }
          leaf source {
@@ -2753,6 +2758,11 @@ module GENERIC-RESOURCE-API {
             enum "DeactivateSDWANSiteInstance";
             enum "DeleteSDWANSiteInstance";
             enum "SdwanBandwidthChange";
+            enum "CreateAccessConnectivityInstance";
+            enum "DeleteAccessConnectivityInstance";
+            enum "CreateInternetProfileInstance";
+            enum "ChangeInternetProfileInstance";
+            enum "DeleteInternetProfileInstance";
          }
       }
       leaf last-svc-request-id {
