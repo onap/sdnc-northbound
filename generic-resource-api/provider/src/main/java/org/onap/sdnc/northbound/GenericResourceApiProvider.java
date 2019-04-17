@@ -191,6 +191,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     private static final String VNF_OBJECT_PATH_PARAM = "vnf-object-path";
     private static final String PNF_OBJECT_PATH_PARAM = "pnf-object-path";
     private static final String VF_MODULE_OBJECT_PATH_PARAM = "vf-module-object-path";
+    private static final String VF_MODULE_ID_PARAM = "vf-module-id";
     private static final String UPDATING_MDSAL_ERROR_MESSAGE = "Caught Exception updating MD-SAL for {} [{}] \n";
     private static final String UPDATING_MDSAL_ERROR_MESSAGE_2 = "Caught Exception updating MD-SAL for {} [{},{}] \n";
     private static final String RETURNED_FAILED_MESSAGE = "Returned FAILED for {} [{}] {}";
@@ -1260,7 +1261,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             return Futures.immediateFuture(rpcResult);
         }
 
-        if (hasInvalidVfModuleId(input)) {
+        /*if (hasInvalidVfModuleId(input)) {
             log.debug("exiting {} because of null or empty vf-module-id", svcOperation);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage("invalid input, vf-module-id is null or empty");
@@ -1270,7 +1271,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                     .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
-        }
+        }*/
 
         // Grab the service instance ID from the input buffer
         String siid = input.getServiceInformation().getServiceInstanceId();
@@ -1326,6 +1327,20 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
             responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
+            if (vfModuleId == null) {
+                vfModuleId = respProps.getProperty(VF_MODULE_ID_PARAM);
+                if (vfModuleId == null) {
+                    log.debug("exiting {} because vf-module-id not found in response", svcOperation);
+                    responseBuilder.setResponseCode("403");
+                    responseBuilder.setResponseMessage("failed to generate vf-module-id");
+                    responseBuilder.setAckFinalIndicator("Y");
+
+                    RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
+                            .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+
+                    return Futures.immediateFuture(rpcResult);
+                }
+            }
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
             vnfObjectPath = respProps.getProperty(VNF_OBJECT_PATH_PARAM);
             vfModuleObjectPath = respProps.getProperty(VF_MODULE_OBJECT_PATH_PARAM);
