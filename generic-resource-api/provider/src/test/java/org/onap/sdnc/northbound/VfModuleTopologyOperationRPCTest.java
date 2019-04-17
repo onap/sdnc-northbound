@@ -76,7 +76,7 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
         assertEquals("Y", output.getAckFinalIndicator());
     }
 
-    @Test
+    /*@Test
     public void should_fail_when_invalid_vf_module_id() throws Exception {
 
         VfModuleTopologyOperationInput input = build(vfModuleTopologyOperationInput()
@@ -93,7 +93,7 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
         assertEquals("403", output.getResponseCode());
         assertEquals("invalid input, vf-module-id is null or empty", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
-    }
+    }*/
 
 
     @Test
