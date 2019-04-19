@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87941f7a_56a98633",
+        "filename": "generic-resource-api/provider/src/main/java/org/onap/sdnc/northbound/GenericResourceApiProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 87
+      },
+      "writtenOn": "2019-04-19T00:19:06Z",
+      "side": 1,
+      "message": "We probably also need to handle the case where the vf-module-id property is also unset.",
+      "range": {
+        "startLine": 1330,
+        "startChar": 0,
+        "endLine": 1332,
+        "endChar": 13
+      },
+      "revId": "c87702adc2c22a35059c5b5d18cebdffdaa2741c",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
