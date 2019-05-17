@@ -136,14 +136,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Defines a base implementation for your provider. This class extends from a
- * helper class which provides storage for the most commonly used components of
- * the MD-SAL. Additionally the base class provides some basic logging and
+ * Defines a base implementation for your provider. This class extends from a helper class which provides storage for
+ * the most commonly used components of the MD-SAL. Additionally the base class provides some basic logging and
  * initialization / clean up methods.
  *
- * To use this, copy and paste (overwrite) the following method into the
- * TestApplicationProviderModule class which is auto generated under
- * src/main/java in this project (created only once during first compilation):
+ * To use this, copy and paste (overwrite) the following method into the TestApplicationProviderModule class which is
+ * auto generated under src/main/java in this project (created only once during first compilation):
  *
  * <pre>
  *
@@ -219,7 +217,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     protected BindingAwareBroker.RpcRegistration<GENERICRESOURCEAPIService> rpcRegistration;
 
     public GenericResourceApiProvider(DataBroker dataBroker, NotificationPublishService notificationPublishService,
-            RpcProviderRegistry rpcProviderRegistry, GenericResourceApiSvcLogicServiceClient client) {
+        RpcProviderRegistry rpcProviderRegistry, GenericResourceApiSvcLogicServiceClient client) {
         log.info("Creating provider for {}", APP_NAME);
         executor = Executors.newFixedThreadPool(1);
         setDataBroker(dataBroker);
@@ -299,15 +297,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Create the service-instance container
         t.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Services.class),
-                new ServicesBuilder().build());
+            new ServicesBuilder().build());
         t.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Services.class),
-                new ServicesBuilder().build());
+            new ServicesBuilder().build());
 
         // Create the PreloadInformation container
         t.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(PreloadInformation.class),
-                new PreloadInformationBuilder().build());
+            new PreloadInformationBuilder().build());
         t.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(PreloadInformation.class),
-                new PreloadInformationBuilder().build());
+            new PreloadInformationBuilder().build());
 
         try {
             CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = t.submit();
@@ -320,7 +318,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, String errorCode, String errorMessage,
-            String ackFinal) {
+        String ackFinal) {
         serviceStatusBuilder.setResponseCode(errorCode);
         serviceStatusBuilder.setResponseMessage(errorMessage);
         serviceStatusBuilder.setFinalIndicator(ackFinal);
@@ -336,27 +334,27 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, SdncRequestHeader requestHeader) {
         if (requestHeader != null && requestHeader.getSvcAction() != null) {
             switch (requestHeader.getSvcAction()) {
-            case Assign:
-                serviceStatusBuilder.setRpcAction(RpcAction.Assign);
-                break;
-            case Unassign:
-                serviceStatusBuilder.setRpcAction(RpcAction.Unassign);
-                break;
-            case Activate:
-                serviceStatusBuilder.setRpcAction(RpcAction.Activate);
-                break;
-            case Deactivate:
-                serviceStatusBuilder.setRpcAction(RpcAction.Deactivate);
-                break;
-            case Delete:
-                serviceStatusBuilder.setRpcAction(RpcAction.Delete);
-                break;
-            case Create:
-                serviceStatusBuilder.setRpcAction(RpcAction.Create);
-                break;
-            default:
-                log.error("Unknown SvcAction: {}", requestHeader.getSvcAction());
-                break;
+                case Assign:
+                    serviceStatusBuilder.setRpcAction(RpcAction.Assign);
+                    break;
+                case Unassign:
+                    serviceStatusBuilder.setRpcAction(RpcAction.Unassign);
+                    break;
+                case Activate:
+                    serviceStatusBuilder.setRpcAction(RpcAction.Activate);
+                    break;
+                case Deactivate:
+                    serviceStatusBuilder.setRpcAction(RpcAction.Deactivate);
+                    break;
+                case Delete:
+                    serviceStatusBuilder.setRpcAction(RpcAction.Delete);
+                    break;
+                case Create:
+                    serviceStatusBuilder.setRpcAction(RpcAction.Create);
+                    break;
+                default:
+                    log.error("Unknown SvcAction: {}", requestHeader.getSvcAction());
+                    break;
             }
         }
     }
@@ -369,13 +367,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     private void getServiceData(String siid, ServiceDataBuilder serviceDataBuilder, LogicalDatastoreType type) {
         // See if any data exists yet for this siid, if so grab it.
         InstanceIdentifier<Service> serviceInstanceIdentifier = InstanceIdentifier.builder(Services.class)
-                .child(Service.class, new ServiceKey(siid)).build();
+            .child(Service.class, new ServiceKey(siid)).build();
 
-        ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<Service> data = Optional.absent();
-        try {
+        try (final ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction()) {
             data = readTx.read(type, serviceInstanceIdentifier).get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (final InterruptedException | ExecutionException e) {
             log.error("Caught Exception reading MD-SAL ({}) data for [{}] ", type, siid, e);
         }
 
@@ -410,13 +407,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Each entry will be identifiable by a unique key, we have to create that
         // identifier
         InstanceIdentifier<Service> path = InstanceIdentifier.builder(Services.class)
-                .child(Service.class, entry.key()).build();
+            .child(Service.class, entry.key()).build();
 
         trySaveEntry(entry, merge, storeType, path);
     }
 
     private <T extends DataObject> void trySaveEntry(T entry, boolean merge, LogicalDatastoreType storeType,
-            InstanceIdentifier<T> path) {
+        InstanceIdentifier<T> path) {
         int tries = 2;
         while (true) {
             try {
@@ -436,7 +433,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private <T extends DataObject> void save(T entry, boolean merge, LogicalDatastoreType storeType,
-            InstanceIdentifier<T> path) throws TransactionCommitFailedException {
+        InstanceIdentifier<T> path) throws TransactionCommitFailedException {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         if (merge) {
             tx.merge(storeType, path, entry);
@@ -451,7 +448,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Each entry will be identifiable by a unique key, we have to create
         // that identifier
         InstanceIdentifier<Service> path = InstanceIdentifier.builder(Services.class)
-                .child(Service.class, entry.key()).build();
+            .child(Service.class, entry.key()).build();
 
         tryDeleteEntry(storeType, path);
     }
@@ -476,7 +473,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void delete(LogicalDatastoreType storeType, InstanceIdentifier<Service> path)
-            throws TransactionCommitFailedException {
+        throws TransactionCommitFailedException {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.delete(storeType, path);
         tx.submit().checkedGet();
@@ -489,16 +486,16 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void getPreloadData(String preloadName, String preloadType, PreloadDataBuilder preloadDataBuilder,
-            LogicalDatastoreType type) {
+        LogicalDatastoreType type) {
         // See if any data exists yet for this name/type, if so grab it.
         InstanceIdentifier preloadInstanceIdentifier = InstanceIdentifier
-                .<PreloadInformation>builder(PreloadInformation.class)
-                .child(PreloadList.class, new PreloadListKey(preloadName, preloadType)).build();
-        ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
+            .<PreloadInformation>builder(PreloadInformation.class)
+            .child(PreloadList.class, new PreloadListKey(preloadName, preloadType)).build();
+
         Optional<PreloadList> data = null;
-        try {
+        try (final ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction()) {
             data = (Optional<PreloadList>) readTx.read(type, preloadInstanceIdentifier).get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (final InterruptedException | ExecutionException e) {
             log.error("Caught Exception reading MD-SAL ({}) for [{},{}] ", type, preloadName, preloadType, e);
         }
 
@@ -506,11 +503,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             PreloadData preloadData = data.get().getPreloadData();
             if (preloadData != null) {
                 log.info("Read MD-SAL ({}) data for [{},{}] PreloadData: {}", type, preloadName, preloadType,
-                        preloadData);
+                    preloadData);
                 preloadDataBuilder
-                        .setPreloadVfModuleTopologyInformation(preloadData.getPreloadVfModuleTopologyInformation());
+                    .setPreloadVfModuleTopologyInformation(preloadData.getPreloadVfModuleTopologyInformation());
                 preloadDataBuilder
-                        .setPreloadNetworkTopologyInformation(preloadData.getPreloadNetworkTopologyInformation());
+                    .setPreloadNetworkTopologyInformation(preloadData.getPreloadNetworkTopologyInformation());
                 preloadDataBuilder.setPreloadOperStatus(preloadData.getPreloadOperStatus());
             } else {
                 log.info("No preload-data found in MD-SAL ({}) for [{},{}] ", type, preloadName, preloadType);
@@ -521,12 +518,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void savePreloadList(final PreloadList entry, boolean merge, LogicalDatastoreType storeType)
-            throws IllegalStateException {
+        throws IllegalStateException {
 
         // Each entry will be identifiable by a unique key, we have to create that
         // identifier
         InstanceIdentifier.InstanceIdentifierBuilder<PreloadList> preloadListBuilder = InstanceIdentifier
-                .<PreloadInformation>builder(PreloadInformation.class).child(PreloadList.class, entry.key());
+            .<PreloadInformation>builder(PreloadInformation.class).child(PreloadList.class, entry.key());
         InstanceIdentifier<PreloadList> path = preloadListBuilder.build();
         int tries = 2;
         while (true) {
@@ -559,7 +556,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Each entry will be identifiable by a unique key, we have to create
         // that identifier
         InstanceIdentifier<PreloadList> path = InstanceIdentifier.builder(PreloadInformation.class)
-                .child(PreloadList.class, entry.key()).build();
+            .child(PreloadList.class, entry.key()).build();
 
         tryDeletePreloadListEntry(storeType, path);
     }
@@ -584,7 +581,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void deletePreloadList(LogicalDatastoreType storeType, InstanceIdentifier<PreloadList> path)
-            throws TransactionCommitFailedException {
+        throws TransactionCommitFailedException {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.delete(storeType, path);
         tx.submit().checkedGet();
@@ -593,7 +590,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<ServiceTopologyOperationOutput>> serviceTopologyOperation(
-            ServiceTopologyOperationInput input) {
+        ServiceTopologyOperationInput input) {
 
         final String svcOperation = "service-topology-operation";
         ServiceData serviceData;
@@ -611,7 +608,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
 
             RpcResult<ServiceTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -677,7 +674,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<ServiceTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -709,7 +706,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<ServiceTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -722,13 +719,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<ServiceTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<ServiceTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
 
     private void trySetResponseMessage(ServiceTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             responseBuilder.setResponseMessage(responseObject.getMessage());
         }
@@ -736,12 +733,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidServiceId(ServiceTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private void trySetSvcRequestId(ServiceTopologyOperationInput input,
-            ServiceTopologyOperationOutputBuilder responseBuilder) {
+        ServiceTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
@@ -757,7 +754,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private Properties tryGetProperties(String svcOperation, Properties parms, ServiceDataBuilder serviceDataBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         try {
             if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
                 try {
@@ -782,7 +779,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean failed(ResponseObject error) {
         return !error.getStatusCode().isEmpty()
-                && !("0".equals(error.getStatusCode()) || "200".equals(error.getStatusCode()));
+            && !("0".equals(error.getStatusCode()) || "200".equals(error.getStatusCode()));
     }
 
     private boolean isValidRequest(ServiceTopologyOperationInput input) {
@@ -791,7 +788,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 
     @Override
-    public ListenableFuture<RpcResult<PnfTopologyOperationOutput>> pnfTopologyOperation(PnfTopologyOperationInput input) {
+    public ListenableFuture<RpcResult<PnfTopologyOperationOutput>> pnfTopologyOperation(
+        PnfTopologyOperationInput input) {
 
         final String svcOperation = "pnf-topology-operation";
         ServiceData serviceData;
@@ -808,7 +806,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<PnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<PnfTopologyOperationOutput>status(true)
-                    .withResult(responseBuilder.build()).build();
+                .withResult(responseBuilder.build()).build();
             // return error
             return Futures.immediateFuture(rpcResult);
         }
@@ -906,7 +904,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<PnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<PnfTopologyOperationOutput>status(true)
-                    .withResult(responseBuilder.build()).build();
+                .withResult(responseBuilder.build()).build();
 
             // return error
             return Futures.immediateFuture(rpcResult);
@@ -948,7 +946,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<PnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<PnfTopologyOperationOutput>status(true)
-                    .withResult(responseBuilder.build()).build();
+                .withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -961,14 +959,14 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<PnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<PnfTopologyOperationOutput>status(true)
-                .withResult(responseBuilder.build()).build();
+            .withResult(responseBuilder.build()).build();
 
         // return success
         return Futures.immediateFuture(rpcResult);
     }
 
     private void trySetResponseMessage(PnfTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             responseBuilder.setResponseMessage(responseObject.getMessage());
         }
@@ -976,7 +974,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private void trySaveService(PnfTopologyOperationInput input, ServiceBuilder serviceBuilder) {
         if (isValidRequest(input) && (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete)
-                || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
+            || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
 
             // Only update operational tree on activate or delete
             log.info(UPDATING_TREE_INFO_MESSAGE);
@@ -986,17 +984,17 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidPnfId(PnfTopologyOperationInput input) {
         return input.getPnfDetails() == null || input.getPnfDetails().getPnfId() == null
-                || input.getPnfDetails().getPnfId().length() == 0;
+            || input.getPnfDetails().getPnfId().length() == 0;
     }
 
     private boolean hasInvalidServiceId(PnfTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private void trySetSvcRequestId(PnfTopologyOperationInput input,
-            PnfTopologyOperationOutputBuilder responseBuilder) {
+        PnfTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
@@ -1008,7 +1006,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
 
     @Override
-    public ListenableFuture<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(VnfTopologyOperationInput input) {
+    public ListenableFuture<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(
+        VnfTopologyOperationInput input) {
 
         final String svcOperation = "vnf-topology-operation";
         ServiceData serviceData;
@@ -1025,7 +1024,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<VnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<VnfTopologyOperationOutput>status(true)
-                    .withResult(responseBuilder.build()).build();
+                .withResult(responseBuilder.build()).build();
             // return error
             return Futures.immediateFuture(rpcResult);
         }
@@ -1125,7 +1124,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<VnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<VnfTopologyOperationOutput>status(true)
-                    .withResult(responseBuilder.build()).build();
+                .withResult(responseBuilder.build()).build();
 
             // return error
             return Futures.immediateFuture(rpcResult);
@@ -1167,7 +1166,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<VnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<VnfTopologyOperationOutput>status(true)
-                    .withResult(responseBuilder.build()).build();
+                .withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -1180,14 +1179,14 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<VnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<VnfTopologyOperationOutput>status(true)
-                .withResult(responseBuilder.build()).build();
+            .withResult(responseBuilder.build()).build();
 
         // return success
         return Futures.immediateFuture(rpcResult);
     }
 
     private void trySetResponseMessage(VnfTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             responseBuilder.setResponseMessage(responseObject.getMessage());
         }
@@ -1195,7 +1194,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private void trySaveService(VnfTopologyOperationInput input, ServiceBuilder serviceBuilder) {
         if (isValidRequest(input) && (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete)
-                || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
+            || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
 
             // Only update operational tree on activate or delete
             log.info(UPDATING_TREE_INFO_MESSAGE);
@@ -1205,17 +1204,17 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidVnfId(VnfTopologyOperationInput input) {
         return input.getVnfInformation() == null || input.getVnfInformation().getVnfId() == null
-                || input.getVnfInformation().getVnfId().length() == 0;
+            || input.getVnfInformation().getVnfId().length() == 0;
     }
 
     private boolean hasInvalidServiceId(VnfTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private void trySetSvcRequestId(VnfTopologyOperationInput input,
-            VnfTopologyOperationOutputBuilder responseBuilder) {
+        VnfTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
@@ -1227,7 +1226,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<VfModuleTopologyOperationOutput>> vfModuleTopologyOperation(
-            VfModuleTopologyOperationInput input) {
+        VfModuleTopologyOperationInput input) {
 
         final String svcOperation = "vf-module-topology-operation";
         ServiceData serviceData;
@@ -1245,7 +1244,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
 
             RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             // return error
             return Futures.immediateFuture(rpcResult);
@@ -1257,7 +1256,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setResponseMessage("invalid input, null or empty vnf-id");
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -1336,7 +1335,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                     responseBuilder.setAckFinalIndicator("Y");
 
                     RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                            .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                        .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
                     return Futures.immediateFuture(rpcResult);
                 }
@@ -1366,7 +1365,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             // return error
             return Futures.immediateFuture(rpcResult);
@@ -1409,7 +1408,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -1422,14 +1421,14 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         // return success
         return Futures.immediateFuture(rpcResult);
     }
 
     private void trySetResponseMessage(VfModuleTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             responseBuilder.setResponseMessage(responseObject.getMessage());
         }
@@ -1437,7 +1436,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private void trySaveService(VfModuleTopologyOperationInput input, ServiceBuilder serviceBuilder) {
         if (isValidRequest(input) && (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
-                || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
+            || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
             // Only update operational tree on activate or delete
 
             log.info(UPDATING_TREE_INFO_MESSAGE);
@@ -1446,7 +1445,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void trySetSvcRequestId(VfModuleTopologyOperationInput input,
-            VfModuleTopologyOperationOutputBuilder responseBuilder) {
+        VfModuleTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
@@ -1454,18 +1453,18 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidVfModuleId(VfModuleTopologyOperationInput input) {
         return input.getVfModuleInformation() == null || input.getVfModuleInformation().getVfModuleId() == null
-                || input.getVfModuleInformation().getVfModuleId().length() == 0;
+            || input.getVfModuleInformation().getVfModuleId().length() == 0;
     }
 
     private boolean hasInvalidVnfId(VfModuleTopologyOperationInput input) {
         return input.getVnfInformation() == null || input.getVnfInformation().getVnfId() == null
-                || input.getVnfInformation().getVnfId().length() == 0;
+            || input.getVnfInformation().getVnfId().length() == 0;
     }
 
     private boolean hasInvalidServiceId(VfModuleTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private boolean isValidRequest(VfModuleTopologyOperationInput input) {
@@ -1474,7 +1473,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<NetworkTopologyOperationOutput>> networkTopologyOperation(
-            NetworkTopologyOperationInput input) {
+        NetworkTopologyOperationInput input) {
 
         final String svcOperation = "network-topology-operation";
         ServiceData serviceData;
@@ -1534,7 +1533,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -1572,7 +1571,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -1585,20 +1584,20 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
 
     private void trySetResponseMessage(NetworkTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             responseBuilder.setResponseMessage(responseObject.getMessage());
         }
     }
 
     private void trySetSvcRequestId(NetworkTopologyOperationInput input,
-            NetworkTopologyOperationOutputBuilder responseBuilder) {
+        NetworkTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
@@ -1606,7 +1605,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private void trySaveService(NetworkTopologyOperationInput input, ServiceBuilder serviceBuilder) {
         if (isValidRequest(input) && (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)
-                || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Create))) {
+            || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Create))) {
             // Only update operational tree on Activate
             log.info(UPDATING_TREE_INFO_MESSAGE);
             saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
@@ -1615,19 +1614,19 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidServiceId(NetworkTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private ListenableFuture<RpcResult<NetworkTopologyOperationOutput>> buildRpcResultFuture(
-            NetworkTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
+        NetworkTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
 
         responseBuilder.setResponseCode("404");
         responseBuilder.setResponseMessage(responseMessage);
         responseBuilder.setAckFinalIndicator("Y");
 
         RpcResult<NetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<NetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
@@ -1638,7 +1637,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<ContrailRouteTopologyOperationOutput>> contrailRouteTopologyOperation(
-            ContrailRouteTopologyOperationInput input) {
+        ContrailRouteTopologyOperationInput input) {
 
         final String svcOperation = "contrail-route-topology-operation";
         ServiceData serviceData;
@@ -1697,7 +1696,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -1734,7 +1733,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -1747,13 +1746,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
 
     private void trySetResponseMessage(ContrailRouteTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             responseBuilder.setResponseMessage(responseObject.getMessage());
         }
@@ -1761,7 +1760,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private void trySaveService(ContrailRouteTopologyOperationInput input, ServiceBuilder serviceBuilder) {
         if (isValidRequest(input) && (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
-                || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
+            || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
             // Only update operational tree on activate or delete
             log.info(UPDATING_TREE_INFO_MESSAGE);
             saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
@@ -1769,7 +1768,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void trySetSvcRequestId(ContrailRouteTopologyOperationInput input,
-            ContrailRouteTopologyOperationOutputBuilder responseBuilder) {
+        ContrailRouteTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
@@ -1777,18 +1776,18 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidServiceId(ContrailRouteTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private ListenableFuture<RpcResult<ContrailRouteTopologyOperationOutput>> buildRpcResultFuture(
-            ContrailRouteTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
+        ContrailRouteTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
         responseBuilder.setResponseCode("404");
         responseBuilder.setResponseMessage(responseMessage);
         responseBuilder.setAckFinalIndicator("Y");
 
         RpcResult<ContrailRouteTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<ContrailRouteTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
@@ -1799,7 +1798,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<SecurityZoneTopologyOperationOutput>> securityZoneTopologyOperation(
-            SecurityZoneTopologyOperationInput input) {
+        SecurityZoneTopologyOperationInput input) {
 
         final String svcOperation = "security-zone-topology-operation";
         ServiceData serviceData;
@@ -1878,7 +1877,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -1916,7 +1915,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -1929,13 +1928,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
 
     private void trySetResponseMessage(SecurityZoneTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             responseBuilder.setResponseMessage(responseObject.getMessage());
         }
@@ -1943,7 +1942,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private void trySaveService(SecurityZoneTopologyOperationInput input, ServiceBuilder serviceBuilder) {
         if (isValidRequest(input) && (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
-                || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
+            || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate))) {
             // Only update operational tree on activate or delete
             log.info(UPDATING_TREE_INFO_MESSAGE);
             saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
@@ -1951,7 +1950,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void trySetSvcRequestId(SecurityZoneTopologyOperationInput input,
-            SecurityZoneTopologyOperationOutputBuilder responseBuilder) {
+        SecurityZoneTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
@@ -1963,19 +1962,19 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidServiceId(SecurityZoneTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private ListenableFuture<RpcResult<SecurityZoneTopologyOperationOutput>> buildRpcResultFuture(
-            SecurityZoneTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
+        SecurityZoneTopologyOperationOutputBuilder responseBuilder, String responseMessage) {
 
         responseBuilder.setResponseCode("404");
         responseBuilder.setResponseMessage(responseMessage);
         responseBuilder.setAckFinalIndicator("Y");
 
         RpcResult<SecurityZoneTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<SecurityZoneTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
@@ -2035,7 +2034,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public ListenableFuture<RpcResult<ConnectionAttachmentTopologyOperationOutput>> connectionAttachmentTopologyOperation(ConnectionAttachmentTopologyOperationInput input) {
+    public ListenableFuture<RpcResult<ConnectionAttachmentTopologyOperationOutput>> connectionAttachmentTopologyOperation(
+        ConnectionAttachmentTopologyOperationInput input) {
         final String svcOperation = "connection-attachment-topology-operation";
         Properties parms = new Properties();
         log.info(CALLED_STR, svcOperation);
@@ -2074,7 +2074,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             return buildRpcResultFuture(responseBuilder, INVALID_INPUT_ERROR_MESSAGE);
         }
 
-        ConnectionAttachmentTopologyOperationInputBuilder inputBuilder = new ConnectionAttachmentTopologyOperationInputBuilder(input);
+        ConnectionAttachmentTopologyOperationInputBuilder inputBuilder = new ConnectionAttachmentTopologyOperationInputBuilder(
+            input);
         GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
         // Call SLI sync method
@@ -2129,7 +2130,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             ConnectionAttachmentResponseInformationBuilder connectionAttachmentResponseInformationBuilder = new ConnectionAttachmentResponseInformationBuilder();
             connectionAttachmentResponseInformationBuilder.setInstanceId(allottedResourceId);
             connectionAttachmentResponseInformationBuilder.setObjectPath(connectionAttachmentObjectPath);
-            responseBuilder.setConnectionAttachmentResponseInformation(connectionAttachmentResponseInformationBuilder.build());
+            responseBuilder
+                .setConnectionAttachmentResponseInformation(connectionAttachmentResponseInformationBuilder.build());
 
             ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
             serviceResponseInformationBuilder.setInstanceId(siid);
@@ -2168,7 +2170,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<TunnelxconnTopologyOperationOutput>> tunnelxconnTopologyOperation(
-            TunnelxconnTopologyOperationInput input) {
+        TunnelxconnTopologyOperationInput input) {
 
         final String svcOperation = "tunnelxconn-topology-operation";
         Properties parms = new Properties();
@@ -2183,7 +2185,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
 
             RpcResult<TunnelxconnTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2218,7 +2220,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<TunnelxconnTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2243,7 +2245,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<TunnelxconnTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2256,13 +2258,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<TunnelxconnTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<TunnelxconnTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
 
     private void trySetResponseMessage(TunnelxconnTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             responseBuilder.setResponseMessage(responseObject.getMessage());
         }
@@ -2270,8 +2272,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidServiceId(TunnelxconnTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private Properties tryGetProperties(String svcOperation, Properties parms, ResponseObject responseObject) {
@@ -2298,7 +2300,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public ListenableFuture<RpcResult<BrgTopologyOperationOutput>> brgTopologyOperation(BrgTopologyOperationInput input) {
+    public ListenableFuture<RpcResult<BrgTopologyOperationOutput>> brgTopologyOperation(
+        BrgTopologyOperationInput input) {
         final String svcOperation = "brg-topology-operation";
         Properties parms = new Properties();
 
@@ -2314,7 +2317,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
 
             RpcResult<BrgTopologyOperationOutput> rpcResult = RpcResultBuilder.<BrgTopologyOperationOutput>status(true)
-                    .withResult(responseBuilder.build()).build();
+                .withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2350,7 +2353,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
             RpcResult<BrgTopologyOperationOutput> rpcResult = RpcResultBuilder.<BrgTopologyOperationOutput>status(true)
-                    .withResult(responseBuilder.build()).build();
+                .withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2376,7 +2379,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<BrgTopologyOperationOutput> rpcResult = RpcResultBuilder.<BrgTopologyOperationOutput>status(true)
-                    .withResult(responseBuilder.build()).build();
+                .withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2389,13 +2392,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<BrgTopologyOperationOutput> rpcResult = RpcResultBuilder.<BrgTopologyOperationOutput>status(true)
-                .withResult(responseBuilder.build()).build();
+            .withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
 
     private void trySetResponseMessage(BrgTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             responseBuilder.setResponseMessage(responseObject.getMessage());
         }
@@ -2403,8 +2406,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidServiceId(BrgTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private String resolveAckFinal(ResponseObject responseObject, Properties respProps) {
@@ -2418,7 +2421,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<PreloadNetworkTopologyOperationOutput>> preloadNetworkTopologyOperation(
-            PreloadNetworkTopologyOperationInput input) {
+        PreloadNetworkTopologyOperationInput input) {
 
         final String svcOperation = "preload-network-topology-operation";
         PreloadData preloadData;
@@ -2435,14 +2438,14 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
 
             RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
 
         // Grab the preload ID from the input buffer
         String preloadId = input.getPreloadNetworkTopologyInformation().getNetworkTopologyIdentifierStructure()
-                .getNetworkName();
+            .getNetworkName();
         String preloadType = "network";
 
         trySetSvcRequestId(input, responseBuilder);
@@ -2469,7 +2472,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         log.info(ADDING_INPUT_DATA_LOG, svcOperation, preloadId, input);
         PreloadNetworkTopologyOperationInputBuilder inputBuilder = new PreloadNetworkTopologyOperationInputBuilder(
-                input);
+            input);
         GenericResourceApiUtil.toProperties(properties, inputBuilder.build());
         log.info(ADDING_OPERATIONAL_DATA_LOG, svcOperation, preloadId, input);
         GenericResourceApiUtil.toProperties(properties, OPERATIONAL_DATA_PARAM, operDataBuilder);
@@ -2491,7 +2494,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator(ackFinal);
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, preloadId, responseBuilder.build());
             RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -2518,7 +2521,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, preloadId, responseBuilder.build());
             RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -2530,13 +2533,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, preloadId, responseBuilder.build());
 
         RpcResult<PreloadNetworkTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<PreloadNetworkTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
         return Futures.immediateFuture(rpcResult);
     }
 
     private boolean hasInvalidPreloadNetwork(PreloadNetworkTopologyOperationInput input) {
         return input == null || input.getPreloadNetworkTopologyInformation() == null
-                || input.getPreloadNetworkTopologyInformation().getNetworkTopologyIdentifierStructure() == null;
+            || input.getPreloadNetworkTopologyInformation().getNetworkTopologyIdentifierStructure() == null;
     }
 
     private boolean hasInvalidPreloadId(String preloadId) {
@@ -2544,14 +2547,14 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void trySetSvcRequestId(PreloadNetworkTopologyOperationInput input,
-            PreloadNetworkTopologyOperationOutputBuilder responseBuilder) {
+        PreloadNetworkTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
     }
 
     private Properties tryGetProperties(String svcOperation, Properties parms, PreloadDataBuilder preloadDataBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         try {
             if (svcLogicClient.hasGraph(APP_NAME, svcOperation, null, "sync")) {
                 try {
@@ -2575,7 +2578,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void trySetResponseMessage(PreloadNetworkTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             if (!responseObject.getMessage().isEmpty()) {
                 responseBuilder.setResponseMessage(responseObject.getMessage());
@@ -2593,7 +2596,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<PreloadVfModuleTopologyOperationOutput>> preloadVfModuleTopologyOperation(
-            PreloadVfModuleTopologyOperationInput input) {
+        PreloadVfModuleTopologyOperationInput input) {
 
         final String svcOperation = "preload-vf-module-topology-operation";
         PreloadData preloadData;
@@ -2605,22 +2608,22 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         if (hasInvalidPreloadVfModule(input)) {
             log.debug(
-                    "exiting {} because of null or empty preload-vf-module-topology-information.vf-module-topology.vf-module-topology-identifier.vf-module-name",
-                    svcOperation);
+                "exiting {} because of null or empty preload-vf-module-topology-information.vf-module-topology.vf-module-topology-identifier.vf-module-name",
+                svcOperation);
             responseBuilder.setResponseCode("403");
             responseBuilder.setResponseMessage(
-                    "invalid input, null or empty preload-vf-module-topology-information.vf-module-topology.vf-module-topology-identifier.vf-module-name");
+                "invalid input, null or empty preload-vf-module-topology-information.vf-module-topology.vf-module-topology-identifier.vf-module-name");
             responseBuilder.setAckFinalIndicator("Y");
 
             RpcResult<PreloadVfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PreloadVfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PreloadVfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
 
         // Grab the preload ID from the input buffer
         String preloadId = input.getPreloadVfModuleTopologyInformation().getVfModuleTopology()
-                .getVfModuleTopologyIdentifier().getVfModuleName();
+            .getVfModuleTopologyIdentifier().getVfModuleName();
         String preloadType = "vf-module";
 
         trySetSvcRequestId(input, responseBuilder);
@@ -2647,7 +2650,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         log.info(ADDING_INPUT_DATA_LOG, svcOperation, preloadId, input);
         PreloadVfModuleTopologyOperationInputBuilder inputBuilder = new PreloadVfModuleTopologyOperationInputBuilder(
-                input);
+            input);
         GenericResourceApiUtil.toProperties(properties, inputBuilder.build());
         log.info(ADDING_OPERATIONAL_DATA_LOG, svcOperation, preloadId, input);
         GenericResourceApiUtil.toProperties(properties, OPERATIONAL_DATA_PARAM, operDataBuilder);
@@ -2669,7 +2672,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator(ackFinal);
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, preloadId, responseBuilder.build());
             RpcResult<PreloadVfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PreloadVfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PreloadVfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -2697,7 +2700,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, preloadId, responseBuilder.build());
             RpcResult<PreloadVfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PreloadVfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PreloadVfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -2709,28 +2712,28 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, preloadId, responseBuilder.build());
 
         RpcResult<PreloadVfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<PreloadVfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<PreloadVfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
         return Futures.immediateFuture(rpcResult);
     }
 
     private boolean hasInvalidPreloadVfModule(PreloadVfModuleTopologyOperationInput input) {
         return input == null || input.getPreloadVfModuleTopologyInformation() == null
-                || input.getPreloadVfModuleTopologyInformation().getVfModuleTopology() == null
-                || input.getPreloadVfModuleTopologyInformation().getVfModuleTopology()
-                        .getVfModuleTopologyIdentifier() == null
-                || input.getPreloadVfModuleTopologyInformation().getVfModuleTopology().getVfModuleTopologyIdentifier()
-                        .getVfModuleName() == null;
+            || input.getPreloadVfModuleTopologyInformation().getVfModuleTopology() == null
+            || input.getPreloadVfModuleTopologyInformation().getVfModuleTopology()
+            .getVfModuleTopologyIdentifier() == null
+            || input.getPreloadVfModuleTopologyInformation().getVfModuleTopology().getVfModuleTopologyIdentifier()
+            .getVfModuleName() == null;
     }
 
     private void trySetSvcRequestId(PreloadVfModuleTopologyOperationInput input,
-            PreloadVfModuleTopologyOperationOutputBuilder responseBuilder) {
+        PreloadVfModuleTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
     }
 
     private void trySetResponseMessage(PreloadVfModuleTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             if (!responseObject.getMessage().isEmpty()) {
                 responseBuilder.setResponseMessage(responseObject.getMessage());
@@ -2748,7 +2751,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<GenericConfigurationTopologyOperationOutput>> genericConfigurationTopologyOperation(
-            GenericConfigurationTopologyOperationInput input) {
+        GenericConfigurationTopologyOperationInput input) {
 
         final String svcOperation = "generic-configuration-topology-operation";
         ServiceData serviceData;
@@ -2766,8 +2769,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
 
             RpcResult<GenericConfigurationTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<GenericConfigurationTopologyOperationOutput>status(true).withResult(responseBuilder.build())
-                    .build();
+                .<GenericConfigurationTopologyOperationOutput>status(true).withResult(responseBuilder.build())
+                .build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2783,8 +2786,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setResponseMessage("invalid input, null or empty configuration-id or configuration-type");
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<GenericConfigurationTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<GenericConfigurationTopologyOperationOutput>status(true).withResult(responseBuilder.build())
-                    .build();
+                .<GenericConfigurationTopologyOperationOutput>status(true).withResult(responseBuilder.build())
+                .build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -2803,7 +2806,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         log.info(ADDING_INPUT_DATA_LOG, svcOperation, siid, input);
         GenericConfigurationTopologyOperationInputBuilder inputBuilder = new GenericConfigurationTopologyOperationInputBuilder(
-                input);
+            input);
         GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
         log.info(ADDING_OPERATIONAL_DATA_LOG, svcOperation, siid, operDataBuilder.build());
@@ -2843,8 +2846,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<GenericConfigurationTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<GenericConfigurationTopologyOperationOutput>status(true).withResult(responseBuilder.build())
-                    .build();
+                .<GenericConfigurationTopologyOperationOutput>status(true).withResult(responseBuilder.build())
+                .build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2874,8 +2877,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setResponseMessage(e.getMessage());
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<GenericConfigurationTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<GenericConfigurationTopologyOperationOutput>status(true).withResult(responseBuilder.build())
-                    .build();
+                .<GenericConfigurationTopologyOperationOutput>status(true).withResult(responseBuilder.build())
+                .build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -2888,19 +2891,19 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<GenericConfigurationTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<GenericConfigurationTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<GenericConfigurationTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
 
     private boolean hasInvalidService(GenericConfigurationTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private void trySetSvcRequestId(GenericConfigurationTopologyOperationInput input,
-            GenericConfigurationTopologyOperationOutputBuilder responseBuilder) {
+        GenericConfigurationTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
@@ -2908,12 +2911,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidConfigurationIdOrType(GenericConfigurationTopologyOperationInput input) {
         return input.getConfigurationInformation() == null
-                || input.getConfigurationInformation().getConfigurationId() == null
-                || input.getConfigurationInformation().getConfigurationType() == null;
+            || input.getConfigurationInformation().getConfigurationId() == null
+            || input.getConfigurationInformation().getConfigurationType() == null;
     }
 
     private void trySetResponseMessage(GenericConfigurationTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             if (!responseObject.getMessage().isEmpty()) {
                 responseBuilder.setResponseMessage(responseObject.getMessage());
@@ -2922,7 +2925,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public ListenableFuture<RpcResult<GenericConfigurationNotificationOutput>> genericConfigurationNotification(GenericConfigurationNotificationInput input) {
+    public ListenableFuture<RpcResult<GenericConfigurationNotificationOutput>> genericConfigurationNotification(
+        GenericConfigurationNotificationInput input) {
 
         final String svcOperation = "generic-configuration-notification";
         ServiceData serviceData;
@@ -2946,7 +2950,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         log.info(ADDING_INPUT_DATA_LOG, svcOperation, siid, input);
         GenericConfigurationNotificationInputBuilder inputBuilder = new GenericConfigurationNotificationInputBuilder(
-                input);
+            input);
         GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
         log.info(ADDING_OPERATIONAL_DATA_LOG, svcOperation, siid, operDataBuilder.build());
@@ -2977,11 +2981,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             } catch (Exception e) {
                 log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
             }
-            
-            
-            
 
-            RpcResult<GenericConfigurationNotificationOutput> rpcResult = RpcResultBuilder.<GenericConfigurationNotificationOutput>status(true).build();
+            RpcResult<GenericConfigurationNotificationOutput> rpcResult = RpcResultBuilder.<GenericConfigurationNotificationOutput>status(
+                true).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -3002,7 +3004,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         } catch (Exception e) {
             log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
-            RpcResult<GenericConfigurationNotificationOutput> rpcResult = RpcResultBuilder.<GenericConfigurationNotificationOutput>status(true).build();
+            RpcResult<GenericConfigurationNotificationOutput> rpcResult = RpcResultBuilder.<GenericConfigurationNotificationOutput>status(
+                true).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -3010,14 +3013,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         // Update succeeded
         log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
 
-        RpcResult<GenericConfigurationNotificationOutput> rpcResult = RpcResultBuilder.<GenericConfigurationNotificationOutput>status(true).build();
+        RpcResult<GenericConfigurationNotificationOutput> rpcResult = RpcResultBuilder.<GenericConfigurationNotificationOutput>status(
+            true).build();
 
         return Futures.immediateFuture(rpcResult);
     }
 
     @Override
     public ListenableFuture<RpcResult<GetpathsegmentTopologyOperationOutput>> getpathsegmentTopologyOperation(
-            GetpathsegmentTopologyOperationInput input) {
+        GetpathsegmentTopologyOperationInput input) {
 
         final String svcOperation = "getpathsegment-topology-operation";
         ServiceData serviceData;
@@ -3035,7 +3039,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
 
             RpcResult<GetpathsegmentTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<GetpathsegmentTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<GetpathsegmentTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -3051,7 +3055,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setResponseMessage("invalid input, no model-uuid provided");
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<GetpathsegmentTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<GetpathsegmentTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<GetpathsegmentTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -3067,7 +3071,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         log.info(ADDING_INPUT_DATA_LOG, svcOperation, siid, input);
         GetpathsegmentTopologyOperationInputBuilder inputBuilder = new GetpathsegmentTopologyOperationInputBuilder(
-                input);
+            input);
         GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
 
         log.info(ADDING_OPERATIONAL_DATA_LOG, svcOperation, siid, operDataBuilder.build());
@@ -3107,7 +3111,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<GetpathsegmentTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<GetpathsegmentTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<GetpathsegmentTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -3135,7 +3139,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setResponseMessage(e.getMessage());
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<GetpathsegmentTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<GetpathsegmentTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<GetpathsegmentTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -3148,19 +3152,19 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<GetpathsegmentTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<GetpathsegmentTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<GetpathsegmentTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         return Futures.immediateFuture(rpcResult);
     }
 
     private boolean hasInvalidService(GetpathsegmentTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private void trySetSvcRequestId(GetpathsegmentTopologyOperationInput input,
-            GetpathsegmentTopologyOperationOutputBuilder responseBuilder) {
+        GetpathsegmentTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
@@ -3168,11 +3172,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidOnapModelInformation(GetpathsegmentTopologyOperationInput input) {
         return input.getServiceInformation() == null || input.getServiceInformation().getOnapModelInformation() == null
-                || input.getServiceInformation().getOnapModelInformation().getModelUuid() == null;
+            || input.getServiceInformation().getOnapModelInformation().getModelUuid() == null;
     }
 
     private void trySetResponseMessage(GetpathsegmentTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             if (!responseObject.getMessage().isEmpty()) {
                 responseBuilder.setResponseMessage(responseObject.getMessage());
@@ -3182,7 +3186,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<PolicyUpdateNotifyOperationOutput>> policyUpdateNotifyOperation(
-            PolicyUpdateNotifyOperationInput input) {
+        PolicyUpdateNotifyOperationInput input) {
 
         final String svcOperation = "policy-update-notify-operation";
         Properties parms = new Properties();
@@ -3198,7 +3202,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setErrorCode("404");
             responseBuilder.setErrorMsg("Invalid input, missing input data");
             RpcResult<PolicyUpdateNotifyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PolicyUpdateNotifyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PolicyUpdateNotifyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -3225,7 +3229,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, "policy update", responseBuilder.build());
 
             RpcResult<PolicyUpdateNotifyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PolicyUpdateNotifyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PolicyUpdateNotifyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             return Futures.immediateFuture(rpcResult);
         }
@@ -3237,7 +3241,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
         log.info("Returned SUCCESS for " + svcOperation + responseBuilder.build());
         RpcResult<PolicyUpdateNotifyOperationOutput> rpcResult = RpcResultBuilder
-                .<PolicyUpdateNotifyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<PolicyUpdateNotifyOperationOutput>status(true).withResult(responseBuilder.build()).build();
         // return success
         return Futures.immediateFuture(rpcResult);
     }
@@ -3248,7 +3252,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     @Override
     public ListenableFuture<RpcResult<PortMirrorTopologyOperationOutput>> portMirrorTopologyOperation(
-            final PortMirrorTopologyOperationInput input) {
+        final PortMirrorTopologyOperationInput input) {
 
         final String svcOperation = "port-mirror-topology-operation";
         ServiceData serviceData = null;
@@ -3266,7 +3270,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setResponseMessage(NULL_OR_EMPTY_ERROR_PARAM);
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<PortMirrorTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PortMirrorTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PortMirrorTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             // return error
             return Futures.immediateFuture(rpcResult);
         }
@@ -3277,7 +3281,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setResponseMessage("invalid input, null or empty configuration-id");
             responseBuilder.setAckFinalIndicator("Y");
             RpcResult<PortMirrorTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PortMirrorTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PortMirrorTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -3338,7 +3342,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
 
             RpcResult<PortMirrorTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PortMirrorTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PortMirrorTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
             // return error
             return Futures.immediateFuture(rpcResult);
@@ -3359,7 +3363,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
                 // Only update operational tree on activate or delete
                 if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
-                        || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
+                    || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
                     log.info(UPDATING_TREE_INFO_MESSAGE);
                     saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
                 }
@@ -3371,7 +3375,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
             PortMirrorResponseInformationBuilder portMirrorResponseInformationBuilder = new PortMirrorResponseInformationBuilder();
             portMirrorResponseInformationBuilder
-                    .setInstanceId(input.getConfigurationInformation().getConfigurationId());
+                .setInstanceId(input.getConfigurationInformation().getConfigurationId());
             portMirrorResponseInformationBuilder.setObjectPath(portMirrorObjectPath);
             responseBuilder.setPortMirrorResponseInformation(portMirrorResponseInformationBuilder.build());
 
@@ -3382,7 +3386,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             responseBuilder.setAckFinalIndicator("Y");
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
             RpcResult<PortMirrorTopologyOperationOutput> rpcResult = RpcResultBuilder
-                    .<PortMirrorTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+                .<PortMirrorTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
             return Futures.immediateFuture(rpcResult);
         }
 
@@ -3394,7 +3398,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
 
         RpcResult<PortMirrorTopologyOperationOutput> rpcResult = RpcResultBuilder
-                .<PortMirrorTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+            .<PortMirrorTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
 
         if (ackFinal.equals("N")) {
             // Spawn background thread to invoke the Async DG
@@ -3413,25 +3417,25 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidService(PortMirrorTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
     private boolean hasInvalidConfigurationId(PortMirrorTopologyOperationInput input) {
         return input.getConfigurationInformation() == null
-                || input.getConfigurationInformation().getConfigurationId() == null
-                || input.getConfigurationInformation().getConfigurationId().length() == 0;
+            || input.getConfigurationInformation().getConfigurationId() == null
+            || input.getConfigurationInformation().getConfigurationId().length() == 0;
     }
 
     private void trySetSvcRequestId(PortMirrorTopologyOperationInput input,
-            PortMirrorTopologyOperationOutputBuilder responseBuilder) {
+        PortMirrorTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
             responseBuilder.setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId());
         }
     }
 
     private void trySetResponseMessage(PortMirrorTopologyOperationOutputBuilder responseBuilder,
-            ResponseObject responseObject) {
+        ResponseObject responseObject) {
         if (responseObject.getMessage() != null) {
             if (!responseObject.getMessage().isEmpty()) {
                 responseBuilder.setResponseMessage(responseObject.getMessage());
@@ -3514,7 +3518,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             if (input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null) {
                 // Only update operational tree on activate or delete
                 if (input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Unassign)
-                        || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
+                    || input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
                     log.info(UPDATING_TREE_INFO_MESSAGE);
                     saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
                 }
@@ -3536,7 +3540,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public ListenableFuture<RpcResult<VnfGetResourceRequestOutput>> vnfGetResourceRequest(VnfGetResourceRequestInput input) {
+    public ListenableFuture<RpcResult<VnfGetResourceRequestOutput>> vnfGetResourceRequest(
+        VnfGetResourceRequestInput input) {
 
         final String svcOperation = "vnf-get-resource-request";
         ServiceData serviceData;
@@ -3550,7 +3555,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         if (hasInvalidService(input)) {
             log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
             RpcResult<VnfGetResourceRequestOutput> rpcResult = RpcResultBuilder
-                    .<VnfGetResourceRequestOutput>status(true).withResult(responseBuilder.build()).build();
+                .<VnfGetResourceRequestOutput>status(true).withResult(responseBuilder.build()).build();
             // return error
             return Futures.immediateFuture(rpcResult);
         }
@@ -3596,7 +3601,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         if (failed(responseObject)) {
             log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
             RpcResult<VnfGetResourceRequestOutput> rpcResult = RpcResultBuilder
-                    .<VnfGetResourceRequestOutput>status(true).withResult(responseBuilder.build()).build();
+                .<VnfGetResourceRequestOutput>status(true).withResult(responseBuilder.build()).build();
             // return error
             return Futures.immediateFuture(rpcResult);
         }
@@ -3609,7 +3614,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
 
         RpcResult<VnfGetResourceRequestOutput> rpcResult = RpcResultBuilder.<VnfGetResourceRequestOutput>status(true)
-                .withResult(responseBuilder.build()).build();
+            .withResult(responseBuilder.build()).build();
 
         // return success
         return Futures.immediateFuture(rpcResult);
@@ -3617,7 +3622,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean hasInvalidService(VnfGetResourceRequestInput input) {
         return input == null || input.getServiceInformation() == null
-                || input.getServiceInformation().getServiceInstanceId() == null
-                || input.getServiceInformation().getServiceInstanceId().length() == 0;
+            || input.getServiceInformation().getServiceInstanceId() == null
+            || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 }
