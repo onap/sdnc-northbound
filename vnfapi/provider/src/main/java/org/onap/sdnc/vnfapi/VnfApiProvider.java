@@ -22,13 +22,10 @@
 package org.onap.sdnc.vnfapi;
 
 import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -99,7 +96,6 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.sdnc.request.h
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.sdnc.request.header.SdncRequestHeader.SvcAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.data.ServiceData;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.data.ServiceDataBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.RequestStatus;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.RpcAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.RpcName;
@@ -136,18 +132,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.Future;
 
 /**
  * Defines a base implementation for your provider. This class extends from a helper class which provides storage for
@@ -263,10 +251,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
         try {
             CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = t.submit();
             checkedFuture.get();
-            log.info("Create Containers succeeded!: ");
+            log.info("Containers creation succeeded.");
 
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("Create Containers Failed: " + e);
+        } catch (final InterruptedException | ExecutionException e) {
+            log.error("Containers creation failed.", e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -278,31 +267,12 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
         log.info("Successfully closed provider for " + APP_NAME);
     }
 
-
-    private static class Iso8601Util {
-
-
-        private static TimeZone tz = TimeZone.getTimeZone("UTC");
-        private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-        private Iso8601Util() {
-        }
-
-        static {
-            df.setTimeZone(tz);
-        }
-
-        private static String now() {
-            return df.format(new Date());
-        }
-    }
-
     private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, String errorCode, String errorMessage,
         String ackFinal) {
         serviceStatusBuilder.setResponseCode(errorCode);
         serviceStatusBuilder.setResponseMessage(errorMessage);
         serviceStatusBuilder.setFinalIndicator(ackFinal);
-        serviceStatusBuilder.setResponseTimestamp(Iso8601Util.now());
+        serviceStatusBuilder.setResponseTimestamp(Iso8601Util.getInstance().now());
     }
 
     private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, RequestInformation requestInformation) {
@@ -418,6 +388,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, serviceInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + siid + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
@@ -459,6 +430,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, vnfInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + siid + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
@@ -503,6 +475,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, vfModuleIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + siid + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
@@ -546,6 +519,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, preloadInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + preloadName + "," + preloadType + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
@@ -586,6 +560,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, preloadInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + preloadName + "," + preloadType + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
@@ -624,6 +599,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, preloadInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + preloadName + "," + preloadType + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {

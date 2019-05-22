@@ -5,15 +5,10 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
@@ -253,23 +248,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.info("Successfully closed provider for {}", APP_NAME);
     }
 
-    private static class Iso8601Util {
-
-        private static TimeZone timeZone = TimeZone.getTimeZone("UTC");
-        private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-        private Iso8601Util() {
-        }
-
-        static {
-            dateFormat.setTimeZone(timeZone);
-        }
-
-        private static String now() {
-            return dateFormat.format(new Date());
-        }
-    }
-
     public void setDataBroker(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
         if (log.isDebugEnabled()) {
@@ -310,10 +288,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         try {
             CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = t.submit();
             checkedFuture.get();
-            log.info("Create containers succeeded!");
+            log.info("Containers creation succeeded.");
 
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("Create containers failed: ", e);
+        } catch (final InterruptedException | ExecutionException e) {
+            log.error("Containers creation failed.", e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -322,7 +301,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         serviceStatusBuilder.setResponseCode(errorCode);
         serviceStatusBuilder.setResponseMessage(errorMessage);
         serviceStatusBuilder.setFinalIndicator(ackFinal);
-        serviceStatusBuilder.setResponseTimestamp(Iso8601Util.now());
+        serviceStatusBuilder.setResponseTimestamp(Iso8601Util.getInstance().now());
     }
 
     private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, RequestInformation requestInformation) {
@@ -373,7 +352,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         try (final ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction()) {
             data = readTx.read(type, serviceInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL ({}) data for [{}] ", type, siid, e);
+            log.error("An error occurred while reading MD-SAL ({}) data for [{}] ", type, siid, e);
+            Thread.currentThread().interrupt();
         }
 
         if (data != null && data.isPresent()) {
@@ -496,7 +476,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         try (final ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction()) {
             data = (Optional<PreloadList>) readTx.read(type, preloadInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL ({}) for [{},{}] ", type, preloadName, preloadType, e);
+            log.error("An error occurred while reading MD-SAL ({}) for [{},{}] ", type, preloadName, preloadType, e);
+            Thread.currentThread().interrupt();
         }
 
         if (data != null && data.isPresent()) {
