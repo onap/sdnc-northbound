@@ -5,15 +5,10 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
@@ -238,6 +233,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             log.error("Caught Exception while trying to load properties file", e);
         }
 
+        initializeChild();
+
         log.info("Initialization complete for {}", APP_NAME);
     }
 
@@ -246,28 +243,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         log.info("Closing provider for {}", APP_NAME);
         executor.shutdown();
         rpcRegistration.close();
         log.info("Successfully closed provider for {}", APP_NAME);
-    }
-
-    private static class Iso8601Util {
-
-        private static TimeZone timeZone = TimeZone.getTimeZone("UTC");
-        private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-        private Iso8601Util() {
-        }
-
-        static {
-            dateFormat.setTimeZone(timeZone);
-        }
-
-        private static String now() {
-            return dateFormat.format(new Date());
-        }
     }
 
     public void setDataBroker(DataBroker dataBroker) {
@@ -310,10 +290,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         try {
             CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = t.submit();
             checkedFuture.get();
-            log.info("Create containers succeeded!");
+            log.info("Containers creation succeeded.");
 
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Create containers failed: ", e);
+            log.error("Containers creation failed.", e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -322,7 +303,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         serviceStatusBuilder.setResponseCode(errorCode);
         serviceStatusBuilder.setResponseMessage(errorMessage);
         serviceStatusBuilder.setFinalIndicator(ackFinal);
-        serviceStatusBuilder.setResponseTimestamp(Iso8601Util.now());
+        serviceStatusBuilder.setResponseTimestamp(Iso8601Util.getInstance().now());
     }
 
     private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, RequestInformation requestInformation) {
@@ -373,7 +354,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         try (final ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction()) {
             data = readTx.read(type, serviceInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL ({}) data for [{}] ", type, siid, e);
+            log.error("An error occurred while reading MD-SAL ({}) data for [{}] ", type, siid, e);
+            Thread.currentThread().interrupt();
         }
 
         if (data != null && data.isPresent()) {
@@ -480,9 +462,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.debug("DataStore delete succeeded");
     }
 
-    private void getPreloadData(String vnf_name, String vnf_type, PreloadDataBuilder preloadDataBuilder) {
+    private void getPreloadData(String vnfName, String vnfType, PreloadDataBuilder preloadDataBuilder) {
         // default to config
-        getPreloadData(vnf_name, vnf_type, preloadDataBuilder, LogicalDatastoreType.CONFIGURATION);
+        getPreloadData(vnfName, vnfType, preloadDataBuilder, LogicalDatastoreType.CONFIGURATION);
     }
 
     private void getPreloadData(String preloadName, String preloadType, PreloadDataBuilder preloadDataBuilder,
@@ -496,7 +478,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         try (final ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction()) {
             data = (Optional<PreloadList>) readTx.read(type, preloadInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
-            log.error("Caught Exception reading MD-SAL ({}) for [{},{}] ", type, preloadName, preloadType, e);
+            log.error("An error occurred while reading MD-SAL ({}) for [{},{}] ", type, preloadName, preloadType, e);
+            Thread.currentThread().interrupt();
         }
 
         if (data != null && data.isPresent()) {
@@ -517,14 +500,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    private void savePreloadList(final PreloadList entry, boolean merge, LogicalDatastoreType storeType)
-        throws IllegalStateException {
-
+    private void savePreloadList(final PreloadList entry, final boolean merge, final LogicalDatastoreType storeType) {
         // Each entry will be identifiable by a unique key, we have to create that
         // identifier
-        InstanceIdentifier.InstanceIdentifierBuilder<PreloadList> preloadListBuilder = InstanceIdentifier
+        final InstanceIdentifier.InstanceIdentifierBuilder<PreloadList> preloadListBuilder = InstanceIdentifier
             .<PreloadInformation>builder(PreloadInformation.class).child(PreloadList.class, entry.key());
-        InstanceIdentifier<PreloadList> path = preloadListBuilder.build();
+        final InstanceIdentifier<PreloadList> path = preloadListBuilder.build();
         int tries = 2;
         while (true) {
             try {
@@ -537,17 +518,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 tx.submit().checkedGet();
                 log.debug("Update DataStore succeeded");
                 break;
-            } catch (final TransactionCommitFailedException e) {
-                if (e instanceof OptimisticLockFailedException) {
-                    if (--tries <= 0) {
-                        log.debug("Got OptimisticLockFailedException on last try - failing ");
-                        throw new IllegalStateException(e);
-                    }
-                    log.debug("Got OptimisticLockFailedException - trying again ");
-                } else {
-                    log.debug("Update DataStore failed");
+            } catch (final OptimisticLockFailedException e) {
+                if (--tries <= 0) {
+                    log.debug("Got OptimisticLockFailedException on last try - failing ");
                     throw new IllegalStateException(e);
                 }
+                log.debug("Got OptimisticLockFailedException - trying again ");
+            } catch (final TransactionCommitFailedException e) {
+                log.debug("Update DataStore failed");
+                throw new IllegalStateException(e);
             }
         }
     }
@@ -745,7 +724,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void tryDeleteService(ServiceTopologyOperationInput input, ServiceBuilder serviceBuilder) {
-        if (isValidRequest(input) && input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Delete)) {
+        if (isValidRequest(input) && SvcAction.Delete.equals(input.getSdncRequestHeader().getSvcAction())) {
             // Only update operational tree on delete
             log.info("Delete from both CONFIGURATION and OPERATIONAL tree.");
             deleteService(serviceBuilder.build(), LogicalDatastoreType.OPERATIONAL);
@@ -982,11 +961,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    private boolean hasInvalidPnfId(PnfTopologyOperationInput input) {
-        return input.getPnfDetails() == null || input.getPnfDetails().getPnfId() == null
-            || input.getPnfDetails().getPnfId().length() == 0;
-    }
-
     private boolean hasInvalidServiceId(PnfTopologyOperationInput input) {
         return input == null || input.getServiceInformation() == null
             || input.getServiceInformation().getServiceInstanceId() == null
@@ -1003,7 +977,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     private boolean isValidRequest(PnfTopologyOperationInput input) {
         return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
     }
-
 
     @Override
     public ListenableFuture<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(
@@ -2542,10 +2515,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             || input.getPreloadNetworkTopologyInformation().getNetworkTopologyIdentifierStructure() == null;
     }
 
-    private boolean hasInvalidPreloadId(String preloadId) {
-        return preloadId == null || preloadId.length() == 0;
-    }
-
     private void trySetSvcRequestId(PreloadNetworkTopologyOperationInput input,
         PreloadNetworkTopologyOperationOutputBuilder responseBuilder) {
         if (input.getSdncRequestHeader() != null) {
@@ -2915,12 +2884,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             || input.getConfigurationInformation().getConfigurationType() == null;
     }
 
-    private void trySetResponseMessage(GenericConfigurationTopologyOperationOutputBuilder responseBuilder,
-        ResponseObject responseObject) {
-        if (responseObject.getMessage() != null) {
-            if (!responseObject.getMessage().isEmpty()) {
-                responseBuilder.setResponseMessage(responseObject.getMessage());
-            }
+    private void trySetResponseMessage(final GenericConfigurationTopologyOperationOutputBuilder responseBuilder,
+                                       final ResponseObject responseObject) {
+        if (responseObject.getMessage() != null && !responseObject.getMessage().isEmpty()) {
+            responseBuilder.setResponseMessage(responseObject.getMessage());
         }
     }
 
@@ -3175,12 +3142,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             || input.getServiceInformation().getOnapModelInformation().getModelUuid() == null;
     }
 
-    private void trySetResponseMessage(GetpathsegmentTopologyOperationOutputBuilder responseBuilder,
-        ResponseObject responseObject) {
-        if (responseObject.getMessage() != null) {
-            if (!responseObject.getMessage().isEmpty()) {
-                responseBuilder.setResponseMessage(responseObject.getMessage());
-            }
+    private void trySetResponseMessage(final GetpathsegmentTopologyOperationOutputBuilder responseBuilder,
+                                       final ResponseObject responseObject) {
+        if (responseObject.getMessage() != null && !responseObject.getMessage().isEmpty()) {
+            responseBuilder.setResponseMessage(responseObject.getMessage());
         }
     }
 
@@ -3212,15 +3177,11 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Call SLI sync method
         ResponseObject responseObject = new ResponseObject("200", "");
-        String ackFinal = "Y";
-        String serviceObjectPath = null;
         Properties respProps = tryGetProperties(svcOperation, parms, responseObject);
 
         if (respProps != null) {
             responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
             responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
-            ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
-            serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
         }
 
         if (failed(responseObject)) {
@@ -3239,7 +3200,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         if (responseObject.getMessage() != null) {
             responseBuilder.setErrorMsg(responseObject.getMessage());
         }
-        log.info("Returned SUCCESS for " + svcOperation + responseBuilder.build());
+        log.info("Returned SUCCESS for {}{}", svcOperation, responseBuilder.build());
         RpcResult<PolicyUpdateNotifyOperationOutput> rpcResult = RpcResultBuilder
             .<PolicyUpdateNotifyOperationOutput>status(true).withResult(responseBuilder.build()).build();
         // return success
@@ -3436,10 +3397,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private void trySetResponseMessage(PortMirrorTopologyOperationOutputBuilder responseBuilder,
         ResponseObject responseObject) {
-        if (responseObject.getMessage() != null) {
-            if (!responseObject.getMessage().isEmpty()) {
-                responseBuilder.setResponseMessage(responseObject.getMessage());
-            }
+        if (responseObject.getMessage() != null && !responseObject.getMessage().isEmpty()) {
+            responseBuilder.setResponseMessage(responseObject.getMessage());
         }
     }
 
@@ -3535,8 +3494,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Update succeeded
         log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
-
-        return;
     }
 
     @Override
@@ -3544,7 +3501,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         VnfGetResourceRequestInput input) {
 
         final String svcOperation = "vnf-get-resource-request";
-        ServiceData serviceData;
         ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
         Properties parms = new Properties();
 
@@ -3584,14 +3540,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         ResponseObject responseObject = new ResponseObject("200", "");
         String ackFinal = "Y";
-        String serviceObjectPath = null;
         Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, responseObject);
 
         if (respProps != null) {
             responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
             responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
             ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
-            serviceObjectPath = respProps.getProperty("service-object-path");
         }
 
         setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);

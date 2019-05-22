@@ -22,13 +22,10 @@
 package org.onap.sdnc.vnfapi;
 
 import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -99,7 +96,6 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.sdnc.request.h
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.sdnc.request.header.SdncRequestHeader.SvcAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.data.ServiceData;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.data.ServiceDataBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.RequestStatus;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.RpcAction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnctl.vnf.rev150720.service.status.ServiceStatus.RpcName;
@@ -136,18 +132,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.Future;
 
 /**
  * Defines a base implementation for your provider. This class extends from a helper class which provides storage for
@@ -201,7 +189,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
 
     public VnfApiProvider(DataBroker dataBroker2, NotificationPublishService notificationPublishService,
         RpcProviderRegistry rpcProviderRegistry, VNFSDNSvcLogicServiceClient client) {
-        log.info("Creating provider for " + APP_NAME);
+        log.info("Creating provider for {}", APP_NAME);
         executor = Executors.newFixedThreadPool(1);
         dataBroker = dataBroker2;
         notificationService = notificationPublishService;
@@ -211,16 +199,16 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
     }
 
     private void initialize() {
-        log.info("Initializing provider for " + APP_NAME);
+        log.info("Initializing provider for {}", APP_NAME);
         // Create the top level containers
         createContainers();
         try {
             VnfSdnUtil.loadProperties();
         } catch (Exception e) {
-            log.error("Caught Exception while trying to load properties file: ", e);
+            log.error("An error ocurred while trying to load properties file.", e);
         }
 
-        log.info("Initialization complete for " + APP_NAME);
+        log.info("Initialization complete for {}", APP_NAME);
     }
 
     private void createContainers() {
@@ -263,38 +251,20 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
         try {
             CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = t.submit();
             checkedFuture.get();
-            log.info("Create Containers succeeded!: ");
+            log.info("Containers creation succeeded.");
 
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Create Containers Failed: " + e);
+            log.error("Containers creation failed.", e);
+            Thread.currentThread().interrupt();
         }
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         log.info("Closing provider for " + APP_NAME);
         executor.shutdown();
         rpcRegistration.close();
         log.info("Successfully closed provider for " + APP_NAME);
-    }
-
-
-    private static class Iso8601Util {
-
-
-        private static TimeZone tz = TimeZone.getTimeZone("UTC");
-        private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-        private Iso8601Util() {
-        }
-
-        static {
-            df.setTimeZone(tz);
-        }
-
-        private static String now() {
-            return df.format(new Date());
-        }
     }
 
     private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, String errorCode, String errorMessage,
@@ -302,7 +272,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
         serviceStatusBuilder.setResponseCode(errorCode);
         serviceStatusBuilder.setResponseMessage(errorMessage);
         serviceStatusBuilder.setFinalIndicator(ackFinal);
-        serviceStatusBuilder.setResponseTimestamp(Iso8601Util.now());
+        serviceStatusBuilder.setResponseTimestamp(Iso8601Util.getInstance().now());
     }
 
     private void setServiceStatus(ServiceStatusBuilder serviceStatusBuilder, RequestInformation requestInformation) {
@@ -350,7 +320,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
                     serviceStatusBuilder.setVnfsdnAction(VnfsdnAction.PreloadVfModuleRequest);
                     break;
                 default:
-                    log.error("Unknown RequestAction: " + requestInformation.getRequestAction());
+                    log.error("Unknown RequestAction: {}", requestInformation.getRequestAction());
                     break;
             }
         }
@@ -363,7 +333,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
                     serviceStatusBuilder.setVnfsdnSubaction(VnfsdnSubaction.CANCEL);
                     break;
                 default:
-                    log.error("Unknown RequestSubAction: " + requestInformation.getRequestSubAction());
+                    log.error("Unknown RequestSubAction: {}", requestInformation.getRequestSubAction());
                     break;
             }
         }
@@ -394,7 +364,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
                     serviceStatusBuilder.setRpcAction(RpcAction.Rollback);
                     break;
                 default:
-                    log.error("Unknown SvcAction: " + requestHeader.getSvcAction());
+                    log.error("Unknown SvcAction: {}", requestHeader.getSvcAction());
                     break;
             }
         }
@@ -418,10 +388,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, serviceInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + siid + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
-            ServiceData serviceData = (ServiceData) data.get().getServiceData();
+            ServiceData serviceData = data.get().getServiceData();
             if (serviceData != null) {
                 log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + siid + SERVICE_DATA_STR + serviceData);
                 serviceDataBuilder.setSdncRequestHeader(serviceData.getSdncRequestHeader());
@@ -432,7 +403,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
                 serviceDataBuilder.setVnfTopologyInformation(serviceData.getVnfTopologyInformation());
                 serviceDataBuilder.setOperStatus(serviceData.getOperStatus());
             } else {
-                log.info("No service-data found in MD-SAL (" + type + FOR_STR + siid + "] ");
+                log.info("No service-data found in MD-SAL ({}{}{}] ", type, FOR_STR, siid);
             }
         } else {
             log.info(NO_DATA_FOUND_STR + type + FOR_STR + siid + "] ");
@@ -459,6 +430,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, vnfInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + siid + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
@@ -503,6 +475,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, vfModuleIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + siid + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
@@ -546,10 +519,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, preloadInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + preloadName + "," + preloadType + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
-            PreloadData preloadData = (PreloadData) data.get().getPreloadData();
+            PreloadData preloadData = data.get().getPreloadData();
             if (preloadData != null) {
                 log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + preloadName + "," + preloadType + PRELOAD_DATA
                     + preloadData);
@@ -586,10 +560,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, preloadInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + preloadName + "," + preloadType + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
-            VnfInstancePreloadData preloadData = (VnfInstancePreloadData) data.get().getVnfInstancePreloadData();
+            VnfInstancePreloadData preloadData = data.get().getVnfInstancePreloadData();
             if (preloadData != null) {
                 log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + preloadName + "," + preloadType
                     + "] VnfInstancePreloadData: " + preloadData);
@@ -624,10 +599,11 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
             data = readTx.read(type, preloadInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error(EXCEPTION_READING_MD_SAL_STR + type + FOR_STR + preloadName + "," + preloadType + "] ", e);
+            Thread.currentThread().interrupt();
         }
 
         if (data.isPresent()) {
-            VfModulePreloadData preloadData = (VfModulePreloadData) data.get().getVfModulePreloadData();
+            VfModulePreloadData preloadData = data.get().getVfModulePreloadData();
             if (preloadData != null) {
                 log.info(READ_MD_SAL_STR + type + DATA_FOR_STR + preloadName + "," + preloadType
                     + "] VfModulePreloadData: " + preloadData);
@@ -799,7 +775,7 @@ public class VnfApiProvider implements AutoCloseable, VNFAPIService {
     }
 
     private ListenableFuture<RpcResult<VnfInstanceTopologyOperationOutput>> buildVnfInstanceTopologyOperationOutputWithtError(
-        String responseCode, String responseMessage, String ackFinalIndicator) {
+        final String responseCode, final String responseMessage, final String ackFinalIndicator) {
         VnfInstanceTopologyOperationOutputBuilder responseBuilder = new VnfInstanceTopologyOperationOutputBuilder();
         responseBuilder.setResponseCode(responseCode);
         responseBuilder.setResponseMessage(responseMessage);
