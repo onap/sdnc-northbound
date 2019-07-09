@@ -22,5 +22,6 @@
 		<module>features</module>
 		<module>client</module>
 		<module>installer</module>
+		<module>lighty</module>
 	</modules>
 </project>
