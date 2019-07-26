@@ -206,6 +206,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     private static final String ERROR_NETWORK_ID = "error";
     private static final String BACKGROUND_THREAD_STARTED_MESSAGE = "Start background thread";
     private static final String BACKGROUND_THREAD_INFO = "Background thread: input conf_id is {}";
+    private static final String SKIP_MDSAL_UPDATE_PROP = "skip-mdsal-update";
 
     private final Logger log = LoggerFactory.getLogger(GenericResourceApiProvider.class);
     private final ExecutorService executor;
@@ -1090,6 +1091,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         String ackFinal = "Y";
         String serviceObjectPath = null;
         String vnfObjectPath = null;
+        String skipMdsalUpdate = null;
         Properties respProps = tryGetProperties(svcOperation, properties, serviceDataBuilder, responseObject);
 
         if (respProps != null) {
@@ -1101,6 +1103,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             }
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
             vnfObjectPath = respProps.getProperty(VNF_OBJECT_PATH_PARAM);
+            skipMdsalUpdate = respProps.getProperty(SKIP_MDSAL_UPDATE_PROP);
+            log.info("skipMdsalUpdate originally is " + skipMdsalUpdate);
+            if (skipMdsalUpdate == null) {
+                skipMdsalUpdate = "N";
+            }
+            log.info("skipMdsalUpdate is " + skipMdsalUpdate);
         }
 
         setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);
@@ -1132,20 +1140,30 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Got success from SLI
         try {
-            serviceData = serviceDataBuilder.build();
-            log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, serviceData);
-
-            // service object
-            ServiceBuilder serviceBuilder = new ServiceBuilder();
-            serviceBuilder.setServiceData(serviceData);
-            serviceBuilder.setServiceInstanceId(siid);
-            serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-            saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-
-            if (isValidRequest(input) && input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
-                // Only update operational tree on Assign
-                log.info(UPDATING_TREE_INFO_MESSAGE);
-                saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+            if (skipMdsalUpdate.equals("N")) {
+                serviceData = serviceDataBuilder.build();
+                log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, serviceData);
+    
+                // service object
+                ServiceBuilder serviceBuilder = new ServiceBuilder();
+                serviceBuilder.setServiceData(serviceData);
+                serviceBuilder.setServiceInstanceId(siid);
+                serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+                saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+                
+                if (isValidRequest(input) && input.getSdncRequestHeader().getSvcAction().equals(SvcAction.Activate)) {
+                    // Only update operational tree on Assign
+                    log.info(UPDATING_TREE_INFO_MESSAGE);
+                    saveService(serviceBuilder.build(), false, LogicalDatastoreType.OPERATIONAL);
+                }
+            } else {
+                // Even if we are skipping the MD-SAL update, update the service status object
+                ServiceBuilder serviceBuilder = new ServiceBuilder();
+                serviceBuilder.setServiceInstanceId(siid);
+                serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+                Service service = serviceBuilder.build();
+                log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, service);
+                saveService(service, true, LogicalDatastoreType.CONFIGURATION);
             }
 
             ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
@@ -1180,6 +1198,17 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         RpcResult<VnfTopologyOperationOutput> rpcResult = RpcResultBuilder.<VnfTopologyOperationOutput>status(true)
             .withResult(responseBuilder.build()).build();
+
+        if (ackFinal.equals("N")) {
+            // Spawn background thread to invoke the Async DG
+            Runnable backgroundThread = new Runnable() {
+                public void run() {
+                    log.info(BACKGROUND_THREAD_STARTED_MESSAGE);
+                    processAsyncVnfTopologyOperation(input);
+                }
+            };
+            new Thread(backgroundThread).start();
+        }
 
         // return success
         return Futures.immediateFuture(rpcResult);
@@ -1222,6 +1251,154 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean isValidRequest(VnfTopologyOperationInput input) {
         return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
+    }
+
+    public void processAsyncVnfTopologyOperation(VnfTopologyOperationInput input) {
+        log.info(BACKGROUND_THREAD_INFO, input.getVnfInformation().getVnfId());
+
+        final String svcOperation = "vnf-topology-operation-async";
+        ServiceData serviceData = null;
+        ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
+        Properties parms = new Properties();
+
+        log.info(CALLED_STR, svcOperation);
+
+        // create a new response object (for logging purposes only)
+        VnfTopologyOperationOutputBuilder responseBuilder = new VnfTopologyOperationOutputBuilder();
+
+        // Grab the service instance ID from the input buffer
+        String siid = input.getServiceInformation().getServiceInstanceId();
+        String vnfId = input.getVnfInformation().getVnfId();
+
+        trySetSvcRequestId(input, responseBuilder);
+
+        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+        getServiceData(siid, serviceDataBuilder);
+
+        ServiceDataBuilder operDataBuilder = new ServiceDataBuilder();
+        getServiceData(siid, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
+
+        // Set the serviceStatus based on input
+        setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
+        setServiceStatus(serviceStatusBuilder, input.getRequestInformation());
+
+        //
+        // setup a service-data object builder
+        // ACTION vnf-topology-operation
+        // INPUT:
+        // USES sdnc-request-header;
+        // USES request-information;
+        // USES service-information;
+        // USES vnf-request-information
+        // OUTPUT:
+        // USES vnf-topology-response-body;
+        // USES vnf-information
+        // USES service-information
+        //
+        // container service-data
+        // uses vnf-configuration-information;
+        // uses oper-status;
+
+        log.info(ADDING_INPUT_DATA_LOG, svcOperation, siid, input);
+        VnfTopologyOperationInputBuilder inputBuilder = new VnfTopologyOperationInputBuilder(input);
+        GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+
+        log.info(ADDING_OPERATIONAL_DATA_LOG, svcOperation, siid, operDataBuilder.build());
+        GenericResourceApiUtil.toProperties(parms, OPERATIONAL_DATA_PARAM, operDataBuilder);
+
+        // Call SLI sync method
+
+        ResponseObject responseObject = new ResponseObject("200", "");
+        String ackFinal = "Y";
+        String serviceObjectPath = null;
+        String vnfObjectPath = null;
+        String skipMdsalUpdate = null;
+        Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, responseObject);
+
+        if (respProps != null) {
+            responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
+            responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
+            ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
+            serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
+            vnfObjectPath = respProps.getProperty(VNF_OBJECT_PATH_PARAM);
+            skipMdsalUpdate = respProps.getProperty(SKIP_MDSAL_UPDATE_PROP);
+            if (skipMdsalUpdate == null) {
+                skipMdsalUpdate = "N";
+            }
+        }
+
+        setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);
+        serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
+        serviceStatusBuilder.setRpcName(svcOperation);
+
+        if (failed(responseObject)) {
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
+            responseBuilder.setAckFinalIndicator(ackFinal);
+
+            ServiceBuilder serviceBuilder = new ServiceBuilder();
+            serviceBuilder.setServiceInstanceId(siid);
+            serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+            try {
+                saveService(serviceBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
+            } catch (Exception e) {
+                log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
+            }
+            log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
+            return;
+        }
+
+        // Got success from SLI
+        try {
+            if (skipMdsalUpdate.equals("N")) {
+                serviceData = serviceDataBuilder.build();
+                log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, serviceData);
+
+                // service object
+                ServiceBuilder serviceBuilder = new ServiceBuilder();
+                serviceBuilder.setServiceData(serviceData);
+                serviceBuilder.setServiceInstanceId(siid);
+                serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+                saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+
+                trySaveService(input, serviceBuilder);
+            } else {
+                // Even if we are skipping the MD-SAL update, update the service status object
+                ServiceBuilder serviceBuilder = new ServiceBuilder();
+                serviceBuilder.setServiceInstanceId(siid);
+                serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+                Service service = serviceBuilder.build();
+                log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, service);
+                saveService(service, true, LogicalDatastoreType.CONFIGURATION);
+            }
+
+            ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
+            serviceResponseInformationBuilder.setInstanceId(siid);
+            serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
+            responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
+
+            VnfResponseInformationBuilder vnfResponseInformationBuilder = new VnfResponseInformationBuilder();
+            vnfResponseInformationBuilder.setInstanceId(vnfId);
+            vnfResponseInformationBuilder.setObjectPath(vnfObjectPath);
+            responseBuilder.setVnfResponseInformation(vnfResponseInformationBuilder.build());
+
+        } catch (Exception e) {
+            log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
+            responseBuilder.setResponseCode("500");
+            responseBuilder.setResponseMessage(e.getMessage());
+            responseBuilder.setAckFinalIndicator("Y");
+            log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
+
+            return;
+        }
+
+        // Update succeeded
+        responseBuilder.setResponseCode(responseObject.getStatusCode());
+        responseBuilder.setAckFinalIndicator(ackFinal);
+        trySetResponseMessage(responseBuilder, responseObject);
+        log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
+        log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
+        return;
     }
 
     @Override
@@ -1320,6 +1497,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         String serviceObjectPath = null;
         String vnfObjectPath = null;
         String vfModuleObjectPath = null;
+        String skipMdsalUpdate = null;
         Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, responseObject);
 
         if (respProps != null) {
@@ -1343,6 +1521,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
             vnfObjectPath = respProps.getProperty(VNF_OBJECT_PATH_PARAM);
             vfModuleObjectPath = respProps.getProperty(VF_MODULE_OBJECT_PATH_PARAM);
+            skipMdsalUpdate = respProps.getProperty(SKIP_MDSAL_UPDATE_PROP);
+            if (skipMdsalUpdate == null) {
+                skipMdsalUpdate = "N";
+            }
         }
 
         setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);
@@ -1373,17 +1555,27 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Got success from SLI
         try {
-            serviceData = serviceDataBuilder.build();
-            log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, serviceData);
+            if (skipMdsalUpdate.equals("N")) {
+                serviceData = serviceDataBuilder.build();
+                log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, serviceData);
 
-            // service object
-            ServiceBuilder serviceBuilder = new ServiceBuilder();
-            serviceBuilder.setServiceData(serviceData);
-            serviceBuilder.setServiceInstanceId(siid);
-            serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-            saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+                // service object
+                ServiceBuilder serviceBuilder = new ServiceBuilder();
+                serviceBuilder.setServiceData(serviceData);
+                serviceBuilder.setServiceInstanceId(siid);
+                serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+                saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-            trySaveService(input, serviceBuilder);
+                trySaveService(input, serviceBuilder);
+            } else {
+                // Even if we are skipping the MD-SAL update, update the service status object
+                ServiceBuilder serviceBuilder = new ServiceBuilder();
+                serviceBuilder.setServiceInstanceId(siid);
+                serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+                Service service = serviceBuilder.build();
+                log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, service);
+                saveService(service, true, LogicalDatastoreType.CONFIGURATION);
+            }
 
             ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
             serviceResponseInformationBuilder.setInstanceId(siid);
@@ -1422,6 +1614,17 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         RpcResult<VfModuleTopologyOperationOutput> rpcResult = RpcResultBuilder
             .<VfModuleTopologyOperationOutput>status(true).withResult(responseBuilder.build()).build();
+
+        if (ackFinal.equals("N")) {
+            // Spawn background thread to invoke the Async DG
+            Runnable backgroundThread = new Runnable() {
+                public void run() {
+                    log.info(BACKGROUND_THREAD_STARTED_MESSAGE);
+                    processAsyncVfModuleTopologyOperation(input);
+                }
+            };
+            new Thread(backgroundThread).start();
+        }
 
         // return success
         return Futures.immediateFuture(rpcResult);
@@ -1469,6 +1672,162 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private boolean isValidRequest(VfModuleTopologyOperationInput input) {
         return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
+    }
+
+    public void processAsyncVfModuleTopologyOperation(VfModuleTopologyOperationInput input) {
+        log.info(BACKGROUND_THREAD_INFO, input.getVfModuleInformation().getVfModuleId());
+
+        final String svcOperation = "vf-module-topology-operation-async";
+        ServiceData serviceData = null;
+        ServiceStatusBuilder serviceStatusBuilder = new ServiceStatusBuilder();
+        Properties parms = new Properties();
+
+        log.info(CALLED_STR, svcOperation);
+
+        // create a new response object (for logging purposes only)
+        VfModuleTopologyOperationOutputBuilder responseBuilder = new VfModuleTopologyOperationOutputBuilder();
+
+        // Grab the service instance ID from the input buffer
+        String siid = input.getServiceInformation().getServiceInstanceId();
+        String vnfId = input.getVnfInformation().getVnfId();
+        String vfModuleId = input.getVfModuleInformation().getVfModuleId();
+
+        trySetSvcRequestId(input, responseBuilder);
+
+        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+        getServiceData(siid, serviceDataBuilder);
+
+        ServiceDataBuilder operDataBuilder = new ServiceDataBuilder();
+        getServiceData(siid, operDataBuilder, LogicalDatastoreType.OPERATIONAL);
+
+        // Set the serviceStatus based on input
+        setServiceStatus(serviceStatusBuilder, input.getSdncRequestHeader());
+        setServiceStatus(serviceStatusBuilder, input.getRequestInformation());
+
+        //
+        // setup a service-data object builder
+        // ACTION vnf-topology-operation
+        // INPUT:
+        // USES sdnc-request-header;
+        // USES request-information;
+        // USES service-information;
+        // USES vnf-request-information
+        // OUTPUT:
+        // USES vnf-topology-response-body;
+        // USES vnf-information
+        // USES service-information
+        //
+        // container service-data
+        // uses vnf-configuration-information;
+        // uses oper-status;
+
+        log.info(ADDING_INPUT_DATA_LOG, svcOperation, siid, input);
+        VfModuleTopologyOperationInputBuilder inputBuilder = new VfModuleTopologyOperationInputBuilder(input);
+        GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+
+        log.info(ADDING_OPERATIONAL_DATA_LOG, svcOperation, siid, operDataBuilder.build());
+        GenericResourceApiUtil.toProperties(parms, OPERATIONAL_DATA_PARAM, operDataBuilder);
+
+        // Call SLI sync method
+
+        ResponseObject responseObject = new ResponseObject("200", "");
+        String ackFinal = "Y";
+        String serviceObjectPath = null;
+        String vnfObjectPath = null;
+        String vfModuleObjectPath = null;
+        String skipMdsalUpdate = null;
+        Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, responseObject);
+
+        if (respProps != null) {
+            responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
+            responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
+            ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
+            serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
+            vnfObjectPath = respProps.getProperty(VNF_OBJECT_PATH_PARAM);
+            vfModuleObjectPath = respProps.getProperty(VF_MODULE_OBJECT_PATH_PARAM);
+            skipMdsalUpdate = respProps.getProperty(SKIP_MDSAL_UPDATE_PROP);
+            if (skipMdsalUpdate == null) {
+                skipMdsalUpdate = "N";
+            }
+        }
+
+        setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);
+        serviceStatusBuilder.setRequestStatus(RequestStatus.Synccomplete);
+        serviceStatusBuilder.setRpcName(svcOperation);
+
+        if (failed(responseObject)) {
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
+            responseBuilder.setAckFinalIndicator(ackFinal);
+
+            ServiceBuilder serviceBuilder = new ServiceBuilder();
+            serviceBuilder.setServiceInstanceId(siid);
+            serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+            try {
+                saveService(serviceBuilder.build(), true, LogicalDatastoreType.CONFIGURATION);
+            } catch (Exception e) {
+                log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
+            }
+            log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
+            return;
+        }
+
+        // Got success from SLI
+        try {
+            if (skipMdsalUpdate.equals("N")) {
+                serviceData = serviceDataBuilder.build();
+                log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, serviceData);
+
+                // service object
+                ServiceBuilder serviceBuilder = new ServiceBuilder();
+                serviceBuilder.setServiceData(serviceData);
+                serviceBuilder.setServiceInstanceId(siid);
+                serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+                saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
+
+                trySaveService(input, serviceBuilder);
+            } else {
+                // Even if we are skipping the MD-SAL update, update the service status object
+                ServiceBuilder serviceBuilder = new ServiceBuilder();
+                serviceBuilder.setServiceInstanceId(siid);
+                serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+                Service service = serviceBuilder.build();
+                log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, service);
+                saveService(service, true, LogicalDatastoreType.CONFIGURATION);
+            }
+
+            ServiceResponseInformationBuilder serviceResponseInformationBuilder = new ServiceResponseInformationBuilder();
+            serviceResponseInformationBuilder.setInstanceId(siid);
+            serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
+            responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
+
+            VnfResponseInformationBuilder vnfResponseInformationBuilder = new VnfResponseInformationBuilder();
+            vnfResponseInformationBuilder.setInstanceId(vnfId);
+            vnfResponseInformationBuilder.setObjectPath(vnfObjectPath);
+            responseBuilder.setVnfResponseInformation(vnfResponseInformationBuilder.build());
+
+            VfModuleResponseInformationBuilder vfModuleResponseInformationBuilder = new VfModuleResponseInformationBuilder();
+            vfModuleResponseInformationBuilder.setInstanceId(vfModuleId);
+            vfModuleResponseInformationBuilder.setObjectPath(vfModuleObjectPath);
+            responseBuilder.setVfModuleResponseInformation(vfModuleResponseInformationBuilder.build());
+
+        } catch (Exception e) {
+            log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
+            responseBuilder.setResponseCode("500");
+            responseBuilder.setResponseMessage(e.getMessage());
+            responseBuilder.setAckFinalIndicator("Y");
+            log.error(RETURNED_FAILED_MESSAGE, svcOperation, siid, responseBuilder.build());
+
+            return;
+        }
+
+        // Update succeeded
+        responseBuilder.setResponseCode(responseObject.getStatusCode());
+        responseBuilder.setAckFinalIndicator(ackFinal);
+        trySetResponseMessage(responseBuilder, responseObject);
+        log.info(UPDATED_MDSAL_INFO_MESSAGE, svcOperation, siid);
+        log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, siid, responseBuilder.build());
+        return;
     }
 
     @Override

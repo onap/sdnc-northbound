@@ -33,6 +33,7 @@ import java.util.Properties;
 public class GenericResourceApiSvcLogicServiceClient {
     static final String FAILURE_RESULT = "failure";
     static final String SVC_LOGIC_STATUS_KEY = "SvcLogic.status";
+    static final String SKIP_MDSAL_UPDATE_PROP = "skip-mdsal-update";
 
     private final Logger LOG = LoggerFactory
             .getLogger(GenericResourceApiSvcLogicServiceClient.class);
@@ -77,7 +78,12 @@ public class GenericResourceApiSvcLogicServiceClient {
             return respProps;
         }
 
-        GenericResourceApiUtil.toBuilder(respProps, serviceData);
+        String skipMdsalUpdate = respProps.getProperty(SKIP_MDSAL_UPDATE_PROP);
+        if ((skipMdsalUpdate == null) || !skipMdsalUpdate.equals("Y")) {
+            GenericResourceApiUtil.toBuilder(respProps, serviceData);
+        } else {
+            LOG.debug("Skipping call to MdsalHelper.toBuilder");
+        }
 
         return respProps;
     }
@@ -133,7 +139,7 @@ public class GenericResourceApiSvcLogicServiceClient {
         LOG.debug(msg);
         for (Object key : properties.keySet()) {
             String paramName = (String) key;
-            LOG.debug(paramName, " = ", properties.getProperty(paramName));
+            LOG.debug(paramName + " = " + properties.getProperty(paramName));
         }
     }
 }

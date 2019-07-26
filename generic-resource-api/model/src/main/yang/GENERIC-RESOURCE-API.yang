@@ -399,6 +399,17 @@ module GENERIC-RESOURCE-API {
                type string;
             }
          }
+         container aggregate-route-policy {
+            leaf aggregate-route-policy-name {
+               type string;
+            }
+            leaf ipv4-aggregate-route-level {
+               type string;
+            }
+            leaf ipv6-aggregate-route-level {
+               type string;
+            }
+         }
          uses aggregate-routes;
          uses subnets;
          leaf subnet-key-value {
