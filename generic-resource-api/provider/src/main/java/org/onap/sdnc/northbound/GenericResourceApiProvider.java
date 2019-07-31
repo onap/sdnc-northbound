@@ -1104,11 +1104,9 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
             vnfObjectPath = respProps.getProperty(VNF_OBJECT_PATH_PARAM);
             skipMdsalUpdate = respProps.getProperty(SKIP_MDSAL_UPDATE_PROP);
-            log.info("skipMdsalUpdate originally is " + skipMdsalUpdate);
             if (skipMdsalUpdate == null) {
                 skipMdsalUpdate = "N";
             }
-            log.info("skipMdsalUpdate is " + skipMdsalUpdate);
         }
 
         setServiceStatus(serviceStatusBuilder, responseObject.getStatusCode(), responseObject.getMessage(), ackFinal);
@@ -1873,6 +1871,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         String networkId = ERROR_NETWORK_ID;
         String serviceObjectPath = null;
         String networkObjectPath = null;
+        String skipMdsalUpdate = null;
         Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, responseObject);
 
         if (respProps != null) {
@@ -1882,6 +1881,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             networkId = respProps.getProperty("networkId");
             serviceObjectPath = respProps.getProperty(SERVICE_OBJECT_PATH_PARAM);
             networkObjectPath = respProps.getProperty(NETWORK_OBJECT_PATH_PARAM);
+            skipMdsalUpdate = respProps.getProperty(SKIP_MDSAL_UPDATE_PROP);
+            if (skipMdsalUpdate == null) {
+                skipMdsalUpdate = "N";
+            }
         }
 
         if (failed(responseObject)) {
@@ -1899,18 +1902,27 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Got success from SLI
         try {
+            if (skipMdsalUpdate.equals("N")) {
+                serviceData = serviceDataBuilder.build();
+                log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, serviceData);
 
-            serviceData = serviceDataBuilder.build();
-            log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, serviceData);
+                // service object
+                ServiceBuilder serviceBuilder = new ServiceBuilder();
+                serviceBuilder.setServiceData(serviceData);
+                serviceBuilder.setServiceInstanceId(siid);
+                serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+                saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
 
-            // service object
-            ServiceBuilder serviceBuilder = new ServiceBuilder();
-            serviceBuilder.setServiceData(serviceData);
-            serviceBuilder.setServiceInstanceId(siid);
-            serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
-            saveService(serviceBuilder.build(), false, LogicalDatastoreType.CONFIGURATION);
-
-            trySaveService(input, serviceBuilder);
+                trySaveService(input, serviceBuilder);
+            } else {
+                // Even if we are skipping the MD-SAL update, update the service status object
+                ServiceBuilder serviceBuilder = new ServiceBuilder();
+                serviceBuilder.setServiceInstanceId(siid);
+                serviceBuilder.setServiceStatus(serviceStatusBuilder.build());
+                Service service = serviceBuilder.build();
+                log.info(UPDATING_MDSAL_INFO_MESSAGE, svcOperation, siid, service);
+                saveService(service, true, LogicalDatastoreType.CONFIGURATION);
+            }
 
             NetworkResponseInformationBuilder networkResponseInformationBuilder = new NetworkResponseInformationBuilder();
             networkResponseInformationBuilder.setInstanceId(networkId);
@@ -1921,7 +1933,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             serviceResponseInformationBuilder.setInstanceId(siid);
             serviceResponseInformationBuilder.setObjectPath(serviceObjectPath);
             responseBuilder.setServiceResponseInformation(serviceResponseInformationBuilder.build());
-
         } catch (IllegalStateException e) {
             log.error(UPDATING_MDSAL_ERROR_MESSAGE, svcOperation, siid, e);
             responseBuilder.setResponseCode("500");
