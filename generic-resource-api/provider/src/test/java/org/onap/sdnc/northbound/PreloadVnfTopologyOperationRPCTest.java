@@ -215,6 +215,45 @@ public class PreloadVnfTopologyOperationRPCTest extends GenericResourceApiProvid
         assertEquals(expectedOutput, output);
     }
 
+
+    @Test
+    public void delete_complete_with_success_when_no_errors() throws Exception {
+
+        svcClient.mockHasGraph(true);
+        PropBuilder svcResultProp = svcClient.createExecuteOKResult();
+        svcClient.mockExecute(svcResultProp);
+
+        PreloadVfModuleTopologyOperationInput input = build(preloadVfModuleTopologyOperationInput()
+                .setPreloadVfModuleTopologyInformation(build(preloadVfModuleTopologyInformationBuilder()
+                        .setVnfTopologyIdentifierStructure(build(vnfTopologyIdentifierStructureBuilder()
+                                .setVnfName("test-vnf-name")
+                                .setVnfType("test-vnf-type")))
+                        .setVfModuleTopology(build(vfModuleTopologyBuilder()
+                                .setVfModuleTopologyIdentifier(build(vfModuleTopologyIdentifierBuilder()
+                                        .setVfModuleName("vf-module-name"))
+                                )))))
+                .setSdncRequestHeader(build(sdncRequestHeader()
+                        .setSvcRequestId("test-svc-request-id")
+                        .setSvcAction(SvcAction.Delete)
+                ))
+                .setRequestInformation(build(requestInformation()
+                        .setRequestId("test-request-id")
+                        .setRequestAction(RequestInformation.RequestAction.DeleteServiceInstance)
+                ))
+        );
+
+        PreloadVfModuleTopologyOperationOutput output =
+                exec(genericResourceApiProvider::preloadVfModuleTopologyOperation, input, RpcResult::getResult);
+
+        assertEquals("200", output.getResponseCode());
+        assertEquals("Y", output.getAckFinalIndicator());
+
+        PreloadVfModuleTopologyOperationOutput expectedOutput = createExpectedOutput(svcResultProp, input);
+        assertEquals(expectedOutput, output);
+    }
+
+
+
     private PreloadVfModuleTopologyOperationOutput createExpectedOutput(PropBuilder svcResultProp,
         PreloadVfModuleTopologyOperationInput input) {
         return build(preloadVfModuleTopologyOperationOutput()
