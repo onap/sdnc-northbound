@@ -164,6 +164,49 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
     }
 
     @Test
+    public void delete_fail_when_client_execution_failed() throws Exception {
+
+        //mock svcClient to perform a successful execution with the expected parameters
+        svcClient.mockHasGraph(true);
+        PropBuilder svcResultProp = svcClient.createExecuteOKResult();
+        svcClient.mockExecute(svcResultProp);
+
+        ServiceTopologyOperationInput input = deleteSTOI();
+
+        //execute the mdsal exec
+        ServiceTopologyOperationOutput output = exec(
+                genericResourceApiProvider::serviceTopologyOperation
+                , input
+                , RpcResult::getResult
+        );
+
+        assertEquals("200", output.getResponseCode());
+        assertEquals("OK", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
+
+    @Test
+    public void delete_service_fail_when_client_execution_failed() throws Exception {
+
+        //mock svcClient to perform a successful execution with the expected parameters
+        svcClient.mockHasGraph(true);
+        PropBuilder svcResultProp = svcClient.createExecuteOKResult();
+        svcClient.mockExecute(svcResultProp);
+
+        ServiceTopologyOperationInput input = deleteServiceSTOI();
+
+        //execute the mdsal exec
+        ServiceTopologyOperationOutput output = exec(
+                genericResourceApiProvider::serviceTopologyOperation
+                , input
+                , RpcResult::getResult
+        );
+
+        assertEquals("500", output.getResponseCode());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
+
+    @Test
     public void should_fail_when_client_has_no_graph() throws Exception {
         svcClient.mockHasGraph(false);
 
@@ -222,6 +265,42 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
                 .setServiceInformation(build(serviceInformationBuilder()
                     .setServiceInstanceId("service-instance-id: xyz")
                 ))
+        );
+    }
+
+    private ServiceTopologyOperationInput deleteSTOI() {
+
+        return build(
+                serviceTopologyOperationInput()
+                        .setSdncRequestHeader(build(sdncRequestHeader()
+                                .setSvcRequestId("svc-request-id: xyz")
+                                .setSvcAction(SvcAction.Unassign)
+                        ))
+                        .setRequestInformation(build(requestInformation()
+                                .setRequestId("request-id: xyz")
+                                .setRequestAction(RequestInformation.RequestAction.DeleteServiceInstance)
+                        ))
+                        .setServiceInformation(build(serviceInformationBuilder()
+                                .setServiceInstanceId("service-instance-id: xyz")
+                        ))
+        );
+    }
+
+    private ServiceTopologyOperationInput deleteServiceSTOI() {
+
+        return build(
+                serviceTopologyOperationInput()
+                        .setSdncRequestHeader(build(sdncRequestHeader()
+                                .setSvcRequestId("svc-request-id: xyz")
+                                .setSvcAction(SvcAction.Delete)
+                        ))
+                        .setRequestInformation(build(requestInformation()
+                                .setRequestId("request-id: xyz")
+                                .setRequestAction(RequestInformation.RequestAction.DeleteServiceInstance)
+                        ))
+                        .setServiceInformation(build(serviceInformationBuilder()
+                                .setServiceInstanceId("service-instance-id: xyz")
+                        ))
         );
     }
 
