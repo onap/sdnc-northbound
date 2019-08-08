@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>generic-resource-api-client</artifactId>
-    <version>1.6.1-SNAPSHOT</version>
+    <version>1.6.1</version>
 
     <name>sdnc-northbound :: generic-resource-api:: ${project.artifactId}</name>
     <url>http://wiki.onap.org</url>
