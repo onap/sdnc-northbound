@@ -40,6 +40,18 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationTopologyOperationOutputBuilder;
 
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationNotificationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationNotificationOutputBuilder;
+
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GetpathsegmentTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GetpathsegmentTopologyOperationOutputBuilder;
+
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PolicyUpdateNotifyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PolicyUpdateNotifyOperationOutputBuilder;
+
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PortMirrorTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PortMirrorTopologyOperationOutputBuilder;
+
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.SecurityZoneTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.SecurityZoneTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationInputBuilder;
@@ -117,6 +129,22 @@ public class MDSALUtil {
 
     public static GenericConfigurationTopologyOperationInputBuilder GenericConfigurationTopologyOperationInput() {
         return new GenericConfigurationTopologyOperationInputBuilder();
+    }
+
+    public static GenericConfigurationNotificationInputBuilder GenericConfigurationNotificationInput() {
+        return new GenericConfigurationNotificationInputBuilder();
+    }
+
+    public static GetpathsegmentTopologyOperationInputBuilder GetpathsegmentTopologyOperationInput() {
+        return new GetpathsegmentTopologyOperationInputBuilder();
+    }
+
+    public static PolicyUpdateNotifyOperationInputBuilder PolicyUpdateNotifyOperationInput() {
+        return new PolicyUpdateNotifyOperationInputBuilder();
+    }
+
+    public static PortMirrorTopologyOperationInputBuilder PortMirrorTopologyOperationInput() {
+        return new PortMirrorTopologyOperationInputBuilder();
     }
 
     public static PreloadVfModuleTopologyOperationOutputBuilder preloadVfModuleTopologyOperationOutput() {
