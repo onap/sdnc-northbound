@@ -13,6 +13,8 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GenericConfigurationTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader.SvcAction;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.information.ServiceInformationBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.configuration.information.ConfigurationInformationBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 import static org.junit.Assert.assertEquals;
@@ -46,8 +48,19 @@ public class GenericConfigurationTopologyOperationRPCTest extends GenericResourc
         assertEquals("Y", output.getAckFinalIndicator());
     }
 
+    @Test
+    public void should_fail_when_valid_vnf_topology() throws Exception {
 
+        GenericConfigurationTopologyOperationInput input = build(GenericConfigurationTopologyOperationInput()
+                .setServiceInformation(new ServiceInformationBuilder().setServiceInstanceId("ServiceInsatnceId").build()));
+
+        GenericConfigurationTopologyOperationOutput output =
+                exec(genericResourceApiProvider::genericConfigurationTopologyOperation, input, RpcResult::getResult);
+
+        assertEquals("404", output.getResponseCode());
+        assertEquals("invalid input, null or empty configuration-id or configuration-type", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
 
 }
-
 
