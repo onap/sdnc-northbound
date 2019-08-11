@@ -33,4 +33,16 @@ public class PolicyUpdateNotifyOperationRPCTest extends GenericResourceApiProvid
         assertEquals("404", output.getErrorCode());
         assertEquals("Invalid input, missing input data", output.getErrorMsg());
     }
+
+    @Test
+    public void should_fail_when_valid_vnf_topology() throws Exception {
+
+        PolicyUpdateNotifyOperationInput input = build(PolicyUpdateNotifyOperationInput().setPolicyName("PolicyName").setUpdateType("UpdateType").setVersionId("vID"));
+
+        PolicyUpdateNotifyOperationOutput output =
+                exec(genericResourceApiProvider::policyUpdateNotifyOperation, input, RpcResult::getResult);
+
+        assertEquals("503", output.getErrorCode());
+        assertEquals("No service logic active for generic-resource-api: 'policy-update-notify-operation'", output.getErrorMsg());
+    }
 }
