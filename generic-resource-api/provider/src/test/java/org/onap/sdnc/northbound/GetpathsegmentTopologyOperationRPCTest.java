@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GetpathsegmentTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.GetpathsegmentTopologyOperationOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.information.ServiceInformationBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.onap.model.information.OnapModelInformationBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 import static org.junit.Assert.assertEquals;
@@ -32,6 +34,20 @@ public class GetpathsegmentTopologyOperationRPCTest extends GenericResourceApiPr
 
         assertEquals("404", output.getResponseCode());
         assertEquals("invalid input, null or empty service-instance-id", output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
+
+    @Test
+    public void should_fail_when_valid_vnf_topology() throws Exception {
+
+        GetpathsegmentTopologyOperationInput input = build(GetpathsegmentTopologyOperationInput()
+                .setServiceInformation(new ServiceInformationBuilder().setServiceInstanceId("ServiceInstanceID").build()));
+
+        GetpathsegmentTopologyOperationOutput output =
+                exec(genericResourceApiProvider::getpathsegmentTopologyOperation, input, RpcResult::getResult);
+
+        assertEquals("404", output.getResponseCode());
+        assertEquals("invalid input, no model-uuid provided", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
     }
 }
