@@ -50,4 +50,20 @@ public class GetpathsegmentTopologyOperationRPCTest extends GenericResourceApiPr
         assertEquals("invalid input, no model-uuid provided", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
     }
+
+    @Test
+    public void should_fail_when_valid_serice_excep_vnf_topology() throws Exception {
+
+        GetpathsegmentTopologyOperationInput input = build(GetpathsegmentTopologyOperationInput()
+                .setServiceInformation(new ServiceInformationBuilder().setServiceInstanceId("ServiceInstanceID")
+                        .setOnapModelInformation(new OnapModelInformationBuilder().setModelUuid("moduleUUID").build()).build()));
+
+        GetpathsegmentTopologyOperationOutput output =
+                exec(genericResourceApiProvider::getpathsegmentTopologyOperation, input, RpcResult::getResult);
+
+        assertEquals("503", output.getResponseCode());
+        assertEquals("No service logic active for generic-resource-api: 'getpathsegment-topology-operation'",
+                output.getResponseMessage());
+        assertEquals("Y", output.getAckFinalIndicator());
+    }
 }
