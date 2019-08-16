@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.onap.ccsdk.parent</groupId>
 		<artifactId>odlparent-lite</artifactId>
-		<version>1.3.3-SNAPSHOT</version>
+		<version>1.4.0-SNAPSHOT</version>
 		<relativePath/>
 	</parent>
 
 	<groupId>org.onap.sdnc.northbound</groupId>
 	<artifactId>sdnc-northbound-features-installer</artifactId>
-	<version>1.6.2-SNAPSHOT</version>
+	<version>1.7.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>sdnc-northbound :: features :: ${project.artifactId}</name>

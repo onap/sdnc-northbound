@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>generic-resource-api-client</artifactId>
-    <version>1.6.2-SNAPSHOT</version>
+    <version>1.7.0-SNAPSHOT</version>
 
     <name>sdnc-northbound :: generic-resource-api:: ${project.artifactId}</name>
     <url>http://wiki.onap.org</url>
@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.onap.ccsdk.parent</groupId>
         <artifactId>client-parent</artifactId>
-        <version>1.3.3-SNAPSHOT</version>
+        <version>1.4.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -38,7 +38,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
-                    <includeGroupIds>org.opendaylight.mdsal.model, org.onap.sdnc.northbound</includeGroupIds>
+                    <includeGroupIds>org.opendaylight.mdsal.model,org.opendaylight.mdsal.binding.model.ietf,org.onap.sdnc.northbound</includeGroupIds>
                 </configuration>
             </plugin>
             <plugin>
