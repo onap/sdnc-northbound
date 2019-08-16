@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.onap.ccsdk.parent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.3.3-SNAPSHOT</version>
+        <version>1.4.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>sdnc-generic-resource-api</artifactId>
-    <version>1.6.2-SNAPSHOT</version>
+    <version>1.7.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>sdnc-northbound :: generic-resource-api :: ${project.artifactId}</name>

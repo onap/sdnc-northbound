@@ -146,6 +146,7 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
 
     @Test
     public void should_fail_when_client_execution_failed() throws Exception {
+
         svcClient.mockHasGraph(true);
         svcClient.mockExecute(new RuntimeException("test exception"));
 
@@ -157,7 +158,7 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
             , input
             , RpcResult::getResult
         );
-
+        
         assertEquals("500", output.getResponseCode());
         assertEquals("test exception", output.getResponseMessage());
         assertEquals("Y", output.getAckFinalIndicator());
