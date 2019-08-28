@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.onap.ccsdk.parent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.4.0-SNAPSHOT</version>
+        <version>1.4.0</version>
         <relativePath/>
     </parent>
 
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>sdnc-vnftools</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.7.0</version>
     <packaging>feature</packaging>
 
     <name>sdnc-northbound :: vnftools :: ${project.artifactId}</name>
