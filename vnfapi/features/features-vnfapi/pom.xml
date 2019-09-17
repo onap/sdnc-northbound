@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.onap.ccsdk.parent</groupId>
 		<artifactId>feature-repo-parent</artifactId>
-		<version>1.4.2</version>
+		<version>1.5.0-SNAPSHOT</version>
 		<relativePath/>
 	</parent>
 
 	<groupId>org.onap.sdnc.northbound</groupId>
 	<artifactId>features-vnfapi</artifactId>
-	<version>1.7.2-SNAPSHOT</version>
+	<version>1.8.0-SNAPSHOT</version>
 	<packaging>feature</packaging>
 
 	<name>sdnc-northbound :: vnfapi :: ${project.artifactId}</name>
