@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=2 tabstop=2: -->
+<!--
+ Copyright (c) 2014, 2015 Cisco Systems, Inc. and others.  All rights reserved.
+
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <profiles>
+    <profile>
+      <id>property-settings</id>
+      <activation>
+	<activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+          <onap.nexus.host>nexus.onap.org</onap.nexus.host>
+	  <onap.nexus.port>8084</onap.nexus.port>
+	  <onap.nexus.url>https://nexus.onap.org</onap.nexus.url>
+	  <onap.nexus.release-url>${onap.nexus.url}/content/repositories/releases/</onap.nexus.release-url>
+	  <onap.nexus.snapshot-url>${onap.nexus.url}/content/repositories/snapshots/</onap.nexus.snapshot-url>
+	  <onap.nexus.public-url>${onap.nexus.url}/content/repositories/public/</onap.nexus.public-url>
+          <onap.nexus.staging.server-id>ecomp-releases</onap.nexus.staging.server-id>
+          <onap.nexus.staging.profile-id></onap.nexus.staging.profile-id>
+	  <opendaylight.nexus.public-url>http://nexus.opendaylight.org/content/repositories/public/</opendaylight.nexus.public-url>
+	  <opendaylight.nexus.snapshot-url>http://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</opendaylight.nexus.snapshot-url>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>openecomp-repos</id>
+      <activation>
+	<activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+		<repository>
+			<id>ecomp-release</id>
+			<name>openecomp-repository-releases</name>
+			<url>https://nexus.onap.org/content/repositories/releases</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>ecomp-staging</id>
+			<name>openecomp-repository-staging</name>
+			<url>https://nexus.onap.org/content/groups/staging</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>ecomp-snapshot</id>
+			<name>openecomp-repository-snapshots</name>
+			<url>https://nexus.onap.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+      </repositories>
+      <pluginRepositories>
+      	<pluginRepository>
+			<id>onap-public</id>
+			<url>https://nexus.onap.org/content/repositories/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+
+      </pluginRepositories>
+    </profile>
+
+    <profile>
+      <id>opendaylight-release</id>
+      <activation>
+	<activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <id>opendaylight-mirror</id>
+          <name>opendaylight-mirror</name>
+          <url>https://nexus.opendaylight.org/content/repositories/public/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>opendaylight-mirror</id>
+          <name>opendaylight-mirror</name>
+          <url>https://nexus.opendaylight.org/content/repositories/public/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+
+    <profile>
+      <id>opendaylight-snapshots</id>
+      <activation>
+	<activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <id>opendaylight-snapshot</id>
+          <name>opendaylight-snapshot</name>
+          <url>https://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>opendaylight-snapshot</id>
+          <name>opendaylight-snapshot</name>
+          <url>https://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+
+    <profile>
+      <id>doclint-java8-disable</id>
+      <activation>
+        <jdk>[1.8,)</jdk>
+      </activation>
+
+      <properties>
+        <additionalparam>-Xdoclint:none</additionalparam>
+      </properties>
+    </profile>
+  </profiles>
+</settings>
+
