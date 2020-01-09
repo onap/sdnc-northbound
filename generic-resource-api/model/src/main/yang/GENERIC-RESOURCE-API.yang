@@ -2534,6 +2534,18 @@ module GENERIC-RESOURCE-API {
                enum "CreateInternetProfileInstance";
                enum "ChangeInternetProfileInstance";
                enum "DeleteInternetProfileInstance";
+               enum "CreateSOTNUnderlayInstance";
+               enum "ActivateSOTNUnderlayInstance";
+               enum "DeactivateSOTNUnderlayInstance";
+               enum "DeleteSOTNUnderlayInstance";
+               enum "CreateSOTNUniInstance";
+               enum "ActivateSOTNUniInstance";
+               enum "DeactivateSOTNUniInstance";
+               enum "DeleteSOTNUniInstance";
+               enum "CreateSOTNL2VpnInstance";
+               enum "ActivateSOTNL2VpnInstance";
+               enum "DeactivateSOTNL2VpnInstance";
+               enum "DeleteSOTNL2VpnInstance";
             }
          }
          leaf source {
@@ -2774,6 +2786,18 @@ module GENERIC-RESOURCE-API {
             enum "CreateInternetProfileInstance";
             enum "ChangeInternetProfileInstance";
             enum "DeleteInternetProfileInstance";
+            enum "CreateSOTNUnderlayInstance";
+            enum "ActivateSOTNUnderlayInstance";
+            enum "DeactivateSOTNUnderlayInstance";
+            enum "DeleteSOTNUnderlayInstance";
+            enum "CreateSOTNUniInstance";
+            enum "ActivateSOTNUniInstance";
+            enum "DeactivateSOTNUniInstance";
+            enum "DeleteSOTNUniInstance";
+            enum "CreateSOTNL2VpnInstance";
+            enum "ActivateSOTNL2VpnInstance";
+            enum "DeactivateSOTNL2VpnInstance";
+            enum "DeleteSOTNL2VpnInstance";
          }
       }
       leaf last-svc-request-id {
