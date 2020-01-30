@@ -2652,6 +2652,9 @@ module GENERIC-RESOURCE-API {
                description "Resource assignment resolution Capability name";
                type string;
             }
+            leaf payload {
+               type string;
+            }
          }
       }
    }
