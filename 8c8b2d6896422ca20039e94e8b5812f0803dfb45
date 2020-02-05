@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Dan Timoney <dtimoney@att.com>
+Code-Review+2: David Stilwell <stilwelld@att.com>
+Submitted-by: Dan Timoney <dtimoney@att.com>
+Submitted-at: Wed, 05 Feb 2020 21:38:20 +0000
+Reviewed-on: https://gerrit.onap.org/r/c/sdnc/northbound/+/101193
+Project: sdnc/northbound
+Branch: refs/heads/elalto
