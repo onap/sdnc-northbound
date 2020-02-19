@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2370e7f_4e461891",
+        "filename": "features/sdnc-northbound-all/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 87
+      },
+      "writtenOn": "2020-02-19T14:28:02Z",
+      "side": 1,
+      "message": "Before adding this, you\u0027ll need to update sdnc/oam/installation/sdnc/pom.xml to add the installer for this package as a dependency so that the associated jars get installed.  Otherwise, platform won\u0027t come up.\n\nSuggest you comment this block out for now, then after the sdnc/oam change is merged, submit a separate change to sdnc/northound with this block uncommented.",
+      "range": {
+        "startLine": 38,
+        "startChar": 13,
+        "endLine": 44,
+        "endChar": 29
+      },
+      "revId": "d5ae32097a639dae335426bf6b74b60582159936",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}
