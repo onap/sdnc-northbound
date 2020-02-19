@@ -23,6 +23,7 @@
 
 	<modules>
 		<module>generic-resource-api</module>
+		<module>optical-service</module>
 		<module>vnfapi</module>
 		<module>vnftools</module>
 		<module>features</module>

@@ -1,0 +1,150 @@
+module opticalservice {
+
+    yang-version "1";
+
+    namespace "org:onap:sdnc:northbound:optical-service";
+
+    prefix opticalser;
+
+    organization "Fujitsu";
+
+    contact
+        "Mehreen Kaleem <mehreen.kaleem@us.fujitsu.com>,Franklin Dsilva
+        <franklin.dsilva@us.fujitsu.com>";
+
+    description
+        "Defines API interface for optical service create and service
+        delete";
+
+    revision "2019-12-06" {
+        description
+                "Initial draft";
+    }
+
+    grouping optical-service-create-request {
+
+        uses request-source-g;
+
+        leaf global-customer-id {
+            type string;
+        }
+
+        leaf service-type {
+            type string;
+        }
+
+        leaf service-id {
+            type string;
+        }
+
+        leaf notification-url {
+            type string;
+        }
+
+        container payload {
+
+            leaf domain-type {
+                type string;
+            }
+
+            leaf service-name {
+                type string;
+            }
+
+            leaf service-rate {
+                type string;
+            }
+            leaf service-protocol {
+                type string;
+            }
+
+            leaf coding-func {
+                type string;
+            }
+
+            container service-a-end {
+                uses service-end-g;
+            }
+
+            container service-z-end {
+                uses service-end-g;
+            }
+
+            leaf service-layer {
+                type string;
+            }
+        }
+    }
+
+    grouping service-end-g {
+
+        leaf port-id {
+            type string;
+        }
+
+        leaf port-name {
+            type string;
+        }
+    }
+
+    grouping request-source-g {
+
+        leaf request-id {
+            type string;
+        }
+
+        leaf source {
+            type string;
+        }
+    }
+
+    grouping optical-service-response {
+
+        leaf response-code {
+            type string;
+        }
+
+        leaf response-message {
+            type string;
+        }
+
+        leaf ack-final-indicator {
+            type string;
+        }
+
+    }
+
+    grouping optical-service-delete-request {
+    	
+        uses request-source-g;
+
+        container payload {
+
+            leaf service-name {
+                type string;
+            }
+        }
+    }
+
+    rpc optical-service-create {
+
+        input {
+            uses optical-service-create-request;
+        }
+
+        output {
+            uses optical-service-response;
+        }
+    }
+
+    rpc optical-service-delete {
+
+        input {
+            uses optical-service-delete-request;
+        }
+
+        output {
+            uses optical-service-response;
+        }
+    }
+}
