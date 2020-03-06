@@ -11,7 +11,7 @@
 
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>vnfapi-provider</artifactId>
-    <version>1.8.0-SNAPSHOT</version>
+    <version>1.8.0</version>
     <packaging>bundle</packaging>
 
     <name>sdnc-northbound :: vnfapi :: ${project.artifactId}</name>
