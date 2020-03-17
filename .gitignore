@@ -31,6 +31,7 @@ out/
 .metadata
 provider/src/main/java/META-INF/
 provider/src/main/java/inventory/
+yang-gen-sal/
 
 ## BlackDuck generated file
 sdnc-northbound_bdio.jsonld
