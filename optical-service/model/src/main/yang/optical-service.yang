@@ -43,47 +43,17 @@ module opticalservice {
 
         container payload {
 
-            leaf domain-type {
-                type string;
+            list param {
+            	
+                key "name";                
+                leaf name {
+                    type string;
+                }
+                
+                leaf value {
+                    type string;
+                }
             }
-
-            leaf service-name {
-                type string;
-            }
-
-            leaf service-rate {
-                type string;
-            }
-            leaf service-protocol {
-                type string;
-            }
-
-            leaf coding-func {
-                type string;
-            }
-
-            container service-a-end {
-                uses service-end-g;
-            }
-
-            container service-z-end {
-                uses service-end-g;
-            }
-
-            leaf service-layer {
-                type string;
-            }
-        }
-    }
-
-    grouping service-end-g {
-
-        leaf port-id {
-            type string;
-        }
-
-        leaf port-name {
-            type string;
         }
     }
 
@@ -111,17 +81,24 @@ module opticalservice {
         leaf ack-final-indicator {
             type string;
         }
-
     }
 
     grouping optical-service-delete-request {
-    	
+
         uses request-source-g;
 
         container payload {
 
-            leaf service-name {
-                type string;
+            list param {
+
+                key "name";
+                leaf name {
+                    type string;
+                }
+
+                leaf value {
+                    type string;
+                }
             }
         }
     }
