@@ -21,6 +21,7 @@
 		<module>provider</module>
 		<module>features</module>
 		<module>client</module>
+		<module>springboot</module>
 		<module>installer</module>
 	</modules>
 </project>
