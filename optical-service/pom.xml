@@ -22,5 +22,4 @@
         <module>provider</module>
         <module>installer</module>
     </modules>
-
 </project>
