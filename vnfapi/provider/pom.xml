@@ -15,14 +15,15 @@
     <packaging>bundle</packaging>
 
     <name>sdnc-northbound :: vnfapi :: ${project.artifactId}</name>
-	<dependencyManagement>
+
+    <dependencyManagement>
 	    <dependencies>
 	    	<dependency>
-	    	    <groupId>org.onap.ccsdk.sli.core</groupId>
-	    	    <artifactId>sli-core-artifacts</artifactId>
-	    	    <version>${ccsdk.sli.core.version}</version>
-	    	    <type>pom</type>
-	    	    <scope>import</scope>
+  <groupId>org.onap.ccsdk.sli.core</groupId>
+  <artifactId>sli-core-artifacts</artifactId>
+  <version>${ccsdk.sli.core.version}</version>
+  <type>pom</type>
+  <scope>import</scope>
 	    	</dependency>
 	    </dependencies>
 	</dependencyManagement>

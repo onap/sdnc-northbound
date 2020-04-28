@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>generic-resource-api-model</artifactId>
+            <artifactId>generic-resource-api-model-yang</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
