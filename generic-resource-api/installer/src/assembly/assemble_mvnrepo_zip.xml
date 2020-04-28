@@ -35,7 +35,7 @@
 
     <files>
         <file>
-            <source>../model/target/generic-resource-api.properties</source>
+            <source>../model/yang/target/generic-resource-api.properties</source>
             <destName>./configuration/generic-resource-api.properties</destName>
 
         </file>
