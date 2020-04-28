@@ -19,19 +19,18 @@
     <properties>
         <sdnc.northbound.version>${project.version}</sdnc.northbound.version>
     </properties>
-    
+
     <dependencyManagement>
     	<dependencies>
     		<dependency>
-    			<groupId>org.onap.ccsdk.sli.core</groupId>
-    			<artifactId>sli-core-artifacts</artifactId>
-    			<version>${ccsdk.sli.core.version}</version>
-    			<type>pom</type>
-    			<scope>import</scope>
+  <groupId>org.onap.ccsdk.sli.core</groupId>
+  <artifactId>sli-core-artifacts</artifactId>
+  <version>${ccsdk.sli.core.version}</version>
+  <type>pom</type>
+  <scope>import</scope>
     		</dependency>
     	</dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.onap.sdnc.northbound</groupId>
@@ -107,6 +106,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-
 </project>
