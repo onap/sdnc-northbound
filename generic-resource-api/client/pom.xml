@@ -18,36 +18,12 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <dependencies>
-        <!-- This is where the yang comes from -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>generic-resource-api-model</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- End this is where the yang comes from -->        
-    </dependencies>
+    <properties>
+        <api.name>generic-resource</api.name>
+    </properties>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <configuration>
-                    <includeGroupIds>org.opendaylight.mdsal.model,org.opendaylight.mdsal.binding.model.ietf,org.onap.sdnc.northbound</includeGroupIds>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yang-maven-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-codegen-maven-plugin</artifactId>
@@ -57,6 +33,8 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
+                            <inputSpec>${project.basedir}/../model/swagger/src/main/json/${api.name}.json</inputSpec>
+                            <language>spring</language>
                             <configOptions>
                                 <java8>true</java8>
                                 <withXml>true</withXml>
@@ -81,28 +59,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.10</version>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>target/generated-sources/swagger-maven-api-gen/client.yaml</file>
-                                    <type>yaml</type>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
