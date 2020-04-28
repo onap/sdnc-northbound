@@ -15,18 +15,18 @@
 	<packaging>feature</packaging>
 
 	<name>sdnc-northbound :: features :: ${project.artifactId}</name>
+
 	<dependencyManagement>
 	    <dependencies>
 	    	<dependency>
-	    	    <groupId>org.onap.ccsdk.sli.core</groupId>
-	    	    <artifactId>sli-core-artifacts</artifactId>
-	    	    <version>${ccsdk.sli.core.version}</version>
-	    	    <type>pom</type>
-	    	    <scope>import</scope>
+  <groupId>org.onap.ccsdk.sli.core</groupId>
+  <artifactId>sli-core-artifacts</artifactId>
+  <version>${ccsdk.sli.core.version}</version>
+  <type>pom</type>
+  <scope>import</scope>
 	    	</dependency>
 	    </dependencies>
 	</dependencyManagement>
-
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
