@@ -5,12 +5,12 @@
 	<parent>
 		<groupId>org.onap.ccsdk.parent</groupId>
 		<artifactId>odlparent-lite</artifactId>
-		<version>1.5.4</version>
+		<version>1.5.5-SNAPSHOT</version>
 	</parent>
 
 	<groupId>org.onap.sdnc.northbound</groupId>
 	<artifactId>vnftools-installer</artifactId>
-	<version>1.8.1-SNAPSHOT</version>
+	<version>1.8.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>sdnc-northbound :: vnftools :: ${project.artifactId}</name>
