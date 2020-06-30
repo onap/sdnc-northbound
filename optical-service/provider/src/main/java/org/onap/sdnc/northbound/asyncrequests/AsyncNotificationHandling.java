@@ -31,6 +31,9 @@ import java.util.Properties;
 import java.io.Writer;
 import java.io.StringWriter;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
@@ -58,7 +61,7 @@ public class AsyncNotificationHandling extends HttpServlet implements Servlet {
     private static final String RESPONSE_CODE = "response-code";
     private static final String ACK_FINAL_INDICATOR = "ack-final-indicator";
     private static final String CONFIGURATION_RESPONSE = "configuration-response-common";
-    private static final String PROPERTIES_PATH = "/opt/onap/ccsdk/data/properties/";
+    private static final String PROPERTIES_PATH = "/opt/onap/sdnc/data/properties/";
     private static final String TEMPLATE_NAME = "rpc-message-sliapi-execute-async.vt";
     private static final String UTF_8 = "UTF-8";
 
@@ -108,10 +111,12 @@ public class AsyncNotificationHandling extends HttpServlet implements Servlet {
 
     private void invokeRPC(String rpcMsgbody) {
         try {
-            String odlUrlBase = "http://sdnc.onap:8282/restconf/operations"; // using cluster SDNC URL
-            String odlUser = "admin";
-            String odlPassword = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U";
-            String sdncEndpoint = "SLI-API:execute-graph";
+	    Properties baseProperties = new Properties(); 
+            baseProperties.load(new FileInputStream(new File("/opt/onap/sdnc/data/properties/optical-service-dg.properties")));
+            String odlUrlBase = baseProperties.getProperty("odlUrlBase");
+            String odlUser = baseProperties.getProperty("controller.user");
+            String odlPassword = baseProperties.getProperty("controller.pwd");
+            String sdncEndpoint = baseProperties.getProperty("sdncEndpoint");
 
             if ((odlUrlBase != null) && (odlUrlBase.length() > 0)) {
                 SdncOdlConnection conn =
@@ -124,6 +129,7 @@ public class AsyncNotificationHandling extends HttpServlet implements Servlet {
         } catch (Exception e) {
             LOG.error("Unable to process message", e);
         }
+
     }
 
     private String buildAsyncNotifRPCMsgRoadm(JSONObject payloadString) throws IOException {

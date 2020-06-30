@@ -131,8 +131,10 @@ public class OpticalServiceProvider implements AutoCloseable, OpticalserviceServ
 					errorCode = outputParams.getProperty("error-code");
 					LOG.info("Response Code" + errorCode);
 					String errorMessage = outputParams.getProperty("error-message");
+                                        String ackFinalIndicator = outputParams.getProperty("ack-final-indicator");
 					serviceDataBuilder.setResponseCode(errorCode);
 					serviceDataBuilder.setResponseMessage(errorMessage);
+                                        serviceDataBuilder.setAckFinalIndicator(ackFinalIndicator);
 
 				} catch (Exception e) {
 					LOG.error("Caught exception executing service LOGic for " + svcOperation, e);
@@ -195,9 +197,12 @@ public class OpticalServiceProvider implements AutoCloseable, OpticalserviceServ
 							serviceDataBuilder, parms);
 					String errorCode = outputParams.getProperty("error-code");
 					LOG.info("Response Code" + errorCode);
-					String errorMessage = outputParams.getProperty("error-message");
-					serviceDataBuilder.setResponseCode(errorCode);
-					serviceDataBuilder.setResponseMessage(errorMessage);
+                                        String errorMessage = outputParams.getProperty("error-message");
+                                        String ackFinalIndicator = outputParams.getProperty("ack-final-indicator");
+                                        serviceDataBuilder.setResponseCode(errorCode);
+                                        serviceDataBuilder.setResponseMessage(errorMessage);
+                                        serviceDataBuilder.setAckFinalIndicator(ackFinalIndicator);
+					
 				} catch (Exception e) {
 					LOG.error("Caught exception executing service LOGic for " + svcOperation, e);
 					serviceDataBuilder.setResponseCode("500");
