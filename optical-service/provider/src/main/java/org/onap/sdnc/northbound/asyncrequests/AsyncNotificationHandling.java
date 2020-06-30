@@ -58,7 +58,7 @@ public class AsyncNotificationHandling extends HttpServlet implements Servlet {
     private static final String RESPONSE_CODE = "response-code";
     private static final String ACK_FINAL_INDICATOR = "ack-final-indicator";
     private static final String CONFIGURATION_RESPONSE = "configuration-response-common";
-    private static final String PROPERTIES_PATH = "/opt/onap/ccsdk/data/properties/";
+    private static final String PROPERTIES_PATH = "/opt/onap/sdnc/data/properties/";
     private static final String TEMPLATE_NAME = "rpc-message-sliapi-execute-async.vt";
     private static final String UTF_8 = "UTF-8";
 
@@ -108,7 +108,7 @@ public class AsyncNotificationHandling extends HttpServlet implements Servlet {
 
     private void invokeRPC(String rpcMsgbody) {
         try {
-            String odlUrlBase = "http://sdnc.onap:8282/restconf/operations"; // using cluster SDNC URL
+            String odlUrlBase = "http://sdnc-oam.onap:8282/restconf/operations"; // using cluster SDNC URL
             String odlUser = "admin";
             String odlPassword = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U";
             String sdncEndpoint = "SLI-API:execute-graph";
