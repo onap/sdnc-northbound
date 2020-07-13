@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f079c791_213298b2",
+        "filename": "optical-service/provider/src/main/java/org/onap/sdnc/northbound/asyncrequests/AsyncNotificationHandling.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 939
+      },
+      "writtenOn": "2020-07-13T14:01:39Z",
+      "side": 1,
+      "message": "Should we make the port 8282 configurable? Otherwise, the code has to be modified every time this port is changed for SNDC. It is OK to implement as such in DG.",
+      "range": {
+        "startLine": 111,
+        "startChar": 54,
+        "endLine": 111,
+        "endChar": 58
+      },
+      "revId": "e6d8b3ad4da9bed05689065e77be9f678fe83d9c",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
