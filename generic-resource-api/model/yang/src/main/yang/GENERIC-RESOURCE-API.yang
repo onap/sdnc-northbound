@@ -2546,6 +2546,10 @@ module GENERIC-RESOURCE-API {
                enum "ActivateSOTNL2VpnInstance";
                enum "DeactivateSOTNL2VpnInstance";
                enum "DeleteSOTNL2VpnInstance";
+               enum "AllocateTransportSliceInstance";
+               enum "ActivateTransportSliceInstance";
+               enum "DeactivateTransportSliceInstance";
+               enum "DeleteTransportSliceInstance";
             }
          }
          leaf source {
@@ -2801,6 +2805,10 @@ module GENERIC-RESOURCE-API {
             enum "ActivateSOTNL2VpnInstance";
             enum "DeactivateSOTNL2VpnInstance";
             enum "DeleteSOTNL2VpnInstance";
+            enum "AllocateTransportSliceInstance";
+            enum "ActivateTransportSliceInstance";
+            enum "DeactivateTransportSliceInstance";
+            enum "DeleteTransportSliceInstance";
          }
       }
       leaf last-svc-request-id {
