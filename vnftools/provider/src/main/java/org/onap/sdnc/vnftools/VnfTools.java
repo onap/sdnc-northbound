@@ -62,27 +62,12 @@ public class VnfTools implements SvcLogicJavaPlugin {
     /**
      * DG node performs a java String.contains(String) and writes true or false
      * to a key in context memory.
-     * @param parameters HashMap in context memory must contain the following:
-     * <table border='1'>
-     * <thead>
-     *     <th>Key</th>
-     *     <th>Description</th>
-     * </thead>
-     * <tbody>
-     *     <tr>
-     *         <td>string_to_search</td>
-     *         <td>String to perform java String.contains(String) on</td>
-     *     </tr>
-     *  <tr>
-     *         <td>string_to_find</td>
-     *         <td>String to find in the string_to_search</td>
-     *     </tr>
-     *  <tr>
-     *         <td>result_ctx_string</td>
-     *         <td>Context memory key to write the result ("true" or "false") to</td>
-     *     </tr>
-     * </tbody>
-     * </table>
+     * @param parameters HashMap in context memory must contain the following keys:
+     * <ul>
+     * <li><b>string_to_sear</b> : String to perform java String.contains(String) on</li>
+     * <li><b>string_to_find</b> : String to find in the string_to_search</li>
+     * <li><b>result_ctx_string</b> : Context memory key to write the result ("true" or "false") to</li>
+     * </ul>
      * @param ctx Reference to context memory
      * @throws SvcLogicException when passed in parameter is not valid
      */
