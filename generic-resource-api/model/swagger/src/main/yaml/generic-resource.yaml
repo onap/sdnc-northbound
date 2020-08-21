@@ -18,7 +18,7 @@ info:
     Relating to IETF Documents\n(http://trustee.ietf.org/license-info).\n\nThis version\
     \ of this YANG module is part of RFC 6991; see\nthe RFC itself for full legal\
     \ notices."
-  version: "2.0.0-SNAPSHOT"
+  version: "2.0.1-SNAPSHOT"
   title: "ietf-yang-types,ietf-inet-types,GENERIC-RESOURCE-API API"
 consumes:
 - "application/json"
@@ -87498,6 +87498,10 @@ definitions:
     - "ActivateSOTNL2VpnInstance"
     - "DeactivateSOTNL2VpnInstance"
     - "DeleteSOTNL2VpnInstance"
+    - "AllocateTransportSliceInstance"
+    - "ActivateTransportSliceInstance"
+    - "DeactivateTransportSliceInstance"
+    - "DeleteTransportSliceInstance"
   generic.resource.api.LastOrderStatusEnumeration:
     type: "string"
     enum:
@@ -87975,6 +87979,10 @@ definitions:
     - "ActivateSOTNL2VpnInstance"
     - "DeactivateSOTNL2VpnInstance"
     - "DeleteSOTNL2VpnInstance"
+    - "AllocateTransportSliceInstance"
+    - "ActivateTransportSliceInstance"
+    - "DeactivateTransportSliceInstance"
+    - "DeleteTransportSliceInstance"
   generic.resource.api.RequestInformation:
     type: "object"
     properties:
