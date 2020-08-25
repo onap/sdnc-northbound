@@ -20,7 +20,13 @@
     <properties>
         <api.name>generic-resource</api.name>
     </properties>
-
+    <dependencies>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -49,7 +55,7 @@
                                 <sourceFolder>src/main/java</sourceFolder>
                                 <useBeanValidation>true</useBeanValidation>
                                 <interfaceOnly>true</interfaceOnly>
-								<serializableModel>true</serializableModel>
+                                <serializableModel>true</serializableModel>
                             </configOptions>
                         </configuration>
                     </execution>
