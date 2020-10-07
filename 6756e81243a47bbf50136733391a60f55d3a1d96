@@ -1,0 +1,8 @@
+Code-Review+1: Yuriy Malakov <yuriy.malakov@att.com>
+Code-Review+2: Dan Timoney <dtimoney@att.com>
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Submitted-by: Dan Timoney <dtimoney@att.com>
+Submitted-at: Wed, 07 Oct 2020 00:26:40 +0000
+Reviewed-on: https://gerrit.onap.org/r/c/sdnc/northbound/+/113573
+Project: sdnc/northbound
+Branch: refs/heads/master
