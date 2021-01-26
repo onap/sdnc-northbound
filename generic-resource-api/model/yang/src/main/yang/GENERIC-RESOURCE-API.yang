@@ -3190,6 +3190,7 @@ module GENERIC-RESOURCE-API {
                enum "ActivateTransportSliceInstance";
                enum "DeactivateTransportSliceInstance";
                enum "DeleteTransportSliceInstance";
+               enum "ModifyTransportSliceInstance";
             }
          }
          leaf source {
@@ -3498,6 +3499,7 @@ module GENERIC-RESOURCE-API {
             enum "ActivateTransportSliceInstance";
             enum "DeactivateTransportSliceInstance";
             enum "DeleteTransportSliceInstance";
+            enum "ModifyTransportSliceInstance";
          }
       }
       leaf last-svc-request-id {
