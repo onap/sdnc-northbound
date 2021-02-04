@@ -25,11 +25,13 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import org.onap.ccsdk.sli.core.sli.provider.MdsalHelper;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreateInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreateInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreateOutput;
@@ -39,14 +41,11 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceDeleteOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceDeleteOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalserviceService;
+import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-
 /**
  * Defines a base implementation for your provider. This class extends from a
  * helper class which provides storage for the most commonly used components of
@@ -64,26 +63,31 @@ public class OpticalServiceProvider implements AutoCloseable, OpticalserviceServ
 
 	protected DataBroker dataBroker;
 	protected NotificationPublishService notificationService;
-	protected RpcProviderRegistry rpcRegistry;
-	protected BindingAwareBroker.RpcRegistration<OpticalserviceService> rpcRegistration;
+	protected RpcProviderService rpcProviderService;
+	protected ObjectRegistration<OpticalserviceService> rpcRegistration;
 	private final OpticalServiceClient opticalServiceClient;
 
 	public OpticalServiceProvider(final DataBroker dataBroker,
-			final NotificationPublishService notificationPublishService, final RpcProviderRegistry rpcProviderRegistry,
+			final NotificationPublishService notificationPublishService, final RpcProviderService rpcProviderService,
 			final OpticalServiceClient opticalServiceClient) {
 
 		LOG.info("Creating provider for {}", APPLICATION_NAME);
 		executor = Executors.newFixedThreadPool(1);
 		this.dataBroker = dataBroker;
 		this.notificationService = notificationPublishService;
-		this.rpcRegistry = rpcProviderRegistry;
+		this.rpcProviderService= rpcProviderService;
 		this.opticalServiceClient = opticalServiceClient;
 		initialize();
 	}
 
 	public void initialize() {
 		LOG.info("Initializing provider for {}", APPLICATION_NAME);
-		rpcRegistration = rpcRegistry.addRpcImplementation(OpticalserviceService.class, this);
+
+        if (rpcRegistration == null) {
+            if (rpcProviderService != null) {
+                rpcRegistration = rpcProviderService.registerRpcImplementation(OpticalserviceService.class, this);
+            }
+        }
 		LOG.info("Initialization complete for {}", APPLICATION_NAME);
 	}
 

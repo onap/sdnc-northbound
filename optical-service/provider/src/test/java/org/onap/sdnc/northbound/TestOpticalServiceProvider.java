@@ -20,29 +20,24 @@
  */
 package org.onap.sdnc.northbound;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.onap.sdnc.northbound.OpticalServiceProvider;
-import org.onap.sdnc.northbound.OpticalServiceClient;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreateInput;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreateInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreateOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.optical.service.create.request.PayloadBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceDeleteInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceDeleteInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceDeleteOutput;
-
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TestOpticalServiceProvider extends AbstractConcurrentDataBrokerTest {
 
@@ -58,7 +53,7 @@ public class TestOpticalServiceProvider extends AbstractConcurrentDataBrokerTest
         if (null == opticalServiceProvider) {
             DataBroker dataBroker = getDataBroker();
             NotificationPublishService mockNotification = mock(NotificationPublishService.class);
-            RpcProviderRegistry mockRpcRegistry = mock(RpcProviderRegistry.class);
+            RpcProviderService mockRpcRegistry = mock(RpcProviderService.class);
             OpticalServiceClient mockSliClient = mock(OpticalServiceClient.class);
             when(mockSliClient.hasGraph(module, rpc, version, mode)).thenReturn(false); 
             opticalServiceProvider = new OpticalServiceProvider(dataBroker, mockNotification, mockRpcRegistry, mockSliClient);

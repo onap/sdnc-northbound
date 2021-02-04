@@ -35,10 +35,10 @@ public class GenericResourceApiSvcLogicServiceClient {
     static final String SVC_LOGIC_STATUS_KEY = "SvcLogic.status";
     static final String SKIP_MDSAL_UPDATE_PROP = "skip-mdsal-update";
 
-    private final Logger LOG = LoggerFactory
+    // Next 2 fields protected so they can be overridden in jUnit without resorting to Java reflection
+    protected Logger LOG = LoggerFactory
             .getLogger(GenericResourceApiSvcLogicServiceClient.class);
-
-    private SvcLogicService svcLogic = null;
+    protected SvcLogicService svcLogic = null;
 
     public GenericResourceApiSvcLogicServiceClient(SvcLogicService svcLogic)
     {

@@ -45,10 +45,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.onap.sdnc.northbound.util.PropBuilder;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainClosedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.TransactionChainClosedException;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.ServiceTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
@@ -231,7 +231,7 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
 
         svcClient.mockHasGraph(true);
         WriteTransaction mockWriteTransaction = mock(WriteTransaction.class);
-        when(mockWriteTransaction.submit()).thenThrow(new TransactionChainClosedException("test exception"));
+        when(mockWriteTransaction.commit()).thenThrow(new TransactionChainClosedException("test exception"));
 
         DataBroker spyDataBroker = Mockito.spy(dataBroker);
         when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);

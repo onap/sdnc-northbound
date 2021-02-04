@@ -26,7 +26,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.onap.ccsdk.sli.core.sli.SvcLogicException;
 import org.onap.ccsdk.sli.core.sli.provider.SvcLogicService;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.preload.data.PreloadDataBuilder;
@@ -54,9 +53,8 @@ public class GenericResourceApiSvcLogicServiceClientTest {
     @Before
     public void setUp() throws Exception {
         svcClient = spy(new GenericResourceApiSvcLogicServiceClient(mockSvcLogic));
-
-        Whitebox.setInternalState(svcClient, "LOG", mockLog);
-        Whitebox.setInternalState(svcClient, "svcLogic", mockSvcLogic);
+        svcClient.LOG = mockLog;
+        svcClient.svcLogic = mockSvcLogic;
     }
 
     @After
@@ -67,7 +65,7 @@ public class GenericResourceApiSvcLogicServiceClientTest {
     public void testConstructorWithoutSvcLogicBundle() throws Exception {
         GenericResourceApiSvcLogicServiceClient client = new GenericResourceApiSvcLogicServiceClient(mockSvcLogic);
         Assert.assertEquals("Should have set mockSvcLogic",
-                mockSvcLogic, Whitebox.getInternalState(client, "svcLogic"));
+                mockSvcLogic, client.svcLogic);
     }
 
     @Test (expected = SvcLogicException.class)

@@ -12,12 +12,12 @@ import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceInformationBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.serviceResponseInformation;
-import static org.onap.sdnc.northbound.util.MDSALUtil.vnfResponseInformation;
-import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleResponseInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleInformationBuilder;
+import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleResponseInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleTopologyOperationInput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleTopologyOperationOutput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vnfInformationBuilder;
+import static org.onap.sdnc.northbound.util.MDSALUtil.vnfResponseInformation;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,9 +25,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.onap.sdnc.northbound.util.PropBuilder;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainClosedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.TransactionChainClosedException;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VfModuleTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VfModuleTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
@@ -154,7 +154,7 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
         svcClient.mockExecute(svcResultProp);
         svcClient.mockHasGraph(true);
         WriteTransaction mockWriteTransaction = mock(WriteTransaction.class);
-        when(mockWriteTransaction.submit()).thenThrow(new TransactionChainClosedException("test exception"));
+        when(mockWriteTransaction.commit()).thenThrow(new TransactionChainClosedException("test exception"));
 
         DataBroker spyDataBroker = Mockito.spy(dataBroker);
         when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);

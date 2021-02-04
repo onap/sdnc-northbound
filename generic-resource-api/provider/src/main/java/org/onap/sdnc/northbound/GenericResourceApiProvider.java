@@ -1,29 +1,29 @@
 package org.onap.sdnc.northbound;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+
+import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.OptimisticLockFailedException;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.BrgTopologyOperationOutput;
@@ -52,6 +52,10 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.NetworkTopologyOperationOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PolicyUpdateNotifyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PolicyUpdateNotifyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PolicyUpdateNotifyOperationOutput;
@@ -96,15 +100,12 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.VnfTopologyOperationOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PnfTopologyOperationOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.brg.response.information.BrgResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.connection.attachment.response.information.ConnectionAttachmentResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.contrail.route.response.information.ContrailRouteResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.gc.response.information.GcResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.network.response.information.NetworkResponseInformationBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.pnf.response.information.PnfResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.port.mirror.response.information.PortMirrorResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.preload.data.PreloadData;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.preload.data.PreloadDataBuilder;
@@ -127,7 +128,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.tunnelxconn.response.information.TunnelxconnResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vf.module.response.information.VfModuleResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.response.information.VnfResponseInformationBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.pnf.response.information.PnfResponseInformationBuilder;
+import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -153,7 +154,7 @@ import org.slf4j.LoggerFactory;
  *     final GenericResourceApiProvider provider = new GenericResourceApiProvider();
  *     provider.setDataBroker(getDataBrokerDependency());
  *     provider.setNotificationService(getNotificationServiceDependency());
- *     provider.setRpcRegistry(getRpcRegistryDependency());
+ *     provider.setRpcService(getRpcServiceDependency());
  *     provider.initialize();
  *     return new AutoCloseable() {
  *
@@ -214,16 +215,16 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     protected DataBroker dataBroker;
     protected NotificationPublishService notificationService;
-    protected RpcProviderRegistry rpcRegistry;
-    protected BindingAwareBroker.RpcRegistration<GENERICRESOURCEAPIService> rpcRegistration;
+    protected RpcProviderService rpcService;
+    protected ObjectRegistration<GENERICRESOURCEAPIService> rpcRegistration;
 
     public GenericResourceApiProvider(DataBroker dataBroker, NotificationPublishService notificationPublishService,
-        RpcProviderRegistry rpcProviderRegistry, GenericResourceApiSvcLogicServiceClient client) {
+        RpcProviderService rpcProviderService, GenericResourceApiSvcLogicServiceClient client) {
         log.info("Creating provider for {}", APP_NAME);
         executor = Executors.newFixedThreadPool(1);
         setDataBroker(dataBroker);
         setNotificationService(notificationPublishService);
-        setRpcRegistry(rpcProviderRegistry);
+        setRpcService(rpcProviderService);
         svcLogicClient = client;
         initialize();
 
@@ -237,6 +238,12 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             GenericResourceApiUtil.loadProperties();
         } catch (Exception e) {
             log.error("Caught Exception while trying to load properties file", e);
+        }
+
+        if (rpcRegistration == null) {
+            if (rpcService != null) {
+                rpcRegistration = rpcService.registerRpcImplementation(GENERICRESOURCEAPIService.class, this);
+            }
         }
 
         log.info("Initialization complete for {}", APP_NAME);
@@ -285,10 +292,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    public void setRpcRegistry(RpcProviderRegistry rpcRegistry) {
-        this.rpcRegistry = rpcRegistry;
+    public void setRpcService(RpcProviderService rpcService) {
+        this.rpcService = rpcService;
         if (log.isDebugEnabled()) {
-            log.debug("RpcRegistry set to {}", rpcRegistry == null ? NULL_PARAM : NON_NULL_PARAM);
+            log.debug("rpcService set to {}", rpcService == null ? NULL_PARAM : NON_NULL_PARAM);
         }
     }
 
@@ -309,7 +316,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             new PreloadInformationBuilder().build());
 
         try {
-            CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = t.submit();
+            FluentFuture<? extends @NonNull CommitInfo> checkedFuture = t.commit();
             checkedFuture.get();
             log.info("Create containers succeeded!");
 
@@ -367,12 +374,13 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private void getServiceData(String siid, ServiceDataBuilder serviceDataBuilder, LogicalDatastoreType type) {
         // See if any data exists yet for this siid, if so grab it.
-        InstanceIdentifier<Service> serviceInstanceIdentifier = InstanceIdentifier.builder(Services.class)
+        InstanceIdentifier<Service> serviceInstanceIdentifier = InstanceIdentifier.<Services>builder(Services.class)
             .child(Service.class, new ServiceKey(siid)).build();
 
-        Optional<Service> data = Optional.absent();
-        try (final ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction()) {
-            data = readTx.read(type, serviceInstanceIdentifier).get();
+        Optional<Service> data = null;
+        
+        try (final ReadTransaction readTx = dataBroker.newReadOnlyTransaction()) {
+            data = (Optional<Service>) readTx.read(type, serviceInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error("Caught Exception reading MD-SAL ({}) data for [{}] ", type, siid, e);
         }
@@ -426,7 +434,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                     throw new IllegalStateException(e);
                 }
                 log.debug("Got OptimisticLockFailedException - trying again ");
-            } catch (TransactionCommitFailedException ex) {
+            } catch (TransactionCommitFailedException|InterruptedException|ExecutionException ex) {
                 log.debug("Update DataStore failed");
                 throw new IllegalStateException(ex);
             }
@@ -434,14 +442,15 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private <T extends DataObject> void save(T entry, boolean merge, LogicalDatastoreType storeType,
-        InstanceIdentifier<T> path) throws TransactionCommitFailedException {
+        InstanceIdentifier<T> path) throws TransactionCommitFailedException, InterruptedException,
+            ExecutionException {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         if (merge) {
             tx.merge(storeType, path, entry);
         } else {
             tx.put(storeType, path, entry);
         }
-        tx.submit().checkedGet();
+        tx.commit().get();
         log.debug("Update DataStore succeeded");
     }
 
@@ -466,7 +475,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                     throw new IllegalStateException(e);
                 }
                 log.debug("Got OptimisticLockFailedException - trying again ");
-            } catch (TransactionCommitFailedException ex) {
+            } catch (TransactionCommitFailedException|InterruptedException|ExecutionException ex) {
                 log.debug("Update DataStore failed");
                 throw new IllegalStateException(ex);
             }
@@ -474,10 +483,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void delete(LogicalDatastoreType storeType, InstanceIdentifier<Service> path)
-        throws TransactionCommitFailedException {
+        throws TransactionCommitFailedException, InterruptedException, ExecutionException {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.delete(storeType, path);
-        tx.submit().checkedGet();
+        tx.commit().get();
         log.debug("DataStore delete succeeded");
     }
 
@@ -494,7 +503,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             .child(PreloadList.class, new PreloadListKey(preloadName, preloadType)).build();
 
         Optional<PreloadList> data = null;
-        try (final ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction()) {
+        try (final ReadTransaction readTx = dataBroker.newReadOnlyTransaction()) {
             data = (Optional<PreloadList>) readTx.read(type, preloadInstanceIdentifier).get();
         } catch (final InterruptedException | ExecutionException e) {
             log.error("Caught Exception reading MD-SAL ({}) for [{},{}] ", type, preloadName, preloadType, e);
@@ -535,10 +544,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                 } else {
                     tx.put(storeType, path, entry);
                 }
-                tx.submit().checkedGet();
+                tx.commit().get();
                 log.debug("Update DataStore succeeded");
                 break;
-            } catch (final TransactionCommitFailedException e) {
+            } catch (final InterruptedException | ExecutionException e) {
                 if (e instanceof OptimisticLockFailedException) {
                     if (--tries <= 0) {
                         log.debug("Got OptimisticLockFailedException on last try - failing ");
@@ -574,7 +583,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
                     throw new IllegalStateException(e);
                 }
                 log.debug("Got OptimisticLockFailedException - trying again ");
-            } catch (TransactionCommitFailedException ex) {
+            } catch (TransactionCommitFailedException|InterruptedException|ExecutionException ex) {
                 log.debug("Update DataStore failed");
                 throw new IllegalStateException(ex);
             }
@@ -582,10 +591,10 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     private void deletePreloadList(LogicalDatastoreType storeType, InstanceIdentifier<PreloadList> path)
-        throws TransactionCommitFailedException {
+        throws TransactionCommitFailedException, InterruptedException, ExecutionException {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.delete(storeType, path);
-        tx.submit().checkedGet();
+        tx.commit().get();
         log.debug("DataStore delete succeeded");
     }
 

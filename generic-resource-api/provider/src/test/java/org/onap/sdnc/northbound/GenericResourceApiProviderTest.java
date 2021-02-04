@@ -27,21 +27,21 @@ import org.mockito.Mock;
 import org.onap.sdnc.northbound.util.DataBrokerUtil;
 import org.onap.sdnc.northbound.util.GenericResourceApiSvcLogicServiceClientMockUtil;
 import org.onap.sdnc.northbound.util.PropBuilder;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.testutils.DataBrokerTestModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class GenericResourceApiProviderTest extends AbstractConcurrentDataBrokerTest {
+public class GenericResourceApiProviderTest {
 
     protected static final Logger LOG = LoggerFactory.getLogger(GenericResourceApiProvider.class);
     protected GenericResourceApiProvider genericResourceApiProvider;
     protected DataBroker dataBroker;
     protected @Mock NotificationPublishService mockNotificationPublishService;
-    protected @Mock RpcProviderRegistry mockRpcProviderRegistry;
+    protected @Mock RpcProviderService mockRpcProviderService;
     protected @Mock GenericResourceApiSvcLogicServiceClient mockGenericResourceApiSvcLogicServiceClient;
 
 
@@ -59,7 +59,7 @@ public class GenericResourceApiProviderTest extends AbstractConcurrentDataBroker
             genericResourceApiProvider = new GenericResourceApiProvider(
                     dataBroker,
                     mockNotificationPublishService,
-                    mockRpcProviderRegistry,
+                    mockRpcProviderService,
                     mockGenericResourceApiSvcLogicServiceClient
             );
         } catch (Exception e) {
@@ -68,6 +68,9 @@ public class GenericResourceApiProviderTest extends AbstractConcurrentDataBroker
         }
     }
 
+    public DataBroker getDataBroker() {
+        return DataBrokerTestModule.dataBroker();
+    }
 
     public static PropBuilder prop(){
         return (new PropBuilder());

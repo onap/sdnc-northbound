@@ -21,13 +21,18 @@
 
 package org.onap.sdnc.northbound.util;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import java.util.Optional;
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+
+import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.Services;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceDataBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.level.oper.status.ServiceLevelOperStatusBuilder;
@@ -57,7 +62,7 @@ public class DataBrokerUtil {
     public Service read(String serviceKey, LogicalDatastoreType logicalDatastoreType) throws Exception {
         InstanceIdentifier serviceInstanceIdentifier = InstanceIdentifier.<Services>builder(Services.class)
                 .child(Service.class, new ServiceKey(serviceKey)).build();
-        ReadOnlyTransaction readTx = dataBroker.newReadOnlyTransaction();
+        ReadTransaction readTx = dataBroker.newReadOnlyTransaction();
         Optional<Service> data = (Optional<Service>) readTx.read(logicalDatastoreType, serviceInstanceIdentifier).get();
         if(!data.isPresent()){
             return null;
@@ -96,8 +101,7 @@ public class DataBrokerUtil {
         } else {
             tx.put(logicalDatastoreType, path, service);
         }
-        CheckedFuture<Void,TransactionCommitFailedException> cf = tx.submit();
-        cf.checkedGet();
+        tx.commit().get();
 
     }
 

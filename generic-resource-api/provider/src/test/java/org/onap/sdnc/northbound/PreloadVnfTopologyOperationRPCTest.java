@@ -1,37 +1,38 @@
 package org.onap.sdnc.northbound;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
+import static org.onap.sdnc.northbound.util.MDSALUtil.preloadVfModuleTopologyInformationBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.preloadVfModuleTopologyOperationInput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.preloadVfModuleTopologyOperationOutput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
-import static org.onap.sdnc.northbound.util.MDSALUtil.vnfTopologyIdentifierStructureBuilder;
-import static org.onap.sdnc.northbound.util.MDSALUtil.preloadVfModuleTopologyInformationBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleTopologyBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.vfModuleTopologyIdentifierBuilder;
+import static org.onap.sdnc.northbound.util.MDSALUtil.vnfTopologyIdentifierStructureBuilder;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.onap.sdnc.northbound.util.PropBuilder;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainClosedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.TransactionChainClosedException;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PreloadVfModuleTopologyOperationInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.PreloadVfModuleTopologyOperationOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.request.information.RequestInformation;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.sdnc.request.header.SdncRequestHeader.SvcAction;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class PreloadVnfTopologyOperationRPCTest extends GenericResourceApiProviderTest {
 
     private static final String SVC_OPERATION = "preload-vf-module-topology-operation";
@@ -146,7 +147,7 @@ public class PreloadVnfTopologyOperationRPCTest extends GenericResourceApiProvid
         svcClient.mockExecuteWoServiceData(svcResultProp);
         svcClient.mockHasGraph(true);
         WriteTransaction mockWriteTransaction = mock(WriteTransaction.class);
-        when(mockWriteTransaction.submit()).thenThrow(new TransactionChainClosedException("test exception"));
+        when(mockWriteTransaction.commit()).thenThrow(new TransactionChainClosedException("test exception"));
 
         DataBroker spyDataBroker = Mockito.spy(dataBroker);
         when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);
