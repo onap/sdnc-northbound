@@ -3191,6 +3191,9 @@ module GENERIC-RESOURCE-API {
                enum "DeactivateTransportSliceInstance";
                enum "DeleteTransportSliceInstance";
                enum "ModifyTransportSliceInstance";
+               enum "CreateCloudLeasedLineInstance";
+               enum "ModifyCloudLeasedLineInstance";
+               enum "DeleteCloudLeasedLineInstance";
             }
          }
          leaf source {
@@ -3500,6 +3503,9 @@ module GENERIC-RESOURCE-API {
             enum "DeactivateTransportSliceInstance";
             enum "DeleteTransportSliceInstance";
             enum "ModifyTransportSliceInstance";
+            enum "CreateCloudLeasedLineInstance";
+            enum "ModifyCloudLeasedLineInstance";
+            enum "DeleteCloudLeasedLineInstance";
          }
       }
       leaf last-svc-request-id {
