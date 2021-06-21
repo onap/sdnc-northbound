@@ -10,7 +10,7 @@
 
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>generic-resource-api-model-swagger</artifactId>
-    <version>2.1.5-SNAPSHOT</version>
+    <version>2.1.5</version>
     <packaging>jar</packaging>
 
     <name>sdnc-northbound :: generic-resource-api:: ${project.artifactId}</name>
