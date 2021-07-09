@@ -29,7 +29,7 @@
             <artifactId>generic-resource-api-model-yang</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- End this is where the yang comes from -->        
+        <!-- End this is where the yang comes from -->
     </dependencies>
 
     <repositories>
@@ -52,7 +52,9 @@
                 <configuration>
                     <outputDirectory>${project.build.directory}/dependency</outputDirectory>
                     <includes>**\/*.yang</includes>
-                    <includeGroupIds>org.opendaylight.mdsal.model,org.opendaylight.mdsal.binding.model.ietf,org.onap.sdnc.northbound</includeGroupIds>
+                    <includeGroupIds>
+                        org.opendaylight.mdsal.model,org.opendaylight.mdsal.binding.model.ietf,org.onap.sdnc.northbound
+                    </includeGroupIds>
                 </configuration>
                 <executions>
                     <execution>
@@ -145,7 +147,8 @@
                         <configuration>
                             <codeGenerators>
                                 <generator>
-                                    <codeGeneratorClass>com.mrv.yangtools.maven.gen.swagger.MavenSwaggerGenerator</codeGeneratorClass>
+                                    <codeGeneratorClass>com.mrv.yangtools.maven.gen.swagger.MavenSwaggerGenerator
+                                    </codeGeneratorClass>
                                     <outputBaseDir>${project.basedir}/src/main/json</outputBaseDir>
                                     <resourceBaseDir>${project.build.directory}/yang</resourceBaseDir>
                                     <additionalConfiguration>
@@ -169,7 +172,8 @@
                         <configuration>
                             <codeGenerators>
                                 <generator>
-                                    <codeGeneratorClass>com.mrv.yangtools.maven.gen.swagger.MavenSwaggerGenerator</codeGeneratorClass>
+                                    <codeGeneratorClass>com.mrv.yangtools.maven.gen.swagger.MavenSwaggerGenerator
+                                    </codeGeneratorClass>
                                     <outputBaseDir>${project.basedir}/src/main/yaml</outputBaseDir>
                                     <resourceBaseDir>${project.build.directory}/yang</resourceBaseDir>
                                     <additionalConfiguration>
@@ -213,7 +217,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
-             <plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>1.10</version>

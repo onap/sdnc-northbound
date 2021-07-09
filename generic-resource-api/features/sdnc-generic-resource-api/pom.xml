@@ -26,7 +26,7 @@
         <dependency>
             <groupId>org.onap.ccsdk.sli.core</groupId>
             <artifactId>ccsdk-sli</artifactId>
-            <version>${ccsdk.sli.core.version}</version>
+            <version>${ccsdk.sli.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
@@ -40,6 +40,5 @@
             <artifactId>generic-resource-api-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-
     </dependencies>
 </project>

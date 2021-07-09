@@ -25,7 +25,7 @@
             <dependency>
                 <groupId>org.onap.ccsdk.sli.core</groupId>
                 <artifactId>sli-core-artifacts</artifactId>
-                <version>${ccsdk.sli.core.version}</version>
+                <version>${ccsdk.sli.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.onap.ccsdk.sli.core</groupId>
             <artifactId>sliPluginUtils-provider</artifactId>
-            <version>${ccsdk.sli.core.version}</version>
+            <version>${ccsdk.sli.version}</version>
         </dependency>
     </dependencies>
 </project>

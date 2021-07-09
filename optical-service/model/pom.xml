@@ -25,7 +25,5 @@
             <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
             <artifactId>rfc6991</artifactId>
         </dependency>
-
-        
     </dependencies>
 </project>

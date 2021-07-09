@@ -19,12 +19,12 @@
     <properties>
         <application.name>sdnc-optical-service</application.name>
         <features.boot>${application.name}</features.boot>
-        <features.repositories>mvn:org.onap.sdnc.northbound/${features.boot}/${project.version}/xml/features</features.repositories>
+        <features.repositories>mvn:org.onap.sdnc.northbound/${features.boot}/${project.version}/xml/features
+        </features.repositories>
         <include.transitive.dependencies>false</include.transitive.dependencies>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.onap.sdnc.northbound</groupId>
             <artifactId>${application.name}</artifactId>
@@ -43,14 +43,11 @@
             <artifactId>optical-service-model</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.onap.sdnc.northbound</groupId>
             <artifactId>optical-service-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-
     </dependencies>
 
     <build>
@@ -139,10 +136,8 @@
                             </resources>
                         </configuration>
                     </execution>
-
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 </project>
