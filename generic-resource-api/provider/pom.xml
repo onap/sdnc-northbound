@@ -16,17 +16,6 @@
 
     <name>sdnc-northbound :: generic-resource-api :: ${project.artifactId}</name>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.onap.ccsdk.sli.core</groupId>
-                <artifactId>sli-core-artifacts</artifactId>
-                <version>${ccsdk.sli.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.onap.sdnc.northbound</groupId>
@@ -40,10 +29,12 @@
         <dependency>
             <groupId>org.onap.ccsdk.sli.core</groupId>
             <artifactId>sli-common</artifactId>
+            <version>${ccsdk.sli.version}</version>
         </dependency>
         <dependency>
             <groupId>org.onap.ccsdk.sli.core</groupId>
             <artifactId>sli-provider</artifactId>
+            <version>${ccsdk.sli.version}</version>
         </dependency>
 
         <dependency>

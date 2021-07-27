@@ -20,17 +20,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.onap.ccsdk.sli.core</groupId>
-                <artifactId>sli-core-artifacts</artifactId>
-                <version>${ccsdk.sli.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -45,10 +34,12 @@
         <dependency>
             <groupId>org.onap.ccsdk.sli.core</groupId>
             <artifactId>sli-common</artifactId>
+            <version>${ccsdk.sli.version}</version>
         </dependency>
         <dependency>
             <groupId>org.onap.ccsdk.sli.core</groupId>
             <artifactId>sli-provider</artifactId>
+            <version>${ccsdk.sli.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
