@@ -4004,4 +4004,74 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             || input.getServiceInformation().getServiceInstanceId() == null
             || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
+
+    @Override
+    public ListenableFuture<RpcResult<CollectPerformanceDataOutput>> collectPerformanceData(CollectPerformanceDataInput input) {
+        final String svcOperation = "performance-data-collector";
+        Properties parms = new Properties();
+
+        log.info(CALLED_STR, svcOperation);
+        // create a new response object
+        CollectPerformanceDataOutputBuilder responseBuilder = new CollectPerformanceDataOutputBuilder();
+
+        if (hasInvalidService(input)) {
+            log.debug(NULL_OR_EMPTY_ERROR_MESSAGE, svcOperation);
+            RpcResult<CollectPerformanceDataOutput> rpcResult = RpcResultBuilder
+                    .<CollectPerformanceDataOutput>status(true).withResult(responseBuilder.build()).build();
+            // return error
+            return Futures.immediateFuture(rpcResult);
+        }
+
+        ServiceDataBuilder serviceDataBuilder = new ServiceDataBuilder();
+        serviceDataBuilder.setControllerIpv4Address(input.getControllerIpv4Address());
+
+        ServiceDataBuilder operDataBuilder = new ServiceDataBuilder();
+
+        log.info(ADDING_INPUT_DATA_LOG, svcOperation, input.getControllerIpv4Address(), input);
+        CollectPerformanceDataInputBuilder inputBuilder = new CollectPerformanceDataInputBuilder(input);
+        GenericResourceApiUtil.toProperties(parms, inputBuilder.build());
+
+        log.info(ADDING_OPERATIONAL_DATA_LOG, svcOperation, input.getControllerIpv4Address(), operDataBuilder.build());
+        GenericResourceApiUtil.toProperties(parms, OPERATIONAL_DATA_PARAM, operDataBuilder);
+
+        // Call SLI sync method
+        ResponseObject responseObject = new ResponseObject("200", "");
+        String ackFinal = "Y";
+        Properties respProps = tryGetProperties(svcOperation, parms, serviceDataBuilder, responseObject);
+
+        if (respProps != null) {
+            responseObject.setMessage(respProps.getProperty(ERROR_MESSAGE_PARAM));
+            responseObject.setStatusCode(respProps.getProperty(ERROR_CODE_PARAM));
+            ackFinal = respProps.getProperty(ACK_FINAL_PARAM, "Y");
+        }
+
+        if (failed(responseObject)) {
+            responseBuilder.setResponseCode(responseObject.getStatusCode());
+            responseBuilder.setResponseMessage(responseObject.getMessage());
+            responseBuilder.setAckFinalIndicator(ackFinal);
+
+            log.error(RETURNED_FAILED_MESSAGE, svcOperation, input.getControllerIpv4Address(), responseBuilder.build());
+            RpcResult<CollectPerformanceDataOutput> rpcResult = RpcResultBuilder
+                    .<CollectPerformanceDataOutput>status(true).withResult(responseBuilder.build()).build();
+            // return error
+            return Futures.immediateFuture(rpcResult);
+        }
+
+        // Got success from SLI
+        log.info(RETURNED_SUCCESS_MESSAGE, svcOperation, input.getControllerIpv4Address(), responseBuilder.build());
+
+        if (respProps != null) {
+            GenericResourceApiUtil.toBuilder(respProps, responseBuilder);
+        }
+
+        RpcResult<CollectPerformanceDataOutput> rpcResult = RpcResultBuilder.<CollectPerformanceDataOutput>status(true)
+                .withResult(responseBuilder.build()).build();
+
+        // return success
+        return Futures.immediateFuture(rpcResult);
+    }
+
+    private boolean hasInvalidService(CollectPerformanceDataInput input) {
+        return input == null || input.getControllerIpv4Address() == null;
+    }
 }

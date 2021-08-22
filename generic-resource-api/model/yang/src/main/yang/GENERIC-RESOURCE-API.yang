@@ -4234,4 +4234,19 @@ module GENERIC-RESOURCE-API {
        }
    }
 
+   rpc collectPerformanceData {
+    input {
+        uses sdnc-request-header;
+        uses request-information;
+        uses service-information;
+        leaf controller-ipv4-address {
+            type string;
+            mandatory false;
+        }
+    }
+    output {
+        uses topology-response-common;
+    }
+}
+
 } ////closes the module
