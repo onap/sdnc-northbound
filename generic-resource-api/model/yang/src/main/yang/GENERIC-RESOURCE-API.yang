@@ -30,6 +30,10 @@ module GENERIC-RESOURCE-API {
          uses service-operation-information;
          uses service-topology;
          uses service-level-oper-status;
+         leaf controller-ipv4-address {
+             type string;
+             mandatory false;
+         }
          container networks {
             list network {
                key "network-id";
@@ -4232,6 +4236,21 @@ module GENERIC-RESOURCE-API {
            uses connection-attachment-response-information;
            uses service-response-information;
        }
+   }
+
+   rpc collectPerformanceData {
+       input {
+            uses sdnc-request-header;
+            uses request-information;
+            uses service-information;
+            leaf controller-ipv4-address {
+                type string;
+                mandatory false;
+            }
+        }
+        output {
+            uses topology-response-common;
+        }
    }
 
 } ////closes the module
