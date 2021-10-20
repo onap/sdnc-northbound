@@ -35,11 +35,13 @@
             <groupId>org.onap.ccsdk.sli.core</groupId>
             <artifactId>sli-common</artifactId>
             <version>${ccsdk.sli.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.onap.ccsdk.sli.core</groupId>
             <artifactId>sli-provider</artifactId>
             <version>${ccsdk.sli.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -49,6 +51,7 @@
             <groupId>org.onap.ccsdk.sli.core</groupId>
             <artifactId>sliPluginUtils-provider</artifactId>
             <version>${ccsdk.sli.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
