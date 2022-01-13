@@ -1,0 +1,5 @@
+---
+distribution_type: 'maven'
+version: '2.2.3'
+project: 'sdnc-northbound'
+log_dir: 'sdnc-northbound-maven-stage-istanbul/4/'
