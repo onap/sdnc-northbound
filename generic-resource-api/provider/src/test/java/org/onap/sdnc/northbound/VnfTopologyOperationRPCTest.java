@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
@@ -46,7 +45,7 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
     @Test
     public void should_fail_when_service_info_not_present() throws Exception {
 
-        VnfTopologyOperationInput input = build(vnfTopologyOperationInput());
+        VnfTopologyOperationInput input = vnfTopologyOperationInput().build();
 
         VnfTopologyOperationOutput output =
             exec(genericResourceApiProvider::vnfTopologyOperation, input, RpcResult::getResult);
@@ -82,14 +81,13 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
         svcClient.mockHasGraph(true);
         svcClient.mockExecute(new RuntimeException("test exception"));
 
-        VnfTopologyOperationInput input = build(vnfTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")
-            ))
-        );
+        VnfTopologyOperationInput input = vnfTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setVnfInformation(vnfInformationBuilder()
+                .setVnfId("test-vnf-id").build()
+            ).build();
 
         VnfTopologyOperationOutput output =
             exec(genericResourceApiProvider::vnfTopologyOperation, input, RpcResult::getResult);
@@ -104,14 +102,13 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
 
         svcClient.mockHasGraph(false);
 
-        VnfTopologyOperationInput input = build(vnfTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")
-            ))
-        );
+        VnfTopologyOperationInput input = vnfTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setVnfInformation(vnfInformationBuilder()
+                .setVnfId("test-vnf-id").build()
+            ).build();
 
         VnfTopologyOperationOutput output =
             exec(genericResourceApiProvider::vnfTopologyOperation, input, RpcResult::getResult);
@@ -134,14 +131,13 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
         when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);
         genericResourceApiProvider.setDataBroker(spyDataBroker);
 
-        VnfTopologyOperationInput input = build(vnfTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")
-            ))
-        );
+        VnfTopologyOperationInput input = vnfTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setVnfInformation(vnfInformationBuilder()
+                .setVnfId("test-vnf-id").build()
+            ).build();
 
         VnfTopologyOperationOutput output =
             exec(genericResourceApiProvider::vnfTopologyOperation, input, RpcResult::getResult);
@@ -158,22 +154,21 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
         PropBuilder svcResultProp = svcClient.createExecuteOKResult();
         svcClient.mockExecute(svcResultProp);
 
-        VnfTopologyOperationInput input = build(vnfTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        VnfTopologyOperationInput input = vnfTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setRequestInformation(build(requestInformation()
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setRequestInformation(requestInformation()
                 .setRequestId("test-request-id")
-                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")
-            ))
-        );
+                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setVnfInformation(vnfInformationBuilder()
+                .setVnfId("test-vnf-id").build()
+            ).build();
 
         VnfTopologyOperationOutput output =
             exec(genericResourceApiProvider::vnfTopologyOperation, input, RpcResult::getResult);
@@ -189,20 +184,19 @@ public class VnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
 
     private VnfTopologyOperationOutput createExpectedOutput(PropBuilder svcResultProp,
         VnfTopologyOperationInput vnfTopologyOperationInput) {
-        return build(
+        return
             vnfTopologyOperationOutput()
                 .setSvcRequestId(vnfTopologyOperationInput.getSdncRequestHeader().getSvcRequestId())
                 .setResponseCode(svcResultProp.get(svcClient.errorCode))
                 .setAckFinalIndicator(svcResultProp.get(svcClient.ackFinal))
                 .setResponseMessage(svcResultProp.get(svcClient.errorMessage))
-                .setServiceResponseInformation(build(serviceResponseInformation()
+                .setServiceResponseInformation(serviceResponseInformation()
                     .setInstanceId(vnfTopologyOperationInput.getServiceInformation().getServiceInstanceId())
-                    .setObjectPath(svcResultProp.get(svcClient.serviceObjectPath))
-                ))
-                .setVnfResponseInformation(build(vnfResponseInformation()
+                    .setObjectPath(svcResultProp.get(svcClient.serviceObjectPath)).build()
+                )
+                .setVnfResponseInformation(vnfResponseInformation()
                     .setInstanceId(vnfTopologyOperationInput.getVnfInformation().getVnfId())
-                    .setObjectPath(svcResultProp.get(svcClient.vnfObjectPath))
-                ))
-        );
+                    .setObjectPath(svcResultProp.get(svcClient.vnfObjectPath)).build()
+                ).build();
     }
 }

@@ -7,7 +7,6 @@ import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_
 import static org.onap.sdnc.northbound.util.MDSALUtil.brgResponseInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.brgTopologyOperationInput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.brgTopologyOperationOutput;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
@@ -40,8 +39,7 @@ public class BrgTopologyOperationRPCTest extends GenericResourceApiProviderTest 
     @Test
     public void should_fail_when_service_instance_id_not_present() throws Exception {
 
-        BrgTopologyOperationInput input = build(brgTopologyOperationInput());
-
+        BrgTopologyOperationInput input =brgTopologyOperationInput().build();
         BrgTopologyOperationOutput output =
             exec(genericResourceApiProvider::brgTopologyOperation, input, RpcResult::getResult);
 
@@ -56,15 +54,13 @@ public class BrgTopologyOperationRPCTest extends GenericResourceApiProviderTest 
         svcClient.mockHasGraph(true);
         svcClient.mockExecuteWoServiceData(new RuntimeException("test exception"));
 
-        BrgTopologyOperationInput input = build(brgTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
-                .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+        BrgTopologyOperationInput input = brgTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
+                    .setSvcRequestId("test-svc-request-id")
+                    .setSvcAction(SvcAction.Assign)
+                    .build())
+            .setServiceInformation(serviceInformationBuilder()
+                    .setServiceInstanceId("test-service-instance-id").build()).build();
 
         BrgTopologyOperationOutput output =
             exec(genericResourceApiProvider::brgTopologyOperation, input, RpcResult::getResult);
@@ -79,15 +75,13 @@ public class BrgTopologyOperationRPCTest extends GenericResourceApiProviderTest 
 
         svcClient.mockHasGraph(false);
 
-        BrgTopologyOperationInput input = build(brgTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        BrgTopologyOperationInput input = brgTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build())
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build())
+                .build();
 
         BrgTopologyOperationOutput output =
             exec(genericResourceApiProvider::brgTopologyOperation, input, RpcResult::getResult);
@@ -105,15 +99,13 @@ public class BrgTopologyOperationRPCTest extends GenericResourceApiProviderTest 
         svcResultProp.set("security-zone-object-path", "securityZoneObjectPath: XYZ");
         svcClient.mockExecuteWoServiceData(svcResultProp);
 
-        BrgTopologyOperationInput input = build(brgTopologyOperationInput()
-            .setRequestInformation(build(requestInformation()
+        BrgTopologyOperationInput input = brgTopologyOperationInput()
+            .setRequestInformation(requestInformation()
                 .setRequestId("test-request-id")
-                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build())
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()).build();
+
 
         BrgTopologyOperationOutput output =
             exec(genericResourceApiProvider::brgTopologyOperation, input, RpcResult::getResult);
@@ -130,17 +122,16 @@ public class BrgTopologyOperationRPCTest extends GenericResourceApiProviderTest 
     private BrgTopologyOperationOutput createExpectedOutput(PropBuilder propBuilder,
         BrgTopologyOperationInput input) {
 
-        return build(brgTopologyOperationOutput()
-            .setBrgResponseInformation(build(brgResponseInformation()
-                .setObjectPath(propBuilder.get("brg-object-path"))))
+        return brgTopologyOperationOutput()
+            .setBrgResponseInformation(brgResponseInformation()
+                .setObjectPath(propBuilder.get("brg-object-path")).build())
             .setResponseCode(propBuilder.get(svcClient.errorCode))
             .setAckFinalIndicator(propBuilder.get(svcClient.ackFinal))
             .setResponseMessage(propBuilder.get(svcClient.errorMessage))
-            .setServiceResponseInformation(build(serviceResponseInformation()
+            .setServiceResponseInformation(serviceResponseInformation()
                 .setInstanceId(input.getServiceInformation().getServiceInstanceId())
-                .setObjectPath(propBuilder.get(svcClient.serviceObjectPath))
-            ))
-        );
+                .setObjectPath(propBuilder.get(svcClient.serviceObjectPath)).build())
+                .build();
     }
 
 }

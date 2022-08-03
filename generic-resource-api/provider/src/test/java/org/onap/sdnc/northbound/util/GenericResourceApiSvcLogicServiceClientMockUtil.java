@@ -24,7 +24,6 @@ package org.onap.sdnc.northbound.util;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.when;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.PropBuilder.propBuilder;
 
 import java.util.Properties;
@@ -121,7 +120,7 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
                     eq(MODE),
                     isA(ServiceDataBuilder.class),
                     isA(Properties.class))
-        ).thenReturn(build(svcResultProp));
+        ).thenReturn(svcResultProp.build());
     }
 
     public void mockExecute(RuntimeException exception) throws Exception {
@@ -148,7 +147,7 @@ public class GenericResourceApiSvcLogicServiceClientMockUtil {
                     eq(VERSION),
                     eq(MODE),
                     isA(Properties.class))
-        ).thenReturn(build(svcResultProp));
+        ).thenReturn(svcResultProp.build());
     }
 
     public void mockExecuteWoServiceData(RuntimeException exception) throws Exception {

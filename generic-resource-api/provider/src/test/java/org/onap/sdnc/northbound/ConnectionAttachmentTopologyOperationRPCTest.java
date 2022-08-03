@@ -7,7 +7,6 @@ import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.INVALID_INPUT_ERROR_MESSAGE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.connectionAttachmentResponseInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.connectionAttachmentTopologyOperationInput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.connectionAttachmentTopologyOperationOutput;
@@ -61,7 +60,7 @@ public class ConnectionAttachmentTopologyOperationRPCTest extends GenericResourc
     @Test
     public void should_fail_when_service_instance_id_not_present() throws Exception {
 
-        ConnectionAttachmentTopologyOperationInput input = build(connectionAttachmentTopologyOperationInput());
+        ConnectionAttachmentTopologyOperationInput input = connectionAttachmentTopologyOperationInput().build();
 
         ConnectionAttachmentTopologyOperationOutput output =
             exec(genericResourceApiProvider::connectionAttachmentTopologyOperation, input, RpcResult::getResult);
@@ -75,15 +74,14 @@ public class ConnectionAttachmentTopologyOperationRPCTest extends GenericResourc
     @Test
     public void should_fail_when_invalid_service_data() throws Exception {
 
-        ConnectionAttachmentTopologyOperationInput input = build(connectionAttachmentTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        ConnectionAttachmentTopologyOperationInput input = connectionAttachmentTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         ConnectionAttachmentTopologyOperationOutput output =
             exec(genericResourceApiProvider::connectionAttachmentTopologyOperation, input, RpcResult::getResult);
@@ -100,15 +98,15 @@ public class ConnectionAttachmentTopologyOperationRPCTest extends GenericResourc
         svcClient.mockHasGraph(true);
         svcClient.mockExecute(new RuntimeException("test exception"));
 
-        ConnectionAttachmentTopologyOperationInput input = build(connectionAttachmentTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        ConnectionAttachmentTopologyOperationInput input = connectionAttachmentTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
+
 
         persistServiceInDataBroker(input);
 
@@ -125,15 +123,15 @@ public class ConnectionAttachmentTopologyOperationRPCTest extends GenericResourc
 
         svcClient.mockHasGraph(false);
 
-        ConnectionAttachmentTopologyOperationInput input = build(connectionAttachmentTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        ConnectionAttachmentTopologyOperationInput input = connectionAttachmentTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
+
 
         persistServiceInDataBroker(input);
 
@@ -158,15 +156,15 @@ public class ConnectionAttachmentTopologyOperationRPCTest extends GenericResourc
         when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);
         genericResourceApiProvider.setDataBroker(spyDataBroker);
 
-        ConnectionAttachmentTopologyOperationInput input = build(connectionAttachmentTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        ConnectionAttachmentTopologyOperationInput input = connectionAttachmentTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
+
 
         persistServiceInDataBroker(input);
 
@@ -187,19 +185,19 @@ public class ConnectionAttachmentTopologyOperationRPCTest extends GenericResourc
         svcResultProp.set("contrail-route-object-path", "connectionAttachmentObjectPath: XYZ");
         svcClient.mockExecute(svcResultProp);
 
-        ConnectionAttachmentTopologyOperationInput input = build(connectionAttachmentTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        ConnectionAttachmentTopologyOperationInput input = connectionAttachmentTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setRequestInformation(build(requestInformation()
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setRequestInformation(requestInformation()
                 .setRequestId("test-request-id")
-                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
+
 
         Service service = persistServiceInDataBroker(input);
 
@@ -222,20 +220,20 @@ public class ConnectionAttachmentTopologyOperationRPCTest extends GenericResourc
 
     private Service persistServiceInDataBroker(ConnectionAttachmentTopologyOperationInput input) throws Exception {
 
-        Service service = build(service()
+        Service service = service()
             .setServiceInstanceId(input.getServiceInformation().getServiceInstanceId())
-            .setServiceData(build(serviceData()
-                .setServiceLevelOperStatus(build(serviceLevelOperStatus()
+            .setServiceData(serviceData()
+                .setServiceLevelOperStatus(serviceLevelOperStatus()
                     .setOrderStatus(OrderStatus.Created)
                     .setModifyTimestamp(Instant.now().toString())
                     .setLastSvcRequestId(input.getSdncRequestHeader().getSvcRequestId())
                     .setLastRpcAction(LastRpcAction.Activate)
                     .setLastOrderStatus(LastOrderStatus.PendingAssignment)
                     .setLastAction(LastAction.ActivateNetworkInstance)
-                    .setCreateTimestamp(Instant.now().toString())
-                ))
-            ))
-        );
+                    .setCreateTimestamp(Instant.now().toString()).build()
+                ).build()
+            ).build();
+
         db.write(true, service, LogicalDatastoreType.CONFIGURATION);
         return service;
     }
@@ -243,18 +241,19 @@ public class ConnectionAttachmentTopologyOperationRPCTest extends GenericResourc
     private ConnectionAttachmentTopologyOperationOutput createExpectedOutput(PropBuilder propBuilder,
         ConnectionAttachmentTopologyOperationInput input) {
 
-        return build(connectionAttachmentTopologyOperationOutput()
-            .setConnectionAttachmentResponseInformation(build(connectionAttachmentResponseInformation()
-                .setObjectPath(propBuilder.get("connection-attachement-object-path"))))
+        return connectionAttachmentTopologyOperationOutput()
+            .setConnectionAttachmentResponseInformation(connectionAttachmentResponseInformation()
+                .setObjectPath(propBuilder.get("connection-attachement-object-path")).build()
+            )
             .setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId())
             .setResponseCode(propBuilder.get(svcClient.errorCode))
             .setAckFinalIndicator(propBuilder.get(svcClient.ackFinal))
             .setResponseMessage(propBuilder.get(svcClient.errorMessage))
-            .setServiceResponseInformation(build(serviceResponseInformation()
+            .setServiceResponseInformation(serviceResponseInformation()
                 .setInstanceId(input.getServiceInformation().getServiceInstanceId())
-                .setObjectPath(propBuilder.get(svcClient.serviceObjectPath))
-            ))
-        );
+                .setObjectPath(propBuilder.get(svcClient.serviceObjectPath)).build()
+            ).build();
+
     }
 
     private Service createExpectedService(
@@ -262,11 +261,10 @@ public class ConnectionAttachmentTopologyOperationRPCTest extends GenericResourc
 
         ServiceInformation expectedServiceInformation = expectedInput.getServiceInformation();
 
-        return build(service()
+        return service()
             .setServiceInstanceId(expectedServiceInformation.getServiceInstanceId())
-            .setServiceData(build(serviceData()))
+            .setServiceData(serviceData().build())
             .setServiceData(expectedServiceData)
-            .setServiceStatus(build(serviceStatus()))
-        );
+            .setServiceStatus(serviceStatus().build()).build();
     }
 }

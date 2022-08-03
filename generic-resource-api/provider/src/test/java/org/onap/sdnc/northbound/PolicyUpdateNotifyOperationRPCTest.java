@@ -25,7 +25,7 @@ public class PolicyUpdateNotifyOperationRPCTest extends GenericResourceApiProvid
     @Test
     public void should_fail_when_invalid_vnf_topology() throws Exception {
 
-        PolicyUpdateNotifyOperationInput input = build(PolicyUpdateNotifyOperationInput());
+        PolicyUpdateNotifyOperationInput input = PolicyUpdateNotifyOperationInput().build();
 
         PolicyUpdateNotifyOperationOutput output =
                 exec(genericResourceApiProvider::policyUpdateNotifyOperation, input, RpcResult::getResult);
@@ -37,7 +37,7 @@ public class PolicyUpdateNotifyOperationRPCTest extends GenericResourceApiProvid
     @Test
     public void should_fail_when_valid_vnf_topology() throws Exception {
 
-        PolicyUpdateNotifyOperationInput input = build(PolicyUpdateNotifyOperationInput().setPolicyName("PolicyName").setUpdateType("UpdateType").setVersionId("vID"));
+        PolicyUpdateNotifyOperationInput input = PolicyUpdateNotifyOperationInput().setPolicyName("PolicyName").setUpdateType("UpdateType").setVersionId("vID").build();
 
         PolicyUpdateNotifyOperationOutput output =
                 exec(genericResourceApiProvider::policyUpdateNotifyOperation, input, RpcResult::getResult);

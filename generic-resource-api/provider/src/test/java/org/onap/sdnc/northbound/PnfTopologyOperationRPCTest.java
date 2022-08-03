@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.pnfDetailsBuilder;
 import static org.onap.sdnc.northbound.util.MDSALUtil.pnfResponseInformation;
@@ -46,7 +45,7 @@ public class PnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
     @Test
     public void should_fail_when_service_info_not_present() throws Exception {
 
-        PnfTopologyOperationInput input = build(pnfTopologyOperationInput());
+        PnfTopologyOperationInput input = pnfTopologyOperationInput().build();
 
         PnfTopologyOperationOutput output =
             exec(genericResourceApiProvider::pnfTopologyOperation, input, RpcResult::getResult);
@@ -82,14 +81,13 @@ public class PnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
         svcClient.mockHasGraph(true);
         svcClient.mockExecute(new RuntimeException("test exception"));
 
-        PnfTopologyOperationInput input = build(pnfTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setPnfDetails(build(pnfDetailsBuilder()
-                .setPnfId("test-pnf-id")
-            ))
-        );
+        PnfTopologyOperationInput input = pnfTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setPnfDetails(pnfDetailsBuilder()
+                .setPnfId("test-pnf-id").build()
+            ).build();
 
         PnfTopologyOperationOutput output =
             exec(genericResourceApiProvider::pnfTopologyOperation, input, RpcResult::getResult);
@@ -104,14 +102,13 @@ public class PnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
 
         svcClient.mockHasGraph(false);
 
-        PnfTopologyOperationInput input = build(pnfTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setPnfDetails(build(pnfDetailsBuilder()
-                .setPnfId("test-pnf-id")
-            ))
-        );
+        PnfTopologyOperationInput input = pnfTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setPnfDetails(pnfDetailsBuilder()
+                .setPnfId("test-pnf-id").build()
+            ).build();
 
         PnfTopologyOperationOutput output =
             exec(genericResourceApiProvider::pnfTopologyOperation, input, RpcResult::getResult);
@@ -134,14 +131,13 @@ public class PnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
         when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);
         genericResourceApiProvider.setDataBroker(spyDataBroker);
 
-        PnfTopologyOperationInput input = build(pnfTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setPnfDetails(build(pnfDetailsBuilder()
-                .setPnfId("test-pnf-id")
-            ))
-        );
+        PnfTopologyOperationInput input = pnfTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setPnfDetails(pnfDetailsBuilder()
+                .setPnfId("test-pnf-id").build()
+            ).build();
 
         PnfTopologyOperationOutput output =
             exec(genericResourceApiProvider::pnfTopologyOperation, input, RpcResult::getResult);
@@ -158,22 +154,21 @@ public class PnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
         PropBuilder svcResultProp = svcClient.createExecuteOKResult();
         svcClient.mockExecute(svcResultProp);
 
-        PnfTopologyOperationInput input = build(pnfTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        PnfTopologyOperationInput input = pnfTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setRequestInformation(build(requestInformation()
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setRequestInformation(requestInformation()
                 .setRequestId("test-request-id")
-                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setPnfDetails(build(pnfDetailsBuilder()
-                .setPnfId("test-pnf-id")
-            ))
-        );
+                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setPnfDetails(pnfDetailsBuilder()
+                .setPnfId("test-pnf-id").build()
+            ).build();
 
         PnfTopologyOperationOutput output =
             exec(genericResourceApiProvider::pnfTopologyOperation, input, RpcResult::getResult);
@@ -189,20 +184,19 @@ public class PnfTopologyOperationRPCTest extends GenericResourceApiProviderTest 
 
     private PnfTopologyOperationOutput createExpectedOutput(PropBuilder svcResultProp,
         PnfTopologyOperationInput pnfTopologyOperationInput) {
-        return build(
+        return
             pnfTopologyOperationOutput()
                 .setSvcRequestId(pnfTopologyOperationInput.getSdncRequestHeader().getSvcRequestId())
                 .setResponseCode(svcResultProp.get(svcClient.errorCode))
                 .setAckFinalIndicator(svcResultProp.get(svcClient.ackFinal))
                 .setResponseMessage(svcResultProp.get(svcClient.errorMessage))
-                .setServiceResponseInformation(build(serviceResponseInformation()
+                .setServiceResponseInformation(serviceResponseInformation()
                     .setInstanceId(pnfTopologyOperationInput.getServiceInformation().getServiceInstanceId())
-                    .setObjectPath(svcResultProp.get(svcClient.serviceObjectPath))
-                ))
-                .setPnfResponseInformation(build(pnfResponseInformation()
+                    .setObjectPath(svcResultProp.get(svcClient.serviceObjectPath)).build()
+                )
+                .setPnfResponseInformation(pnfResponseInformation()
                     .setInstanceId(pnfTopologyOperationInput.getPnfDetails().getPnfId())
-                    .setObjectPath(svcResultProp.get(svcClient.pnfObjectPath))
-                ))
-        );
+                    .setObjectPath(svcResultProp.get(svcClient.pnfObjectPath)).build()
+                ).build();
     }
 }

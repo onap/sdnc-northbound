@@ -42,7 +42,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.status.ServiceStatusBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
+
 
 
 /**
@@ -72,12 +72,13 @@ public class DataBrokerUtil {
         //The toString() value from a Service object returned form data.get() is different than the toString() value
         //from a Service Object constructed from a Builder. This makes it difficult to compare deltas when doing a
         // assertEquals.  That why we rebuild it her to solve that problem.
-        return build(ServiceBuilder::new,data.get(),(service) -> service
-                .setServiceStatus(build(ServiceStatusBuilder::new,service.getServiceStatus()))
-                .setServiceData(build(ServiceDataBuilder::new,service.getServiceData(),(serviceStatus)->serviceStatus
-                                .setServiceLevelOperStatus(build(ServiceLevelOperStatusBuilder::new,serviceStatus.getServiceLevelOperStatus()))
-                                ))
-        );
+        ServiceBuilder svcBuilder = new ServiceBuilder();
+        svcBuilder.setServiceStatus(data.get().getServiceStatus());
+        ServiceDataBuilder svcDataBuilder = new ServiceDataBuilder(data.get().getServiceData());
+        svcDataBuilder.setServiceLevelOperStatus(data.get().getServiceData().getServiceLevelOperStatus());
+        svcBuilder.setServiceData(svcDataBuilder.build());
+        svcBuilder.setServiceInstanceId(data.get().getServiceInstanceId());
+        return svcBuilder.build();
     }
 
 

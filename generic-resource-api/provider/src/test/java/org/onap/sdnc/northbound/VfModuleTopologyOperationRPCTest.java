@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
@@ -48,7 +47,7 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
     @Test
     public void should_fail_when_service_info_not_present() throws Exception {
 
-        VfModuleTopologyOperationInput input = build(vfModuleTopologyOperationInput());
+        VfModuleTopologyOperationInput input = vfModuleTopologyOperationInput().build();
 
         VfModuleTopologyOperationOutput output =
             exec(genericResourceApiProvider::vfModuleTopologyOperation, input, RpcResult::getResult);
@@ -62,11 +61,10 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
     @Test
     public void should_fail_when_invalid_vnf_id() throws Exception {
 
-        VfModuleTopologyOperationInput input = build(vfModuleTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+        VfModuleTopologyOperationInput input = vfModuleTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         VfModuleTopologyOperationOutput output =
             exec(genericResourceApiProvider::vfModuleTopologyOperation, input, RpcResult::getResult);
@@ -102,17 +100,16 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
         svcClient.mockHasGraph(true);
         svcClient.mockExecute(new RuntimeException("test exception"));
 
-        VfModuleTopologyOperationInput input = build(vfModuleTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")
-            ))
-            .setVfModuleInformation(build(vfModuleInformationBuilder()
-                .setVfModuleId("test-vf-module-id")
-            ))
-        );
+        VfModuleTopologyOperationInput input = vfModuleTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setVnfInformation(vnfInformationBuilder()
+                .setVnfId("test-vnf-id").build()
+            )
+            .setVfModuleInformation(vfModuleInformationBuilder()
+                .setVfModuleId("test-vf-module-id").build()
+            ).build();
 
         VfModuleTopologyOperationOutput output =
             exec(genericResourceApiProvider::vfModuleTopologyOperation, input, RpcResult::getResult);
@@ -127,17 +124,16 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
 
         svcClient.mockHasGraph(false);
 
-        VfModuleTopologyOperationInput input = build(vfModuleTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")
-            ))
-            .setVfModuleInformation(build(vfModuleInformationBuilder()
-                .setVfModuleId("test-vf-module-id")
-            ))
-        );
+        VfModuleTopologyOperationInput input = vfModuleTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setVnfInformation(vnfInformationBuilder()
+                .setVnfId("test-vnf-id").build()
+            )
+            .setVfModuleInformation(vfModuleInformationBuilder()
+                .setVfModuleId("test-vf-module-id").build()
+            ).build();
 
         VfModuleTopologyOperationOutput output =
             exec(genericResourceApiProvider::vfModuleTopologyOperation, input, RpcResult::getResult);
@@ -160,17 +156,16 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
         when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);
         genericResourceApiProvider.setDataBroker(spyDataBroker);
 
-        VfModuleTopologyOperationInput input = build(vfModuleTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")
-            ))
-            .setVfModuleInformation(build(vfModuleInformationBuilder()
-                .setVfModuleId("test-vf-module-id")
-            ))
-        );
+        VfModuleTopologyOperationInput input = vfModuleTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setVnfInformation(vnfInformationBuilder()
+                .setVnfId("test-vnf-id").build()
+            )
+            .setVfModuleInformation(vfModuleInformationBuilder()
+                .setVfModuleId("test-vf-module-id").build()
+            ).build();
 
         VfModuleTopologyOperationOutput output =
             exec(genericResourceApiProvider::vfModuleTopologyOperation, input, RpcResult::getResult);
@@ -187,25 +182,24 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
         PropBuilder svcResultProp = svcClient.createExecuteOKResult();
         svcClient.mockExecute(svcResultProp);
 
-        VfModuleTopologyOperationInput input = build(vfModuleTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        VfModuleTopologyOperationInput input = vfModuleTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setRequestInformation(build(requestInformation()
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setRequestInformation(requestInformation()
                 .setRequestId("test-request-id")
-                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-            .setVnfInformation(build(vnfInformationBuilder()
-                .setVnfId("test-vnf-id")
-            ))
-            .setVfModuleInformation(build(vfModuleInformationBuilder()
-                .setVfModuleId("test-vf-module-id")
-            ))
-        );
+                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            )
+            .setVnfInformation(vnfInformationBuilder()
+                .setVnfId("test-vnf-id").build()
+            )
+            .setVfModuleInformation(vfModuleInformationBuilder()
+                .setVfModuleId("test-vf-module-id").build()
+            ).build();
 
         VfModuleTopologyOperationOutput output =
             exec(genericResourceApiProvider::vfModuleTopologyOperation, input, RpcResult::getResult);
@@ -220,23 +214,22 @@ public class VfModuleTopologyOperationRPCTest extends GenericResourceApiProvider
 
     private VfModuleTopologyOperationOutput createExpectedVMTOO(PropBuilder propBuilder,
         VfModuleTopologyOperationInput input) {
-        return build(vfModuleTopologyOperationOutput()
+        return vfModuleTopologyOperationOutput()
                 .setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId())
                 .setResponseCode(propBuilder.get(svcClient.errorCode))
                 .setAckFinalIndicator(propBuilder.get(svcClient.ackFinal))
                 .setResponseMessage(propBuilder.get(svcClient.errorMessage))
-                .setServiceResponseInformation(build(serviceResponseInformation()
+                .setServiceResponseInformation(serviceResponseInformation()
                     .setInstanceId(input.getServiceInformation().getServiceInstanceId())
-                    .setObjectPath(propBuilder.get(svcClient.serviceObjectPath)))
+                    .setObjectPath(propBuilder.get(svcClient.serviceObjectPath)).build()
                 )
-                .setVnfResponseInformation(build(vnfResponseInformation()
+                .setVnfResponseInformation(vnfResponseInformation()
                         .setInstanceId(input.getVnfInformation().getVnfId())
-                        .setObjectPath(propBuilder.get(svcClient.vnfObjectPath)))
+                        .setObjectPath(propBuilder.get(svcClient.vnfObjectPath)).build()
                     )
-                .setVfModuleResponseInformation(build(vfModuleResponseInformation()
+                .setVfModuleResponseInformation(vfModuleResponseInformation()
                         .setInstanceId(input.getVfModuleInformation().getVfModuleId())
-                        .setObjectPath(propBuilder.get(svcClient.vfModuleObjectPath)))
-                    )
-        );
+                        .setObjectPath(propBuilder.get(svcClient.vfModuleObjectPath)).build()
+                ).build();
     }
 }

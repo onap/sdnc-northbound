@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
@@ -120,16 +119,16 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
     @Test
     public void should_fail_when_service_info_not_present() throws Exception {
         // create the ServiceTopologyOperationInput from the template
-        ServiceTopologyOperationInput input = build(
+        ServiceTopologyOperationInput input =
             serviceTopologyOperationInput()
-                .setSdncRequestHeader(build(sdncRequestHeader()
+                .setSdncRequestHeader(sdncRequestHeader()
                     .setSvcRequestId("svc-request-id: xyz")
-                    .setSvcAction(SvcAction.Assign)
-                ))
-                .setRequestInformation(build(requestInformation()
+                    .setSvcAction(SvcAction.Assign).build()
+                )
+                .setRequestInformation(requestInformation()
                     .setRequestId("request-id: xyz")
-                    .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-                )));
+                    .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build()
+                ).build();
 
         //execute the mdsal exec
         ServiceTopologyOperationOutput output = exec(
@@ -253,72 +252,68 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
 
     private ServiceTopologyOperationInput createSTOI() {
 
-        return build(
+        return
             serviceTopologyOperationInput()
-                .setSdncRequestHeader(build(sdncRequestHeader()
+                .setSdncRequestHeader(sdncRequestHeader()
                     .setSvcRequestId("svc-request-id: xyz")
-                    .setSvcAction(SvcAction.Assign)
-                ))
-                .setRequestInformation(build(requestInformation()
+                    .setSvcAction(SvcAction.Assign).build()
+                )
+                .setRequestInformation(requestInformation()
                     .setRequestId("request-id: xyz")
-                    .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-                ))
-                .setServiceInformation(build(serviceInformationBuilder()
-                    .setServiceInstanceId("service-instance-id: xyz")
-                ))
-        );
+                    .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build()
+                )
+                .setServiceInformation(serviceInformationBuilder()
+                    .setServiceInstanceId("service-instance-id: xyz").build()
+                ).build();
     }
 
     private ServiceTopologyOperationInput deleteSTOI() {
 
-        return build(
+        return
                 serviceTopologyOperationInput()
-                        .setSdncRequestHeader(build(sdncRequestHeader()
+                        .setSdncRequestHeader(sdncRequestHeader()
                                 .setSvcRequestId("svc-request-id: xyz")
-                                .setSvcAction(SvcAction.Unassign)
-                        ))
-                        .setRequestInformation(build(requestInformation()
+                                .setSvcAction(SvcAction.Unassign).build()
+                        )
+                        .setRequestInformation(requestInformation()
                                 .setRequestId("request-id: xyz")
-                                .setRequestAction(RequestInformation.RequestAction.DeleteServiceInstance)
-                        ))
-                        .setServiceInformation(build(serviceInformationBuilder()
-                                .setServiceInstanceId("service-instance-id: xyz")
-                        ))
-        );
+                                .setRequestAction(RequestInformation.RequestAction.DeleteServiceInstance).build()
+                        )
+                        .setServiceInformation(serviceInformationBuilder()
+                                .setServiceInstanceId("service-instance-id: xyz").build()
+                        ).build();
     }
 
     private ServiceTopologyOperationInput deleteServiceSTOI() {
 
-        return build(
+        return
                 serviceTopologyOperationInput()
-                        .setSdncRequestHeader(build(sdncRequestHeader()
+                        .setSdncRequestHeader(sdncRequestHeader()
                                 .setSvcRequestId("svc-request-id: xyz")
-                                .setSvcAction(SvcAction.Delete)
-                        ))
-                        .setRequestInformation(build(requestInformation()
+                                .setSvcAction(SvcAction.Delete).build()
+                        )
+                        .setRequestInformation(requestInformation()
                                 .setRequestId("request-id: xyz")
-                                .setRequestAction(RequestInformation.RequestAction.DeleteServiceInstance)
-                        ))
-                        .setServiceInformation(build(serviceInformationBuilder()
-                                .setServiceInstanceId("service-instance-id: xyz")
-                        ))
-        );
+                                .setRequestAction(RequestInformation.RequestAction.DeleteServiceInstance).build()
+                        )
+                        .setServiceInformation(serviceInformationBuilder()
+                                .setServiceInstanceId("service-instance-id: xyz").build()
+                        ).build();
     }
 
 
     private ServiceTopologyOperationOutput createExpectedSTOO(PropBuilder expectedSvcResultProp,
         ServiceTopologyOperationInput expectedServiceTopologyOperationInput) {
-        return build(
+        return
             serviceTopologyOperationOutput()
                 .setSvcRequestId(expectedServiceTopologyOperationInput.getSdncRequestHeader().getSvcRequestId())
                 .setResponseCode(expectedSvcResultProp.get(svcClient.errorCode))
                 .setAckFinalIndicator(expectedSvcResultProp.get(svcClient.ackFinal))
                 .setResponseMessage(expectedSvcResultProp.get(svcClient.errorMessage))
-                .setServiceResponseInformation(build(serviceResponseInformation()
+                .setServiceResponseInformation(serviceResponseInformation()
                     .setInstanceId(expectedServiceTopologyOperationInput.getServiceInformation().getServiceInstanceId())
-                    .setObjectPath(expectedSvcResultProp.get(svcClient.serviceObjectPath))
-                ))
-        );
+                    .setObjectPath(expectedSvcResultProp.get(svcClient.serviceObjectPath)).build()
+                ).build();
     }
 
     private Service createExpectedService(
@@ -336,12 +331,11 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
         ServiceInformation expectedServiceInformation = expectedServiceTopologyOperationInput.getServiceInformation();
         RequestInformation expectedRequestInformation = expectedServiceTopologyOperationInput.getRequestInformation();
 
-        return build(
+        return
             service()
                 .setServiceInstanceId(expectedServiceInformation.getServiceInstanceId())
-                .setServiceData(build(serviceData()))
+                .setServiceData(serviceData().build())
                 .setServiceStatus(
-                    build(
                         serviceStatus()
                             .setAction(expectedRequestInformation.getRequestAction().name())
                             .setFinalIndicator(expectedServiceTopologyOperationOutput.getAckFinalIndicator())
@@ -350,10 +344,8 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
                             .setRpcAction(toRpcAction(expectedSdncRequestHeader.getSvcAction()))
                             .setRpcName(SVC_OPERATION)
                             .setRequestStatus(ServiceStatus.RequestStatus.Synccomplete)
-                            .setResponseTimestamp(responseTimeStamp)
-                    )
-                )
-        );
+                            .setResponseTimestamp(responseTimeStamp).build()
+                ).build();
 
     }
 

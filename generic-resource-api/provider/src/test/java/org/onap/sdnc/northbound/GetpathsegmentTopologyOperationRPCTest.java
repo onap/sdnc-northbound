@@ -27,7 +27,7 @@ public class GetpathsegmentTopologyOperationRPCTest extends GenericResourceApiPr
     @Test
     public void should_fail_when_invalid_vnf_topology() throws Exception {
 
-        GetpathsegmentTopologyOperationInput input = build(GetpathsegmentTopologyOperationInput());
+        GetpathsegmentTopologyOperationInput input = GetpathsegmentTopologyOperationInput().build();
 
         GetpathsegmentTopologyOperationOutput output =
                 exec(genericResourceApiProvider::getpathsegmentTopologyOperation, input, RpcResult::getResult);
@@ -40,8 +40,8 @@ public class GetpathsegmentTopologyOperationRPCTest extends GenericResourceApiPr
     @Test
     public void should_fail_when_valid_vnf_topology() throws Exception {
 
-        GetpathsegmentTopologyOperationInput input = build(GetpathsegmentTopologyOperationInput()
-                .setServiceInformation(new ServiceInformationBuilder().setServiceInstanceId("ServiceInstanceID").build()));
+        GetpathsegmentTopologyOperationInput input = GetpathsegmentTopologyOperationInput()
+                .setServiceInformation(new ServiceInformationBuilder().setServiceInstanceId("ServiceInstanceID").build()).build();
 
         GetpathsegmentTopologyOperationOutput output =
                 exec(genericResourceApiProvider::getpathsegmentTopologyOperation, input, RpcResult::getResult);
@@ -54,9 +54,9 @@ public class GetpathsegmentTopologyOperationRPCTest extends GenericResourceApiPr
     @Test
     public void should_fail_when_valid_serice_excep_vnf_topology() throws Exception {
 
-        GetpathsegmentTopologyOperationInput input = build(GetpathsegmentTopologyOperationInput()
+        GetpathsegmentTopologyOperationInput input = GetpathsegmentTopologyOperationInput()
                 .setServiceInformation(new ServiceInformationBuilder().setServiceInstanceId("ServiceInstanceID")
-                        .setOnapModelInformation(new OnapModelInformationBuilder().setModelUuid("moduleUUID").build()).build()));
+                        .setOnapModelInformation(new OnapModelInformationBuilder().setModelUuid("moduleUUID").build()).build()).build();
 
         GetpathsegmentTopologyOperationOutput output =
                 exec(genericResourceApiProvider::getpathsegmentTopologyOperation, input, RpcResult::getResult);
