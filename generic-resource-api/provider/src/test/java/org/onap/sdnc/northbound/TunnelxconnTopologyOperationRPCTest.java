@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.requestInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.sdncRequestHeader;
@@ -41,7 +40,7 @@ public class TunnelxconnTopologyOperationRPCTest extends GenericResourceApiProvi
     @Test
     public void should_fail_when_service_instance_id_not_present() throws Exception {
 
-        TunnelxconnTopologyOperationInput input = build(tunnelxconnTopologyOperationInput());
+        TunnelxconnTopologyOperationInput input = tunnelxconnTopologyOperationInput().build();
 
         TunnelxconnTopologyOperationOutput output =
             exec(genericResourceApiProvider::tunnelxconnTopologyOperation, input, RpcResult::getResult);
@@ -57,15 +56,14 @@ public class TunnelxconnTopologyOperationRPCTest extends GenericResourceApiProvi
         svcClient.mockHasGraph(true);
         svcClient.mockExecuteWoServiceData(new RuntimeException("test exception"));
 
-        TunnelxconnTopologyOperationInput input = build(tunnelxconnTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        TunnelxconnTopologyOperationInput input = tunnelxconnTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         TunnelxconnTopologyOperationOutput output =
             exec(genericResourceApiProvider::tunnelxconnTopologyOperation, input, RpcResult::getResult);
@@ -80,15 +78,14 @@ public class TunnelxconnTopologyOperationRPCTest extends GenericResourceApiProvi
 
         svcClient.mockHasGraph(false);
 
-        TunnelxconnTopologyOperationInput input = build(tunnelxconnTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        TunnelxconnTopologyOperationInput input = tunnelxconnTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         TunnelxconnTopologyOperationOutput output =
             exec(genericResourceApiProvider::tunnelxconnTopologyOperation, input, RpcResult::getResult);
@@ -106,15 +103,14 @@ public class TunnelxconnTopologyOperationRPCTest extends GenericResourceApiProvi
         svcResultProp.set("security-zone-object-path", "securityZoneObjectPath: XYZ");
         svcClient.mockExecuteWoServiceData(svcResultProp);
 
-        TunnelxconnTopologyOperationInput input = build(tunnelxconnTopologyOperationInput()
-            .setRequestInformation(build(requestInformation()
+        TunnelxconnTopologyOperationInput input = tunnelxconnTopologyOperationInput()
+            .setRequestInformation(requestInformation()
                 .setRequestId("test-request-id")
-                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         TunnelxconnTopologyOperationOutput output =
             exec(genericResourceApiProvider::tunnelxconnTopologyOperation, input, RpcResult::getResult);
@@ -131,16 +127,16 @@ public class TunnelxconnTopologyOperationRPCTest extends GenericResourceApiProvi
     private TunnelxconnTopologyOperationOutput createExpectedOutput(PropBuilder propBuilder,
         TunnelxconnTopologyOperationInput input) {
 
-        return build(tunnelxconnTopologyOperationOutput()
-            .setTunnelxconnResponseInformation(build(tunnelxconnResponseInformation()
-                .setObjectPath(propBuilder.get("tunnelxconn-object-path"))))
+        return tunnelxconnTopologyOperationOutput()
+            .setTunnelxconnResponseInformation(tunnelxconnResponseInformation()
+                .setObjectPath(propBuilder.get("tunnelxconn-object-path")).build()
+            )
             .setResponseCode(propBuilder.get(svcClient.errorCode))
             .setAckFinalIndicator(propBuilder.get(svcClient.ackFinal))
             .setResponseMessage(propBuilder.get(svcClient.errorMessage))
-            .setServiceResponseInformation(build(serviceResponseInformation()
+            .setServiceResponseInformation(serviceResponseInformation()
                 .setInstanceId(input.getServiceInformation().getServiceInstanceId())
-                .setObjectPath(propBuilder.get(svcClient.serviceObjectPath))
-            ))
-        );
+                .setObjectPath(propBuilder.get(svcClient.serviceObjectPath)).build()
+            ).build();
     }
 }

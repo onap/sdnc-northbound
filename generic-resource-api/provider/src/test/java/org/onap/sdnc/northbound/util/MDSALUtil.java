@@ -92,7 +92,6 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.pnf.details.PnfDetailsBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.pnf.response.information.PnfResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.pnf.topology.identifier.structure.PnfTopologyIdentifierStructureBuilder;
-import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 
@@ -351,28 +350,6 @@ public class MDSALUtil {
 
     public static ServiceLevelOperStatusBuilder serviceLevelOperStatus() {
         return new ServiceLevelOperStatusBuilder();
-    }
-
-    public static <P> P build(Builder<P> b) {
-        return b == null ? null : b.build();
-    }
-
-    public static <P, B extends Builder<P>> P build(Function<P, B> builderConstructor, P sourceDataObject) {
-        if (sourceDataObject == null) {
-            return null;
-        }
-        B bp = builderConstructor.apply(sourceDataObject);
-        return bp.build();
-    }
-
-    public static <P, B extends Builder<P>> P build(Function<P, B> builderConstructor, P sourceDataObject,
-        Consumer<B> builder) {
-        if (sourceDataObject == null) {
-            return null;
-        }
-        B bp = builderConstructor.apply(sourceDataObject);
-        builder.accept(bp);
-        return bp.build();
     }
 
     public static <I, O> O exec(Function<I, Future<RpcResult<O>>> rpc, I rpcParameter,

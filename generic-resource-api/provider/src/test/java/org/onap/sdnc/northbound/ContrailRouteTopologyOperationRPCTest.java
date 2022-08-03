@@ -7,7 +7,6 @@ import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.INVALID_INPUT_ERROR_MESSAGE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.contrailRouteResponseInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.contrailRouteTopologyOperationInput;
 import static org.onap.sdnc.northbound.util.MDSALUtil.contrailRouteTopologyOperationOutput;
@@ -61,7 +60,7 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
     @Test
     public void should_fail_when_service_instance_id_not_present() throws Exception {
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput());
+        ContrailRouteTopologyOperationInput input = contrailRouteTopologyOperationInput().build();
 
         ContrailRouteTopologyOperationOutput output =
             exec(genericResourceApiProvider::contrailRouteTopologyOperation, input, RpcResult::getResult);
@@ -75,15 +74,14 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
     @Test
     public void should_fail_when_invalid_service_data() throws Exception {
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        ContrailRouteTopologyOperationInput input = contrailRouteTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         ContrailRouteTopologyOperationOutput output =
             exec(genericResourceApiProvider::contrailRouteTopologyOperation, input, RpcResult::getResult);
@@ -100,15 +98,14 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
         svcClient.mockHasGraph(true);
         svcClient.mockExecute(new RuntimeException("test exception"));
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        ContrailRouteTopologyOperationInput input = contrailRouteTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         persistServiceInDataBroker(input);
 
@@ -125,15 +122,14 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
 
         svcClient.mockHasGraph(false);
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        ContrailRouteTopologyOperationInput input = contrailRouteTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         persistServiceInDataBroker(input);
 
@@ -158,15 +154,14 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
         when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);
         genericResourceApiProvider.setDataBroker(spyDataBroker);
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        ContrailRouteTopologyOperationInput input = contrailRouteTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         persistServiceInDataBroker(input);
 
@@ -187,19 +182,18 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
         svcResultProp.set("contrail-route-object-path", "contrailRouteObjectPath: XYZ");
         svcClient.mockExecute(svcResultProp);
 
-        ContrailRouteTopologyOperationInput input = build(contrailRouteTopologyOperationInput()
-            .setSdncRequestHeader(build(sdncRequestHeader()
+        ContrailRouteTopologyOperationInput input = contrailRouteTopologyOperationInput()
+            .setSdncRequestHeader(sdncRequestHeader()
                 .setSvcRequestId("test-svc-request-id")
-                .setSvcAction(SvcAction.Assign)
-            ))
-            .setRequestInformation(build(requestInformation()
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setRequestInformation(requestInformation()
                 .setRequestId("test-request-id")
-                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-            ))
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build()
+            )
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         Service service = persistServiceInDataBroker(input);
 
@@ -222,20 +216,19 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
 
     private Service persistServiceInDataBroker(ContrailRouteTopologyOperationInput input) throws Exception {
 
-        Service service = build(service()
+        Service service = service()
             .setServiceInstanceId(input.getServiceInformation().getServiceInstanceId())
-            .setServiceData(build(serviceData()
-                .setServiceLevelOperStatus(build(serviceLevelOperStatus()
+            .setServiceData(serviceData()
+                .setServiceLevelOperStatus(serviceLevelOperStatus()
                     .setOrderStatus(OrderStatus.Created)
                     .setModifyTimestamp(Instant.now().toString())
                     .setLastSvcRequestId(input.getSdncRequestHeader().getSvcRequestId())
                     .setLastRpcAction(LastRpcAction.Activate)
                     .setLastOrderStatus(LastOrderStatus.PendingAssignment)
                     .setLastAction(LastAction.ActivateNetworkInstance)
-                    .setCreateTimestamp(Instant.now().toString())
-                ))
-            ))
-        );
+                    .setCreateTimestamp(Instant.now().toString()).build()
+                ).build()
+            ).build();
         db.write(true, service, LogicalDatastoreType.CONFIGURATION);
         return service;
     }
@@ -243,18 +236,18 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
     private ContrailRouteTopologyOperationOutput createExpectedOutput(PropBuilder propBuilder,
         ContrailRouteTopologyOperationInput input) {
 
-        return build(contrailRouteTopologyOperationOutput()
-            .setContrailRouteResponseInformation(build(contrailRouteResponseInformation()
-                .setObjectPath(propBuilder.get("contrail-route-object-path"))))
+        return contrailRouteTopologyOperationOutput()
+            .setContrailRouteResponseInformation(contrailRouteResponseInformation()
+                .setObjectPath(propBuilder.get("contrail-route-object-path")).build()
+            )
             .setSvcRequestId(input.getSdncRequestHeader().getSvcRequestId())
             .setResponseCode(propBuilder.get(svcClient.errorCode))
             .setAckFinalIndicator(propBuilder.get(svcClient.ackFinal))
             .setResponseMessage(propBuilder.get(svcClient.errorMessage))
-            .setServiceResponseInformation(build(serviceResponseInformation()
+            .setServiceResponseInformation(serviceResponseInformation()
                 .setInstanceId(input.getServiceInformation().getServiceInstanceId())
-                .setObjectPath(propBuilder.get(svcClient.serviceObjectPath))
-            ))
-        );
+                .setObjectPath(propBuilder.get(svcClient.serviceObjectPath)).build()
+            ).build();
     }
 
     private Service createExpectedService(
@@ -262,11 +255,10 @@ public class ContrailRouteTopologyOperationRPCTest extends GenericResourceApiPro
 
         ServiceInformation expectedServiceInformation = expectedInput.getServiceInformation();
 
-        return build(service()
+        return service()
             .setServiceInstanceId(expectedServiceInformation.getServiceInstanceId())
-            .setServiceData(build(serviceData()))
+            .setServiceData(serviceData().build())
             .setServiceData(expectedServiceData)
-            .setServiceStatus(build(serviceStatus()))
-        );
+            .setServiceStatus(serviceStatus().build()).build();
     }
 }

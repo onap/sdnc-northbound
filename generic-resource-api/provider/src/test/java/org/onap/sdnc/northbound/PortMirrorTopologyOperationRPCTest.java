@@ -25,7 +25,7 @@ public class PortMirrorTopologyOperationRPCTest extends GenericResourceApiProvid
     @Test
     public void should_fail_when_invalid_vnf_topology() throws Exception {
 
-        PortMirrorTopologyOperationInput input = build(PortMirrorTopologyOperationInput());
+        PortMirrorTopologyOperationInput input = PortMirrorTopologyOperationInput().build();
 
         PortMirrorTopologyOperationOutput output =
                 exec(genericResourceApiProvider::portMirrorTopologyOperation, input, RpcResult::getResult);

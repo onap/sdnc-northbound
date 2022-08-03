@@ -2,7 +2,6 @@ package org.onap.sdnc.northbound;
 
 import static org.junit.Assert.assertEquals;
 import static org.onap.sdnc.northbound.util.MDSALUtil.GenericConfigurationTopologyOperationInput;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 
 import org.junit.Before;
@@ -28,7 +27,7 @@ public class GenericConfigurationTopologyOperationRPCTest extends GenericResourc
     @Test
     public void should_fail_when_invalid_vnf_topology() throws Exception {
 
-        GenericConfigurationTopologyOperationInput input = build(GenericConfigurationTopologyOperationInput());
+        GenericConfigurationTopologyOperationInput input = GenericConfigurationTopologyOperationInput().build();
 
         GenericConfigurationTopologyOperationOutput output =
                 exec(genericResourceApiProvider::genericConfigurationTopologyOperation, input, RpcResult::getResult);
@@ -41,8 +40,8 @@ public class GenericConfigurationTopologyOperationRPCTest extends GenericResourc
     @Test
     public void should_fail_when_valid_vnf_topology() throws Exception {
 
-        GenericConfigurationTopologyOperationInput input = build(GenericConfigurationTopologyOperationInput()
-                .setServiceInformation(new ServiceInformationBuilder().setServiceInstanceId("ServiceInsatnceId").build()));
+        GenericConfigurationTopologyOperationInput input = GenericConfigurationTopologyOperationInput()
+                .setServiceInformation(new ServiceInformationBuilder().setServiceInstanceId("ServiceInsatnceId").build()).build();
 
         GenericConfigurationTopologyOperationOutput output =
                 exec(genericResourceApiProvider::genericConfigurationTopologyOperation, input, RpcResult::getResult);

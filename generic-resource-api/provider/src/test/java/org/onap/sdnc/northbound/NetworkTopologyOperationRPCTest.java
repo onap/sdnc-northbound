@@ -28,7 +28,6 @@ import static org.onap.sdnc.northbound.GenericResourceApiProvider.APP_NAME;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.INVALID_INPUT_ERROR_MESSAGE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NO_SERVICE_LOGIC_ACTIVE;
 import static org.onap.sdnc.northbound.GenericResourceApiProvider.NULL_OR_EMPTY_ERROR_PARAM;
-import static org.onap.sdnc.northbound.util.MDSALUtil.build;
 import static org.onap.sdnc.northbound.util.MDSALUtil.exec;
 import static org.onap.sdnc.northbound.util.MDSALUtil.networkInformation;
 import static org.onap.sdnc.northbound.util.MDSALUtil.networkResponseInformation;
@@ -90,7 +89,7 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
     @Test
     public void should_fail_when_service_instance_id_not_present() throws Exception {
 
-        NetworkTopologyOperationInput input = build(networkTopologyOperationInput());
+        NetworkTopologyOperationInput input = networkTopologyOperationInput().build();
 
         NetworkTopologyOperationOutput output =
             exec(genericResourceApiProvider::networkTopologyOperation, input, RpcResult::getResult);
@@ -104,11 +103,10 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
     @Test
     public void should_fail_when_invalid_service_data() throws Exception {
 
-        NetworkTopologyOperationInput input = build(networkTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+        NetworkTopologyOperationInput input = networkTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         NetworkTopologyOperationOutput output =
             exec(genericResourceApiProvider::networkTopologyOperation, input, RpcResult::getResult);
@@ -125,11 +123,10 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
         svcClient.mockHasGraph(true);
         svcClient.mockExecute(new RuntimeException("test exception"));
 
-        NetworkTopologyOperationInput input = build(networkTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+        NetworkTopologyOperationInput input = networkTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         persistServiceInDataBroker(input);
 
@@ -146,11 +143,10 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
 
         svcClient.mockHasGraph(false);
 
-        NetworkTopologyOperationInput input = build(networkTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+        NetworkTopologyOperationInput input = networkTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         persistServiceInDataBroker(input);
 
@@ -175,11 +171,10 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
         when(spyDataBroker.newWriteOnlyTransaction()).thenReturn(mockWriteTransaction);
         genericResourceApiProvider.setDataBroker(spyDataBroker);
 
-        NetworkTopologyOperationInput input = build(networkTopologyOperationInput()
-            .setServiceInformation(build(serviceInformationBuilder()
-                .setServiceInstanceId("test-service-instance-id")
-            ))
-        );
+        NetworkTopologyOperationInput input = networkTopologyOperationInput()
+            .setServiceInformation(serviceInformationBuilder()
+                .setServiceInstanceId("test-service-instance-id").build()
+            ).build();
 
         persistServiceInDataBroker(input);
         NetworkTopologyOperationOutput output =
@@ -241,36 +236,34 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
 
     private NetworkTopologyOperationInput createNTOI() {
 
-        return build(
+        return
             networkTopologyOperationInput()
-                .setSdncRequestHeader(build(sdncRequestHeader()
+                .setSdncRequestHeader(sdncRequestHeader()
                     .setSvcRequestId("svc-request-id: xyz")
-                    .setSvcAction(SvcAction.Assign)
-                ))
-                .setRequestInformation(build(requestInformation()
+                    .setSvcAction(SvcAction.Assign).build()
+                )
+                .setRequestInformation(requestInformation()
                     .setRequestId("request-id: xyz")
-                    .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance)
-                ))
-                .setServiceInformation(build(serviceInformationBuilder()
-                    .setServiceInstanceId("service-instance-id: xyz")
-                ))
-                .setNetworkInformation(build(
-                    networkInformation()
-                ))
-        );
+                    .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build()
+                )
+                .setServiceInformation(serviceInformationBuilder()
+                    .setServiceInstanceId("service-instance-id: xyz").build()
+                )
+                .setNetworkInformation(networkInformation().build()
+                ).build();
     }
 
     private Service persistServiceInDataBroker(
         NetworkTopologyOperationInput networkTopologyOperationInput
     ) throws Exception {
-        Service service = build(
+        Service service =
             service()
                 .setServiceInstanceId(
                     networkTopologyOperationInput.getServiceInformation().getServiceInstanceId()
                 )
-                .setServiceData(build(
+                .setServiceData(
                     serviceData()
-                        .setServiceLevelOperStatus(build(
+                        .setServiceLevelOperStatus(
                             serviceLevelOperStatus()
                                 .setOrderStatus(OrderStatus.Created)
                                 .setModifyTimestamp(Instant.now().toString())
@@ -278,11 +271,10 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
                                 .setLastRpcAction(LastRpcAction.Activate)
                                 .setLastOrderStatus(LastOrderStatus.PendingAssignment)
                                 .setLastAction(LastAction.ActivateNetworkInstance)
-                                .setCreateTimestamp(Instant.now().toString())
-                        ))
-                ))
+                                .setCreateTimestamp(Instant.now().toString()).build()
+                        ).build()
+                ).build();
 
-        );
         db.write(true, service, LogicalDatastoreType.CONFIGURATION);
         return service;
     }
@@ -291,22 +283,21 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
     private NetworkTopologyOperationOutput createExpectedNTOO(
         PropBuilder expectedSvcResultProp,
         NetworkTopologyOperationInput expectedNetworkTopologyOperationInput) {
-        return build(
+        return
             networkTopologyOperationOutput()
                 .setSvcRequestId(expectedNetworkTopologyOperationInput.getSdncRequestHeader().getSvcRequestId())
                 .setResponseCode(expectedSvcResultProp.get(svcClient.errorCode))
                 .setAckFinalIndicator(expectedSvcResultProp.get(svcClient.ackFinal))
                 .setResponseMessage(expectedSvcResultProp.get(svcClient.errorMessage))
-                .setServiceResponseInformation(build(serviceResponseInformation()
+                .setServiceResponseInformation(serviceResponseInformation()
                     .setInstanceId(expectedNetworkTopologyOperationInput.getServiceInformation().getServiceInstanceId())
-                    .setObjectPath(expectedSvcResultProp.get(svcClient.serviceObjectPath))
-                ))
-                .setNetworkResponseInformation(build(
+                    .setObjectPath(expectedSvcResultProp.get(svcClient.serviceObjectPath)).build()
+                )
+                .setNetworkResponseInformation(
                     networkResponseInformation()
                         .setInstanceId(expectedSvcResultProp.get(svcClient.networkId))
-                        .setObjectPath(expectedSvcResultProp.get(svcClient.networkObjectPath))
-                ))
-        );
+                        .setObjectPath(expectedSvcResultProp.get(svcClient.networkObjectPath)).build()
+                ).build();
     }
 
     private Service createExpectedService(
@@ -325,17 +316,15 @@ public class NetworkTopologyOperationRPCTest extends GenericResourceApiProviderT
         ServiceInformation expectedServiceInformation = expectedNetworkTopologyOperationInput.getServiceInformation();
         RequestInformation expectedRequestInformation = expectedNetworkTopologyOperationInput.getRequestInformation();
 
-        return build(
+        return
             service()
                 .setServiceInstanceId(expectedServiceInformation.getServiceInstanceId())
-                .setServiceData(build(serviceData()))
+                .setServiceData(serviceData().build())
                 .setServiceData(expectedServiceData)
                 .setServiceStatus(
-                    build(
-                        serviceStatus()
-                    )
-                )
-        );
+                        serviceStatus().build()
+                ).build();
+
 
     }
 

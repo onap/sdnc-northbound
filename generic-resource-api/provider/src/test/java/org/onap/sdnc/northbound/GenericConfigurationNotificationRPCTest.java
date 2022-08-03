@@ -26,8 +26,8 @@ public class GenericConfigurationNotificationRPCTest extends GenericResourceApiP
     @Test
     public void should_complete_with_success_when_no_errors() throws Exception {
 
-        GenericConfigurationNotificationInput input = build(GenericConfigurationNotificationInput()
-                .setServiceInformation(new ServiceInformationBuilder().setServiceInstanceId("serviceInstanceId").build()));
+        GenericConfigurationNotificationInput input = GenericConfigurationNotificationInput()
+                .setServiceInformation(new ServiceInformationBuilder().setServiceInstanceId("serviceInstanceId").build()).build();
 
         GenericConfigurationNotificationOutput output =
                 exec(genericResourceApiProvider::genericConfigurationNotification, input, RpcResult::getResult);
