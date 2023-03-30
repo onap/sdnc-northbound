@@ -21,7 +21,6 @@
 
 package org.onap.sdnc.northbound.util;
 
-import org.opendaylight.yangtools.concepts.Builder;
 
 import java.util.Properties;
 
@@ -29,7 +28,7 @@ import java.util.Properties;
  * A Util class that adds method chaining to the {@link #set(String, String)} to reducing the syntax needed to populate
  * {@link Properties}
  */
-public class PropBuilder implements Builder<Properties> {
+public class PropBuilder {
 
 
     final Properties prop;
