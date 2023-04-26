@@ -32,7 +32,7 @@
                 <executions>
                     <execution>
                         <configuration>
-                            <executable>python</executable>
+                            <executable>python3</executable>
                             <arguments>
                                 <argument>scripts/python/yang2props.py</argument>
                                 <argument>src/main/yang/GENERIC-RESOURCE-API.yang</argument>
