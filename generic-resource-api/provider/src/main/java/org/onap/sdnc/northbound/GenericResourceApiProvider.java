@@ -226,23 +226,29 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
     private void createContainers() {
 
-        final WriteTransaction t = dataBroker.newReadWriteTransaction();
+        final WriteTransaction configT = dataBroker.newReadWriteTransaction();
+        final WriteTransaction operT = dataBroker.newReadWriteTransaction();
+
+
 
         // Create the service-instance container
-        t.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Services.class),
+        configT.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Services.class),
             new ServicesBuilder().build());
-        t.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Services.class),
+        operT.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Services.class),
             new ServicesBuilder().build());
 
         // Create the PreloadInformation container
-        t.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(PreloadInformation.class),
+        configT.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(PreloadInformation.class),
             new PreloadInformationBuilder().build());
-        t.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(PreloadInformation.class),
+        operT.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(PreloadInformation.class),
             new PreloadInformationBuilder().build());
 
         try {
-            FluentFuture<? extends @NonNull CommitInfo> checkedFuture = t.commit();
-            checkedFuture.get();
+            FluentFuture<? extends @NonNull CommitInfo> configCheckedFuture = configT.commit();
+            configCheckedFuture.get();
+            FluentFuture<? extends @NonNull CommitInfo> operCheckedFuture = operT.commit();
+            operCheckedFuture.get();
+
             log.info("Create containers succeeded!");
 
         } catch (InterruptedException | ExecutionException e) {
