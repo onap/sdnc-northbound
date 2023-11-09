@@ -1,0 +1,5 @@
+---
+distribution_type: 'maven'
+version: '2.6.0'
+project: 'sdnc-northbound'
+log_dir: 'sdnc-northbound-maven-stage-master/306/'
