@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Verified+1: ONAP Required GHA <releng+onap.required.gha@linuxfoundation.org>
+Code-Review+2: Herbert Eiselt <herbert.eiselt@highstreet-technologies.com>
+Submitted-by: Herbert Eiselt <herbert.eiselt@highstreet-technologies.com>
+Submitted-at: Tue, 13 Aug 2024 06:20:08 +0000
+Reviewed-on: https://gerrit.onap.org/r/c/sdnc/northbound/+/138679
+Project: sdnc/northbound
+Branch: refs/heads/master
