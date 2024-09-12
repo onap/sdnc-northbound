@@ -463,7 +463,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         // Each entry will be identifiable by a unique key, we have to create that
         // identifier
-        InstanceIdentifier.InstanceIdentifierBuilder<PreloadList> preloadListBuilder = InstanceIdentifier
+        InstanceIdentifier.Builder<PreloadList> preloadListBuilder = InstanceIdentifier
             .<PreloadInformation>builder(PreloadInformation.class).child(PreloadList.class, entry.key());
         InstanceIdentifier<PreloadList> path = preloadListBuilder.build();
         int tries = 2;
