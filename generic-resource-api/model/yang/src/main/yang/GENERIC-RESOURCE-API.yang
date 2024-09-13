@@ -3380,7 +3380,7 @@ module GENERIC-RESOURCE-API {
          }
       }
       leaf object-path {
-         description "restconf retrieval path to this particular objectE.g. restconf/config/GENERIC-RESOURCE-API:services/service/$service-instance-id/service-data/service-topology/";
+         description "restconf retrieval path to this particular objectE.g. rests/data/GENERIC-RESOURCE-API:services/service=$service-instance-id/service-data/service-topology?content=config";
          type string {
              length "0..512";
          }

@@ -155,7 +155,7 @@
                                         <api-version>${project.version}</api-version>
                                         <base-module>${api.name}</base-module>
                                         <swagger-format>json</swagger-format>
-                                        <path-format>odl</path-format>
+                                        <path-format>rfc8040</path-format>
                                         <use-namespaces>true</use-namespaces>
                                     </additionalConfiguration>
                                 </generator>
@@ -180,7 +180,7 @@
                                         <api-version>${project.version}</api-version>
                                         <base-module>${api.name}</base-module>
                                         <swagger-format>yaml</swagger-format>
-                                        <path-format>odl</path-format>
+                                        <path-format>rfc8040</path-format>
                                         <use-namespaces>true</use-namespaces>
                                     </additionalConfiguration>
                                 </generator>
