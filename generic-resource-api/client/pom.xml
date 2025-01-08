@@ -92,8 +92,8 @@
                         <groupId>com.fasterxml.jackson.jaxrs</groupId>
                         <artifactId>jackson-jaxrs-json-provider</artifactId>
                         <version>${jackson.version}</version>
-                    </dependency>
-                </dependencies>
+                        </dependency>
+                    </dependencies>
                 <executions>
                     <execution>
                         <goals>
@@ -102,6 +102,7 @@
                         <configuration>
                             <inputSpec>${project.basedir}/../model/swagger/src/main/yaml/${api.name}.yaml</inputSpec>
                             <language>spring</language>
+                            <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
                             <configOptions>
                                 <java8>true</java8>
                                 <withXml>true</withXml>
