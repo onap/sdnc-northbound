@@ -10,7 +10,7 @@
 
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>generic-resource-api-client</artifactId>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>3.0.2</version>
     <packaging>jar</packaging>
 
     <name>sdnc-northbound :: generic-resource-api:: ${project.artifactId}</name>
