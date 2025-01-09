@@ -11,7 +11,7 @@
 
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>optical-service-provider</artifactId>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>3.0.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>sdnc-northbound :: optical-service :: ${project.artifactId}</name>

@@ -11,7 +11,7 @@
 
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>generic-resource-api-model-yang</artifactId>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>3.0.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>sdnc-northbound :: generic-resource-api :: ${project.artifactId}</name>
