@@ -11,7 +11,7 @@
 
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>sdnc-northbound-feature-aggregator</artifactId>
-    <version>3.1.0-SNAPSHOT</version>
+    <version>3.1.0</version>
     <packaging>pom</packaging>
 
     <name>sdnc-northbound :: features</name>
