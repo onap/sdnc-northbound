@@ -11,7 +11,7 @@
 
     <groupId>org.onap.sdnc.northbound</groupId>
     <artifactId>sdnc-northbound-all</artifactId>
-    <version>3.1.0-SNAPSHOT</version>
+    <version>3.1.1-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>sdnc-northbound :: features :: ${project.artifactId}</name>
