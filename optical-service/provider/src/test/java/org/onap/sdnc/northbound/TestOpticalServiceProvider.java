@@ -52,11 +52,10 @@ public class TestOpticalServiceProvider extends AbstractConcurrentDataBrokerTest
     public void setUp() throws Exception {
         if (null == opticalServiceProvider) {
             DataBroker dataBroker = getDataBroker();
-            NotificationPublishService mockNotification = mock(NotificationPublishService.class);
             RpcProviderService mockRpcRegistry = mock(RpcProviderService.class);
             OpticalServiceClient mockSliClient = mock(OpticalServiceClient.class);
             when(mockSliClient.hasGraph(module, rpc, version, mode)).thenReturn(false); 
-            opticalServiceProvider = new OpticalServiceProvider(dataBroker, mockNotification, mockRpcRegistry, mockSliClient);
+            opticalServiceProvider = new OpticalServiceProvider(dataBroker, mockRpcRegistry, mockSliClient);
         }
     }
 

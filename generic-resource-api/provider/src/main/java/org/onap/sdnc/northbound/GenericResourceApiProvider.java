@@ -14,7 +14,13 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
+import org.checkerframework.checker.fenum.qual.SwingElementOrientation;
 import org.eclipse.jdt.annotation.NonNull;
+import org.onap.ccsdk.sli.core.sli.provider.SvcLogicService;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -53,11 +59,18 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.tunnelxconn.response.information.TunnelxconnResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vf.module.response.information.VfModuleResponseInformationBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.vnf.response.information.VnfResponseInformationBuilder;
-import org.opendaylight.yangtools.concepts.ObjectRegistration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,8 +108,9 @@ import org.slf4j.LoggerFactory;
  *
  * </pre>
  */
-
-public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURCEAPIService {
+@Singleton
+@Component(immediate = true)
+public class GenericResourceApiProvider implements AutoCloseable {
 
     protected static final String APP_NAME = "generic-resource-api";
     private static final String CALLED_STR = "{} called.";
@@ -134,21 +148,28 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     private static final String BACKGROUND_THREAD_INFO = "Background thread: input conf_id is {}";
     private static final String SKIP_MDSAL_UPDATE_PROP = "skip-mdsal-update";
 
-    private final Logger log = LoggerFactory.getLogger(GenericResourceApiProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(GenericResourceApiProvider.class);
     private final ExecutorService executor;
     private final GenericResourceApiSvcLogicServiceClient svcLogicClient;
 
     protected DataBroker dataBroker;
-    protected NotificationPublishService notificationService;
     protected RpcProviderService rpcService;
-    protected ObjectRegistration<GENERICRESOURCEAPIService> rpcRegistration;
+    protected Registration rpcRegistration;
 
-    public GenericResourceApiProvider(DataBroker dataBroker, NotificationPublishService notificationPublishService,
+    private static SvcLogicService svcLogic = null;
+
+    @Inject
+    @Activate
+    public GenericResourceApiProvider(@Reference final DataBroker dataBroker,
+                                      @Reference final RpcProviderService rpcProviderService) {
+        this(dataBroker, rpcProviderService, new GenericResourceApiSvcLogicServiceClient(getSvcLogicService()));
+    }
+
+    public GenericResourceApiProvider(DataBroker dataBroker,
         RpcProviderService rpcProviderService, GenericResourceApiSvcLogicServiceClient client) {
         log.info("Creating provider for {}", APP_NAME);
         executor = Executors.newFixedThreadPool(1);
         setDataBroker(dataBroker);
-        setNotificationService(notificationPublishService);
         setRpcService(rpcProviderService);
         svcLogicClient = client;
         initialize();
@@ -167,7 +188,26 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
 
         if (rpcRegistration == null) {
             if (rpcService != null) {
-                rpcRegistration = rpcService.registerRpcImplementation(GENERICRESOURCEAPIService.class, this);
+                rpcRegistration = rpcService.registerRpcImplementations(
+                    (BrgTopologyOperation) this::brgTopologyOperation,
+                    (CollectPerformanceData) this::collectPerformanceData,
+                    (ConnectionAttachmentTopologyOperation) this::connectionAttachmentTopologyOperation,
+                    (ContrailRouteTopologyOperation) this::contrailRouteTopologyOperation,
+                    (GenericConfigurationNotification) this::genericConfigurationNotification,
+                    (GenericConfigurationTopologyOperation) this::genericConfigurationTopologyOperation,
+                    (GetpathsegmentTopologyOperation) this::getpathsegmentTopologyOperation,
+                    (NetworkTopologyOperation) this::networkTopologyOperation,
+                    (PnfTopologyOperation) this::pnfTopologyOperation,
+                    (PolicyUpdateNotifyOperation) this::policyUpdateNotifyOperation,
+                    (PortMirrorTopologyOperation) this::portMirrorTopologyOperation,
+                    (PreloadNetworkTopologyOperation) this::preloadNetworkTopologyOperation,
+                    (PreloadVfModuleTopologyOperation) this::preloadVfModuleTopologyOperation,
+                    (SecurityZoneTopologyOperation) this::securityZoneTopologyOperation,
+                    (ServiceTopologyOperation) this::serviceTopologyOperation,
+                    (TunnelxconnTopologyOperation) this::tunnelxconnTopologyOperation,
+                    (VfModuleTopologyOperation) this::vfModuleTopologyOperation,
+                    (VnfTopologyOperation) this::vnfTopologyOperation
+                );
             }
         }
 
@@ -179,6 +219,8 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
     @Override
+    @PreDestroy
+    @Deactivate
     public void close() throws Exception {
         log.info("Closing provider for {}", APP_NAME);
         executor.shutdown();
@@ -210,12 +252,6 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    public void setNotificationService(NotificationPublishService notificationService) {
-        this.notificationService = notificationService;
-        if (log.isDebugEnabled()) {
-            log.debug("Notification Service set to {}", notificationService == null ? NULL_PARAM : NON_NULL_PARAM);
-        }
-    }
 
     public void setRpcService(RpcProviderService rpcService) {
         this.rpcService = rpcService;
@@ -529,7 +565,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         log.debug("DataStore delete succeeded");
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<ServiceTopologyOperationOutput>> serviceTopologyOperation(
         ServiceTopologyOperationInput input) {
 
@@ -728,7 +764,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
 
-    @Override
+
     public ListenableFuture<RpcResult<PnfTopologyOperationOutput>> pnfTopologyOperation(
         PnfTopologyOperationInput input) {
 
@@ -946,7 +982,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     }
 
 
-    @Override
+    
     public ListenableFuture<RpcResult<VnfTopologyOperationOutput>> vnfTopologyOperation(
         VnfTopologyOperationInput input) {
 
@@ -1339,7 +1375,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return;
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<VfModuleTopologyOperationOutput>> vfModuleTopologyOperation(
         VfModuleTopologyOperationInput input) {
 
@@ -1768,7 +1804,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return;
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<NetworkTopologyOperationOutput>> networkTopologyOperation(
         NetworkTopologyOperationInput input) {
 
@@ -1945,7 +1981,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<ContrailRouteTopologyOperationOutput>> contrailRouteTopologyOperation(
         ContrailRouteTopologyOperationInput input) {
 
@@ -2106,7 +2142,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<SecurityZoneTopologyOperationOutput>> securityZoneTopologyOperation(
         SecurityZoneTopologyOperationInput input) {
 
@@ -2343,7 +2379,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return input.getSdncRequestHeader() != null && input.getSdncRequestHeader().getSvcAction() != null;
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<ConnectionAttachmentTopologyOperationOutput>> connectionAttachmentTopologyOperation(
         ConnectionAttachmentTopologyOperationInput input) {
         final String svcOperation = "connection-attachment-topology-operation";
@@ -2478,7 +2514,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<TunnelxconnTopologyOperationOutput>> tunnelxconnTopologyOperation(
         TunnelxconnTopologyOperationInput input) {
 
@@ -2609,7 +2645,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return null;
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<BrgTopologyOperationOutput>> brgTopologyOperation(
         BrgTopologyOperationInput input) {
         final String svcOperation = "brg-topology-operation";
@@ -2729,7 +2765,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return "Y";
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<PreloadNetworkTopologyOperationOutput>> preloadNetworkTopologyOperation(
         PreloadNetworkTopologyOperationInput input) {
 
@@ -2904,7 +2940,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<PreloadVfModuleTopologyOperationOutput>> preloadVfModuleTopologyOperation(
         PreloadVfModuleTopologyOperationInput input) {
 
@@ -3059,7 +3095,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<GenericConfigurationTopologyOperationOutput>> genericConfigurationTopologyOperation(
         GenericConfigurationTopologyOperationInput input) {
 
@@ -3234,7 +3270,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<GenericConfigurationNotificationOutput>> genericConfigurationNotification(
         GenericConfigurationNotificationInput input) {
 
@@ -3329,7 +3365,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return Futures.immediateFuture(rpcResult);
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<GetpathsegmentTopologyOperationOutput>> getpathsegmentTopologyOperation(
         GetpathsegmentTopologyOperationInput input) {
 
@@ -3494,7 +3530,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         }
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<PolicyUpdateNotifyOperationOutput>> policyUpdateNotifyOperation(
         PolicyUpdateNotifyOperationInput input) {
 
@@ -3560,7 +3596,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return (input.getPolicyName() == null) || (input.getUpdateType() == null) || (input.getVersionId() == null);
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<PortMirrorTopologyOperationOutput>> portMirrorTopologyOperation(
         final PortMirrorTopologyOperationInput input) {
 
@@ -3849,7 +3885,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
         return;
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<VnfGetResourceRequestOutput>> vnfGetResourceRequest(
         VnfGetResourceRequestInput input) {
 
@@ -3936,7 +3972,7 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
             || input.getServiceInformation().getServiceInstanceId().length() == 0;
     }
 
-    @Override
+    
     public ListenableFuture<RpcResult<CollectPerformanceDataOutput>> collectPerformanceData(CollectPerformanceDataInput input) {
         final String svcOperation = "performance-data-collector";
         Properties parms = new Properties();
@@ -4005,4 +4041,32 @@ public class GenericResourceApiProvider implements AutoCloseable, GENERICRESOURC
     private boolean hasInvalidService(CollectPerformanceDataInput input) {
         return input == null || input.getControllerIpv4Address() == null;
     }
+
+    private static SvcLogicService getSvcLogicService() {
+		if (svcLogic == null) {
+			svcLogic = findSvcLogicService();
+		}
+
+		return (svcLogic);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+    private static SvcLogicService findSvcLogicService() {
+		BundleContext bctx = FrameworkUtil.getBundle(SvcLogicService.class).getBundleContext();
+
+		SvcLogicService svcLogic = null;
+
+		// Get SvcLogicService reference
+        ServiceReference sref = bctx.getServiceReference(SvcLogicService.NAME);
+		if (sref != null) {
+			svcLogic = (SvcLogicService) bctx.getService(sref);
+
+		} else {
+			log.warn("Cannot find service reference for " + SvcLogicService.NAME);
+
+		}
+
+		return (svcLogic);
+	}
+    	
 }

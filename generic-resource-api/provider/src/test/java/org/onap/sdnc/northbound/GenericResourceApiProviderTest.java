@@ -40,7 +40,6 @@ public class GenericResourceApiProviderTest {
     protected static final Logger LOG = LoggerFactory.getLogger(GenericResourceApiProvider.class);
     protected GenericResourceApiProvider genericResourceApiProvider;
     protected DataBroker dataBroker;
-    protected @Mock NotificationPublishService mockNotificationPublishService;
     protected @Mock RpcProviderService mockRpcProviderService;
     protected @Mock GenericResourceApiSvcLogicServiceClient mockGenericResourceApiSvcLogicServiceClient;
 
@@ -58,7 +57,6 @@ public class GenericResourceApiProviderTest {
          try {
             genericResourceApiProvider = new GenericResourceApiProvider(
                     dataBroker,
-                    mockNotificationPublishService,
                     mockRpcProviderService,
                     mockGenericResourceApiSvcLogicServiceClient
             );

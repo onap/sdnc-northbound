@@ -28,22 +28,37 @@ import java.util.concurrent.Executors;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
+import org.checkerframework.checker.fenum.qual.SwingElementOrientation;
 import org.onap.ccsdk.sli.core.sli.provider.MdsalHelper;
+import org.onap.ccsdk.sli.core.sli.provider.SvcLogicService;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreate;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreateInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreateInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreateOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceCreateOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceDelete;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceDeleteInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceDeleteInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceDeleteOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalServiceDeleteOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev191206.OpticalserviceService;
-import org.opendaylight.yangtools.concepts.ObjectRegistration;
+import org.opendaylight.yangtools.binding.Rpc;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
@@ -53,7 +68,9 @@ import org.slf4j.LoggerFactory;
  * initialization / clean up methods.
  *
  */
-public class OpticalServiceProvider implements AutoCloseable, OpticalserviceService {
+@Singleton
+@Component(immediate = true)
+public class OpticalServiceProvider implements AutoCloseable {
 
 	private static final Logger LOG = LoggerFactory.getLogger(OpticalServiceProvider.class);
 
@@ -62,19 +79,25 @@ public class OpticalServiceProvider implements AutoCloseable, OpticalserviceServ
 	private final ExecutorService executor;
 
 	protected DataBroker dataBroker;
-	protected NotificationPublishService notificationService;
 	protected RpcProviderService rpcProviderService;
-	protected ObjectRegistration<OpticalserviceService> rpcRegistration;
+	protected Registration rpcRegistration;
 	private final OpticalServiceClient opticalServiceClient;
 
-	public OpticalServiceProvider(final DataBroker dataBroker,
-			final NotificationPublishService notificationPublishService, final RpcProviderService rpcProviderService,
+	private static SvcLogicService svcLogic = null;
+
+	@Inject
+	@Activate
+	public OpticalServiceProvider(@Reference final DataBroker dataBroker,
+	        @Reference final RpcProviderService rpcProviderService) {
+				this(dataBroker, rpcProviderService, new OpticalServiceClient(getSvcLogicService()));
+			}
+
+	public OpticalServiceProvider(final DataBroker dataBroker,final RpcProviderService rpcProviderService,
 			final OpticalServiceClient opticalServiceClient) {
 
 		LOG.info("Creating provider for {}", APPLICATION_NAME);
 		executor = Executors.newFixedThreadPool(1);
 		this.dataBroker = dataBroker;
-		this.notificationService = notificationPublishService;
 		this.rpcProviderService= rpcProviderService;
 		this.opticalServiceClient = opticalServiceClient;
 		initialize();
@@ -85,7 +108,11 @@ public class OpticalServiceProvider implements AutoCloseable, OpticalserviceServ
 
         if (rpcRegistration == null) {
             if (rpcProviderService != null) {
-                rpcRegistration = rpcProviderService.registerRpcImplementation(OpticalserviceService.class, this);
+                rpcRegistration = rpcProviderService.registerRpcImplementations(
+					(OpticalServiceCreate) this::opticalServiceCreate,
+					(OpticalServiceDelete) this::opticalServiceDelete
+
+				);
             }
         }
 		LOG.info("Initialization complete for {}", APPLICATION_NAME);
@@ -96,6 +123,8 @@ public class OpticalServiceProvider implements AutoCloseable, OpticalserviceServ
 	}
 
 	@Override
+	@PreDestroy
+	@Deactivate
 	public void close() throws Exception {
 		LOG.info("Closing provider for {}", APPLICATION_NAME);
 		executor.shutdown();
@@ -103,7 +132,6 @@ public class OpticalServiceProvider implements AutoCloseable, OpticalserviceServ
 		LOG.info("Successfully closed provider for {}", APPLICATION_NAME);
 	}
 
-	@Override
 	public ListenableFuture<RpcResult<OpticalServiceCreateOutput>> opticalServiceCreate(
 			OpticalServiceCreateInput input) {
 		final String svcOperation = "optical-service-create";
@@ -165,7 +193,6 @@ public class OpticalServiceProvider implements AutoCloseable, OpticalserviceServ
 		return Futures.immediateFuture(rpcResult);
 	}
 
-	@Override
 	public ListenableFuture<RpcResult<OpticalServiceDeleteOutput>> opticalServiceDelete(
 			OpticalServiceDeleteInput input) {
 		final String svcOperation = "optical-service-delete";
@@ -232,5 +259,32 @@ public class OpticalServiceProvider implements AutoCloseable, OpticalserviceServ
 				.withResult(serviceDataBuilder.build()).build();
 
 		return Futures.immediateFuture(rpcResult);
+	}
+
+	   private static SvcLogicService getSvcLogicService() {
+		if (svcLogic == null) {
+			svcLogic = findSvcLogicService();
+		}
+
+		return (svcLogic);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+    private static SvcLogicService findSvcLogicService() {
+		BundleContext bctx = FrameworkUtil.getBundle(SvcLogicService.class).getBundleContext();
+
+		SvcLogicService svcLogic = null;
+
+		// Get SvcLogicService reference
+        ServiceReference sref = bctx.getServiceReference(SvcLogicService.NAME);
+		if (sref != null) {
+			svcLogic = (SvcLogicService) bctx.getService(sref);
+
+		} else {
+			LOG.warn("Cannot find service reference for " + SvcLogicService.NAME);
+
+		}
+
+		return (svcLogic);
 	}
 }

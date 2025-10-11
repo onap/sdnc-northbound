@@ -18,7 +18,7 @@ info:
     Relating to IETF Documents\n(http://trustee.ietf.org/license-info).\n\nThis version\
     \ of this YANG module is part of RFC 6991; see\nthe RFC itself for full legal\
     \ notices."
-  version: "3.0.0-SNAPSHOT"
+  version: "3.2.0-SNAPSHOT"
   title: "ietf-yang-types,ietf-inet-types,GENERIC-RESOURCE-API API"
 consumes:
 - "application/json"
@@ -72242,9 +72242,6 @@ definitions:
       properties:
         vm-type:
           type: "string"
-        vm-names:
-          originalRef: "#/definitions/generic.resource.api.vmtopologydata.VmNames"
-          $ref: "#/definitions/generic.resource.api.vmtopologydata.VmNames"
         vm-type-tag:
           type: "string"
           description: "from tosca data on vfc"
@@ -72257,6 +72254,9 @@ definitions:
         nfc-naming-code:
           type: "string"
           description: "used in vm naming(draft 29: changed from nfc-code)"
+        vm-names:
+          originalRef: "#/definitions/generic.resource.api.vmtopologydata.VmNames"
+          $ref: "#/definitions/generic.resource.api.vmtopologydata.VmNames"
   generic.resource.api.VnfCloudParam:
     type: "object"
     properties:
@@ -72788,13 +72788,6 @@ definitions:
       fq-name:
         type: "string"
         description: "The Contrail fq-name of the network policy"
-      vlan-tag:
-        type: "string"
-        description: "Contrail-assigned vlan-tag to the vipr vm interface for this\
-          \ route."
-      dest-network:
-        originalRef: "#/definitions/generic.resource.api.NetworkInfo"
-        $ref: "#/definitions/generic.resource.api.NetworkInfo"
       source-network:
         originalRef: "#/definitions/generic.resource.api.NetworkInfo"
         $ref: "#/definitions/generic.resource.api.NetworkInfo"
@@ -72805,9 +72798,20 @@ definitions:
       contrail-applied-service:
         originalRef: "#/definitions/generic.resource.api.contrailrouteassignments.contrailrouteassignments.ContrailAppliedService"
         $ref: "#/definitions/generic.resource.api.contrailrouteassignments.contrailrouteassignments.ContrailAppliedService"
+      vlan-tag:
+        type: "string"
+        description: "Contrail-assigned vlan-tag to the vipr vm interface for this\
+          \ route."
+      dest-network:
+        originalRef: "#/definitions/generic.resource.api.NetworkInfo"
+        $ref: "#/definitions/generic.resource.api.NetworkInfo"
   generic.resource.api.contrailrouteassignments.contrailrouteassignments.ContrailAppliedService:
     type: "object"
     properties:
+      service-instance-id:
+        type: "string"
+        description: "The service-instance-id of the vnf from which the contrail applied\
+          \ service is coming"
       contrail-fqdn:
         type: "string"
         description: "This is the fq-name of the Contrail service instance through\
@@ -72815,10 +72819,6 @@ definitions:
       vnf-id:
         type: "string"
         description: "The vnf representing the contrail applied service"
-      service-instance-id:
-        type: "string"
-        description: "The service-instance-id of the vnf from which the contrail applied\
-          \ service is coming"
   generic.resource.api.contrailrouterequestinput.ContrailRouteRequestInput:
     type: "object"
     properties:
@@ -73113,15 +73113,15 @@ definitions:
   generic.resource.api.networkinstancegroup.networkinstancegroup.VpnBindingPolicy:
     type: "object"
     properties:
-      vpn-name:
-        type: "string"
-      global-route-target:
-        type: "string"
       vpn-type:
         type: "string"
       vpn-binding:
         type: "string"
+      vpn-name:
+        type: "string"
       route-target-role:
+        type: "string"
+      global-route-target:
         type: "string"
       vpn-platform:
         type: "string"
@@ -73188,11 +73188,11 @@ definitions:
       $ref: "#/definitions/generic.resource.api.RegionIdentifier"
     - type: "object"
       properties:
-        network-name:
-          type: "string"
         network-input-parameters:
           originalRef: "#/definitions/generic.resource.api.Param"
           $ref: "#/definitions/generic.resource.api.Param"
+        network-name:
+          type: "string"
         network-instance-group-id:
           type: "string"
           description: "When network has instance-group role in service model"
@@ -73268,11 +73268,11 @@ definitions:
     properties:
       name:
         type: "string"
+      value:
+        type: "string"
       resource-resolution-data:
         originalRef: "#/definitions/generic.resource.api.param.param.ResourceResolutionData"
         $ref: "#/definitions/generic.resource.api.param.param.ResourceResolutionData"
-      value:
-        type: "string"
   generic.resource.api.param.param.ResourceResolutionData:
     type: "object"
     properties:
@@ -73302,12 +73302,12 @@ definitions:
       $ref: "#/definitions/generic.resource.api.OnapModelInformation"
     - type: "object"
       properties:
+        pnf-name:
+          type: "string"
         pnf-id:
           type: "string"
           description: "pnfId*Identifier of this Pnf information element. CORRELATIONID\
             \ = PNF-NAME (A&AI)"
-        pnf-name:
-          type: "string"
         pnf-type:
           type: "string"
           description: "pnfType (template)*Type of Resource. NEW type: PNF (pre-defined\
@@ -73329,14 +73329,14 @@ definitions:
       $ref: "#/definitions/generic.resource.api.RegionIdentifier"
     - type: "object"
       properties:
-        request-version:
-          type: "string"
-          description: "keep this? e.g. 1702"
         pnf-input-parameters:
           originalRef: "#/definitions/generic.resource.api.Param"
           $ref: "#/definitions/generic.resource.api.Param"
         pnf-name:
           type: "string"
+        request-version:
+          type: "string"
+          description: "keep this? e.g. 1702"
   generic.resource.api.pnftopology.PnfTopology:
     allOf:
     - originalRef: "#/definitions/generic.resource.api.OnapModelInformation"
@@ -73358,12 +73358,12 @@ definitions:
   generic.resource.api.pnftopologyidentifierstructure.PnfTopologyIdentifierStructure:
     type: "object"
     properties:
-      pnf-id:
-        type: "string"
       pnf-name:
         type: "string"
         description: "optionally comes from pnf-request-input container or is assigned\
           \ by sdn-c"
+      pnf-id:
+        type: "string"
       pnf-type:
         type: "string"
         description: "In preload tree, this label is used for the vf-module-type"
@@ -73519,12 +73519,12 @@ definitions:
         source-port:
           originalRef: "#/definitions/generic.resource.api.portmirrorconfigurationrequestinput.portmirrorconfigurationrequestinput.SourcePort"
           $ref: "#/definitions/generic.resource.api.portmirrorconfigurationrequestinput.portmirrorconfigurationrequestinput.SourcePort"
-        dest-port:
-          originalRef: "#/definitions/generic.resource.api.PortInfo"
-          $ref: "#/definitions/generic.resource.api.PortInfo"
         port-mirror-configuration-input-parameters:
           originalRef: "#/definitions/generic.resource.api.Param"
           $ref: "#/definitions/generic.resource.api.Param"
+        dest-port:
+          originalRef: "#/definitions/generic.resource.api.PortInfo"
+          $ref: "#/definitions/generic.resource.api.PortInfo"
   generic.resource.api.portmirrorconfigurationrequestinput.portmirrorconfigurationrequestinput.SourcePort:
     allOf:
     - originalRef: "#/definitions/generic.resource.api.PortInfo"
@@ -73672,20 +73672,20 @@ definitions:
   generic.resource.api.requestinformation.RequestInformation:
     type: "object"
     properties:
-      notification-url:
-        type: "string"
-      order-version:
-        type: "string"
       request-action:
         description: "still need to work Disconnect"
         originalRef: "#/definitions/generic.resource.api.RequestActionEnumeration"
         $ref: "#/definitions/generic.resource.api.RequestActionEnumeration"
+      notification-url:
+        type: "string"
       source:
         type: "string"
       request-id:
         type: "string"
         description: "Request ID generated upstream of MSO"
       order-number:
+        type: "string"
+      order-version:
         type: "string"
   generic.resource.api.routetablereference.RouteTableReference:
     type: "object"
@@ -74055,14 +74055,14 @@ definitions:
   generic.resource.api.servicepathinformation.Service:
     type: "object"
     properties:
-      vnfs:
-        originalRef: "#/definitions/generic.resource.api.servicepathinformation.service.Vnfs"
-        $ref: "#/definitions/generic.resource.api.servicepathinformation.service.Vnfs"
       service-path-sequence-id:
         type: "integer"
         format: "int64"
         description: "e.g. S1S2S3S5seq id=1  S1-S2seq id=2  S2S3seq id=3  S3S5Incremental\
           \ integer value"
+      vnfs:
+        originalRef: "#/definitions/generic.resource.api.servicepathinformation.service.Vnfs"
+        $ref: "#/definitions/generic.resource.api.servicepathinformation.service.Vnfs"
       service-instance-id:
         type: "string"
         description: "service-instance-id of each service-instance in the service-path-instance"
@@ -74411,14 +74411,14 @@ definitions:
       $ref: "#/definitions/generic.resource.api.RegionIdentifier"
     - type: "object"
       properties:
+        vf-module-input-parameters:
+          originalRef: "#/definitions/generic.resource.api.Param"
+          $ref: "#/definitions/generic.resource.api.Param"
         vf-module-name:
           type: "string"
         request-version:
           type: "string"
           description: "keep this?"
-        vf-module-input-parameters:
-          originalRef: "#/definitions/generic.resource.api.Param"
-          $ref: "#/definitions/generic.resource.api.Param"
   generic.resource.api.vfmoduletopology.VfModuleTopology:
     allOf:
     - originalRef: "#/definitions/generic.resource.api.OnapModelInformation"
@@ -74666,14 +74666,14 @@ definitions:
       $ref: "#/definitions/generic.resource.api.Param"
     - type: "object"
       properties:
-        vnf-id:
-          type: "string"
         vf-module:
           type: "array"
           items:
             originalRef: "#/definitions/generic.resource.api.vnfcloudparam.vnf.VfModule"
             $ref: "#/definitions/generic.resource.api.vnfcloudparam.vnf.VfModule"
         vnf-name:
+          type: "string"
+        vnf-id:
           type: "string"
   generic.resource.api.vnfcloudparam.vnf.VfModule:
     allOf:
@@ -74723,6 +74723,9 @@ definitions:
   generic.resource.api.vnfcnetworkdata.vnfcnetworkdata.vnfcports.VnfcPort:
     type: "object"
     properties:
+      vnic-sub-interfaces:
+        originalRef: "#/definitions/generic.resource.api.SubInterfaceNetworkData"
+        $ref: "#/definitions/generic.resource.api.SubInterfaceNetworkData"
       vnfc-port-id:
         type: "string"
         description: "Port(s) with a given network-role are assigned vnfc-port-id\
@@ -74730,9 +74733,6 @@ definitions:
           \ =X and another 2 ports with network-role=Y vnfc-port-ids:01 - 1st port\
           \ with network-role=X02 - 2nd port with network-role=X01 - 1st port with\
           \ network-role=Y02 - 2nd port with network-role=Y"
-      vnic-sub-interfaces:
-        originalRef: "#/definitions/generic.resource.api.SubInterfaceNetworkData"
-        $ref: "#/definitions/generic.resource.api.SubInterfaceNetworkData"
       common-sub-interface-role:
         type: "string"
         description: "If sub-interfaces have common interface role (network role)"
@@ -74764,13 +74764,13 @@ definitions:
       vnfc-ip-address:
         type: "string"
         description: "Either IpV4 IP or IpV6 IP address should be present"
-      vnfc-client-key:
-        type: "string"
       ip-type:
         description: "Capture what type of IP this is, if is virtual IP (AKA, floating\
           \ IP) or Fixed IP. "
         originalRef: "#/definitions/generic.resource.api.IpTypeEnumeration"
         $ref: "#/definitions/generic.resource.api.IpTypeEnumeration"
+      vnfc-client-key:
+        type: "string"
   generic.resource.api.vnfcobjects.VnfcObjects:
     type: "object"
     properties:
@@ -74845,11 +74845,11 @@ definitions:
       properties:
         vserver-name:
           type: "string"
-        vserver-id:
-          type: "string"
         vnfc-name:
           type: "string"
           description: "Vnfc name as key in A&AI"
+        vserver-id:
+          type: "string"
   generic.resource.api.vnfgetresourcerequest.Input:
     allOf:
     - originalRef: "#/definitions/generic.resource.api.RequestInformation"
@@ -74887,31 +74887,31 @@ definitions:
       $ref: "#/definitions/generic.resource.api.OnapModelInformation"
     - type: "object"
       properties:
-        vnf-id:
-          type: "string"
         vnf-name:
           type: "string"
         vnf-type:
           type: "string"
+        vnf-id:
+          type: "string"
   generic.resource.api.vnfnetworkcollection.VnfNetworkCollection:
     type: "object"
     properties:
+      network-instance-group-function:
+        type: "string"
+        description: "Network Instance-Group function in A&AI"
       network-collection-customization-uuid:
         type: "string"
         description: "network-collection-customization-uuid stored in Network IsntanceGroup.customization-uuid\
           \ in A&AI"
-      network-instance-group-id:
-        type: "string"
-        description: "Network Instance-Group id in A&AI"
-      network-instance-group-function:
-        type: "string"
-        description: "Network Instance-Group function in A&AI"
       vnf-floating-ip:
         originalRef: "#/definitions/generic.resource.api.IpAddresses"
         $ref: "#/definitions/generic.resource.api.IpAddresses"
       networks:
         originalRef: "#/definitions/generic.resource.api.vnfnetworkcollection.vnfnetworkcollection.Networks"
         $ref: "#/definitions/generic.resource.api.vnfnetworkcollection.vnfnetworkcollection.Networks"
+      network-instance-group-id:
+        type: "string"
+        description: "Network Instance-Group id in A&AI"
       network-collection-service-instance-id:
         type: "string"
         description: "Service-instance-id of service that created the network collection"
@@ -75170,12 +75170,6 @@ definitions:
   generic.resource.api.vnicgroups.vnicgroups.VnicGroup:
     type: "object"
     properties:
-      vlan-vnics:
-        originalRef: "#/definitions/generic.resource.api.vnicgroups.vnicgroups.vnicgroup.VlanVnics"
-        $ref: "#/definitions/generic.resource.api.vnicgroups.vnicgroups.vnicgroup.VlanVnics"
-      vlan-assignment-policy-name:
-        type: "string"
-        description: "Policy name in ASDC model & policy definition in Policy Engine"
       vlan-common-ip-addresses:
         originalRef: "#/definitions/generic.resource.api.IpAddresses"
         $ref: "#/definitions/generic.resource.api.IpAddresses"
@@ -75183,6 +75177,9 @@ definitions:
         type: "string"
         description: "network-instance-Group-function for network collection where\
           \ vnics with vnic-interface-role will connect"
+      vlan-vnics:
+        originalRef: "#/definitions/generic.resource.api.vnicgroups.vnicgroups.vnicgroup.VlanVnics"
+        $ref: "#/definitions/generic.resource.api.vnicgroups.vnicgroups.vnicgroup.VlanVnics"
       vlan-tag-index-next:
         type: "integer"
         format: "int64"
@@ -75190,6 +75187,9 @@ definitions:
       vnic-interface-role:
         type: "string"
         description: "Same as network-role of network where vnic is connected"
+      vlan-assignment-policy-name:
+        type: "string"
+        description: "Policy name in ASDC model & policy definition in Policy Engine"
   generic.resource.api.vnicgroups.vnicgroups.vnicgroup.VlanVnics:
     type: "object"
     properties:
