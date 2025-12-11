@@ -39,3 +39,6 @@ yang-gen-sal/
 sdnc-northbound_bdio.jsonld
 blackDuckHubProjectName.txt
 blackDuckHubProjectVersionName.txt
+
+# Ignore log files
+*.log
