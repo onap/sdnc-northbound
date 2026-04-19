@@ -26,6 +26,4 @@
         <argument ref="client" />
     </bean>
 
-    <odl:rpc-implementation ref="provider"/>
-
 </blueprint>
