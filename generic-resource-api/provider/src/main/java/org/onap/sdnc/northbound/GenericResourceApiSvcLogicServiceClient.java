@@ -27,9 +27,13 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.re
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceDataBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.util.Properties;
 
+@Component(service = GenericResourceApiSvcLogicServiceClient.class, immediate = true)
 public class GenericResourceApiSvcLogicServiceClient {
     static final String FAILURE_RESULT = "failure";
     static final String SVC_LOGIC_STATUS_KEY = "SvcLogic.status";
@@ -40,8 +44,8 @@ public class GenericResourceApiSvcLogicServiceClient {
             .getLogger(GenericResourceApiSvcLogicServiceClient.class);
     protected SvcLogicService svcLogic = null;
 
-    public GenericResourceApiSvcLogicServiceClient(SvcLogicService svcLogic)
-    {
+    @Activate
+    public GenericResourceApiSvcLogicServiceClient(@Reference SvcLogicService svcLogic) {
         this.svcLogic = svcLogic;
     }
 

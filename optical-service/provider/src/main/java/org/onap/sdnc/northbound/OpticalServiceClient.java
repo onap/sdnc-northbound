@@ -31,13 +31,19 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.optical.service.rev
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+@Component(service = OpticalServiceClient.class, immediate = true)
 public class OpticalServiceClient {
 
 	private static final Logger LOG = LoggerFactory.getLogger(OpticalServiceClient.class);
 
 	private SvcLogicService svcLogicService = null;
 
-	public OpticalServiceClient(final SvcLogicService svcLogicService) {
+	@Activate
+	public OpticalServiceClient(@Reference final SvcLogicService svcLogicService) {
 		this.svcLogicService = svcLogicService;
 	}
 
