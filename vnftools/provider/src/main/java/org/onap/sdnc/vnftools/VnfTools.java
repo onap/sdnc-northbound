@@ -27,6 +27,7 @@ import org.onap.ccsdk.sli.core.sli.SvcLogicJavaPlugin;
 import org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.osgi.service.component.annotations.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,6 +36,7 @@ import java.io.PrintStream;
 import java.util.Map;
 import java.util.Properties;
 
+@Component(service = VnfTools.class, immediate = true)
 public class VnfTools implements SvcLogicJavaPlugin {
     static final String BASE = "base";
     static final String FILENAME = "filename";
@@ -47,10 +49,6 @@ public class VnfTools implements SvcLogicJavaPlugin {
     static final String TRUE_STRING = "true";
 
     private static final Logger LOG = LoggerFactory.getLogger(VnfTools.class);
-
-    public VnfTools() {
-
-    }
 
     public void checkIfActivateReady(Map<String, String> parameters, SvcLogicContext ctx) throws SvcLogicException {
         LOG.debug("Checking if enough data is available to send the NCS Activate request...");

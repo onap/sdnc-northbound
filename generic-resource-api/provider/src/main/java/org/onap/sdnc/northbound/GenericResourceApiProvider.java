@@ -109,7 +109,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  */
 @Singleton
-@Component(immediate = true)
+@Component(service = GenericResourceApiProvider.class, immediate = true)
 public class GenericResourceApiProvider implements AutoCloseable {
 
     protected static final String APP_NAME = "generic-resource-api";
@@ -161,12 +161,8 @@ public class GenericResourceApiProvider implements AutoCloseable {
     @Inject
     @Activate
     public GenericResourceApiProvider(@Reference final DataBroker dataBroker,
-                                      @Reference final RpcProviderService rpcProviderService) {
-        this(dataBroker, rpcProviderService, new GenericResourceApiSvcLogicServiceClient(getSvcLogicService()));
-    }
-
-    public GenericResourceApiProvider(DataBroker dataBroker,
-        RpcProviderService rpcProviderService, GenericResourceApiSvcLogicServiceClient client) {
+                                      @Reference final RpcProviderService rpcProviderService,
+                                      @Reference final GenericResourceApiSvcLogicServiceClient client) {
         log.info("Creating provider for {}", APP_NAME);
         executor = Executors.newFixedThreadPool(1);
         setDataBroker(dataBroker);

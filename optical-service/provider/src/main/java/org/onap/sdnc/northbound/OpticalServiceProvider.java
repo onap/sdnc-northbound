@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Singleton
-@Component(immediate = true)
+@Component(service = OpticalServiceProvider.class, immediate = true)
 public class OpticalServiceProvider implements AutoCloseable {
 
 	private static final Logger LOG = LoggerFactory.getLogger(OpticalServiceProvider.class);
@@ -87,13 +87,9 @@ public class OpticalServiceProvider implements AutoCloseable {
 
 	@Inject
 	@Activate
-	public OpticalServiceProvider(@Reference final DataBroker dataBroker,
-	        @Reference final RpcProviderService rpcProviderService) {
-				this(dataBroker, rpcProviderService, new OpticalServiceClient(getSvcLogicService()));
-			}
-
-	public OpticalServiceProvider(final DataBroker dataBroker,final RpcProviderService rpcProviderService,
-			final OpticalServiceClient opticalServiceClient) {
+	public OpticalServiceProvider(@Reference final DataBroker dataBroker, 
+		                          @Reference final RpcProviderService rpcProviderService,
+			                      @Reference final OpticalServiceClient opticalServiceClient) {
 
 		LOG.info("Creating provider for {}", APPLICATION_NAME);
 		executor = Executors.newFixedThreadPool(1);
