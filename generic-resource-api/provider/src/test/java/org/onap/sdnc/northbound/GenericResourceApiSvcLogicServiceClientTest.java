@@ -69,6 +69,12 @@ public class GenericResourceApiSvcLogicServiceClientTest {
     }
 
     @Test (expected = SvcLogicException.class)
+    public void testHasGraphWithNullSvcLogicService() throws Exception {
+        GenericResourceApiSvcLogicServiceClient client = new GenericResourceApiSvcLogicServiceClient(null);
+        client.hasGraph(MODULE, RPC, VERSION, MODE);
+    }
+
+    @Test (expected = SvcLogicException.class)
     public void testHasGraphWithException() throws Exception {
         Mockito.doThrow(new SvcLogicException()).when(mockSvcLogic).hasGraph(MODULE, RPC, VERSION, MODE);
         svcClient.hasGraph(MODULE, RPC, VERSION, MODE);

@@ -25,11 +25,14 @@ import org.onap.ccsdk.sli.core.sli.SvcLogicException;
 import org.onap.ccsdk.sli.core.sli.provider.SvcLogicService;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.preload.data.PreloadDataBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.generic.resource.rev170824.service.data.ServiceDataBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -49,9 +52,30 @@ public class GenericResourceApiSvcLogicServiceClient {
         this.svcLogic = svcLogic;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private SvcLogicService getSvcLogicService() throws SvcLogicException {
+        if (svcLogic == null) {
+            try {
+                BundleContext bctx = FrameworkUtil.getBundle(SvcLogicService.class).getBundleContext();
+                if (bctx != null) {
+                    ServiceReference sref = bctx.getServiceReference(SvcLogicService.NAME);
+                    if (sref != null) {
+                        svcLogic = (SvcLogicService) bctx.getService(sref);
+                    }
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to look up SvcLogicService from OSGi registry", e);
+            }
+        }
+        if (svcLogic == null) {
+            throw new SvcLogicException("SvcLogicService is not available");
+        }
+        return svcLogic;
+    }
+
     public boolean hasGraph(String module, String rpc, String version, String mode) throws SvcLogicException
     {
-        return svcLogic.hasGraph(module, rpc, version, mode);
+        return getSvcLogicService().hasGraph(module, rpc, version, mode);
     }
 
     public Properties execute(String module, String rpc, String version, String mode, ServiceDataBuilder serviceData)
@@ -75,7 +99,7 @@ public class GenericResourceApiSvcLogicServiceClient {
         Properties props = GenericResourceApiUtil.toProperties(properties, serviceData);
         printPropsDebugLogs(props, "Parameters passed to SLI");
 
-        Properties respProps = svcLogic.execute(module, rpc, version, mode, props);
+        Properties respProps = getSvcLogicService().execute(module, rpc, version, mode, props);
         printPropsDebugLogs(respProps, "Parameters returned by SLI");
         if (respProps == null
                 || FAILURE_RESULT.equalsIgnoreCase(respProps.getProperty(SVC_LOGIC_STATUS_KEY))) {
@@ -104,7 +128,7 @@ public class GenericResourceApiSvcLogicServiceClient {
         Properties props = GenericResourceApiUtil.toProperties(properties, serviceData);
         printPropsDebugLogs(props, "Parameters passed to SLI");
 
-        Properties respProps = svcLogic.execute(module, rpc, version, mode, props);
+        Properties respProps = getSvcLogicService().execute(module, rpc, version, mode, props);
         printPropsDebugLogs(respProps, "Parameters returned by SLI");
         if (respProps == null
                 || FAILURE_RESULT.equalsIgnoreCase(respProps.getProperty(SVC_LOGIC_STATUS_KEY))) {
@@ -121,7 +145,7 @@ public class GenericResourceApiSvcLogicServiceClient {
 
 		printPropsDebugLogs(properties, "Parameters passed to SLI");
 
-		Properties respProps = svcLogic.execute(module, rpc, version, mode, properties);
+		Properties respProps = getSvcLogicService().execute(module, rpc, version, mode, properties);
 		printPropsDebugLogs(respProps, "Parameters returned by SLI");
 		if (respProps == null || FAILURE_RESULT.equalsIgnoreCase(respProps.getProperty(SVC_LOGIC_STATUS_KEY))) {
 			return (respProps);
