@@ -20,7 +20,6 @@ import jakarta.inject.Singleton;
 
 import org.checkerframework.checker.fenum.qual.SwingElementOrientation;
 import org.eclipse.jdt.annotation.NonNull;
-import org.onap.ccsdk.sli.core.sli.provider.SvcLogicService;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -64,9 +63,6 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -155,8 +151,6 @@ public class GenericResourceApiProvider implements AutoCloseable {
     protected DataBroker dataBroker;
     protected RpcProviderService rpcService;
     protected Registration rpcRegistration;
-
-    private static SvcLogicService svcLogic = null;
 
     @Inject
     @Activate
@@ -4038,31 +4032,4 @@ public class GenericResourceApiProvider implements AutoCloseable {
         return input == null || input.getControllerIpv4Address() == null;
     }
 
-    private static SvcLogicService getSvcLogicService() {
-		if (svcLogic == null) {
-			svcLogic = findSvcLogicService();
-		}
-
-		return (svcLogic);
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-    private static SvcLogicService findSvcLogicService() {
-		BundleContext bctx = FrameworkUtil.getBundle(SvcLogicService.class).getBundleContext();
-
-		SvcLogicService svcLogic = null;
-
-		// Get SvcLogicService reference
-        ServiceReference sref = bctx.getServiceReference(SvcLogicService.NAME);
-		if (sref != null) {
-			svcLogic = (SvcLogicService) bctx.getService(sref);
-
-		} else {
-			log.warn("Cannot find service reference for " + SvcLogicService.NAME);
-
-		}
-
-		return (svcLogic);
-	}
-    	
 }
