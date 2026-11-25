@@ -1,0 +1,6 @@
+---
+distribution_type: 'maven'
+version: '3.3.0'
+project: 'sdnc-northbound'
+log_dir: 'sdnc-northbound-maven-stage-master/316/'
+ref: '73f24fd2d10a6770f54949989a3e23a9568c235f'
