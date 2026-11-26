@@ -1,11 +1,10 @@
 package org.onap.sdnc.northbound;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -219,20 +218,20 @@ public class GenericResourceApiProvider implements AutoCloseable {
         log.info("Successfully closed provider for {}", APP_NAME);
     }
 
-    private static class Iso8601Util {
+    static class Iso8601Util {
 
-        private static TimeZone timeZone = TimeZone.getTimeZone("UTC");
-        private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
         private Iso8601Util() {
         }
 
-        static {
-            dateFormat.setTimeZone(timeZone);
+        static String now() {
+            return format(Instant.now());
         }
 
-        private static String now() {
-            return dateFormat.format(new Date());
+        static String format(Instant instant) {
+            return FORMATTER.format(instant);
         }
     }
 
