@@ -196,6 +196,7 @@ public class GenericResourceApiProvider implements AutoCloseable {
                     (ServiceTopologyOperation) this::serviceTopologyOperation,
                     (TunnelxconnTopologyOperation) this::tunnelxconnTopologyOperation,
                     (VfModuleTopologyOperation) this::vfModuleTopologyOperation,
+                    (VnfGetResourceRequest) this::vnfGetResourceRequest,
                     (VnfTopologyOperation) this::vnfTopologyOperation
                 );
             }
