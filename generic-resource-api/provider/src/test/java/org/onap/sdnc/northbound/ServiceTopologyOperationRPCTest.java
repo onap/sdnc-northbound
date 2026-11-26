@@ -117,6 +117,28 @@ public class ServiceTopologyOperationRPCTest extends GenericResourceApiProviderT
     }
 
     @Test
+    public void should_retry_save_after_optimistic_lock_failure() throws Exception {
+
+        svcClient.mockHasGraph(true);
+        PropBuilder svcResultProp = svcClient.createExecuteOKResult();
+        svcClient.mockExecute(svcResultProp);
+        failFirstCommitWithOptimisticLock();
+
+        ServiceTopologyOperationInput input = createSTOI();
+        ServiceTopologyOperationOutput output = exec(
+            genericResourceApiProvider::serviceTopologyOperation
+            , input
+            , RpcResult::getResult
+        );
+
+        assertEquals("200", output.getResponseCode());
+        Service actualService = db.read(input.getServiceInformation().getServiceInstanceId(),
+            LogicalDatastoreType.CONFIGURATION);
+        assertEquals(createExpectedService(createExpectedSTOO(svcResultProp, input), input, actualService),
+            actualService);
+    }
+
+    @Test
     public void should_fail_when_service_info_not_present() throws Exception {
         // create the ServiceTopologyOperationInput from the template
         ServiceTopologyOperationInput input =
