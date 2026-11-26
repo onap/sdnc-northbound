@@ -407,8 +407,20 @@ public class GenericResourceApiProvider implements AutoCloseable {
         } else {
             tx.put(storeType, path, entry);
         }
-        tx.commit().get();
+        commit(tx);
         log.debug("Update DataStore succeeded");
+    }
+
+    private static void commit(WriteTransaction tx)
+        throws TransactionCommitFailedException, InterruptedException, ExecutionException {
+        try {
+            tx.commit().get();
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof OptimisticLockFailedException lockFailure) {
+                throw lockFailure;
+            }
+            throw e;
+        }
     }
 
     private void deleteService(final Service entry, LogicalDatastoreType storeType) {
@@ -443,7 +455,7 @@ public class GenericResourceApiProvider implements AutoCloseable {
         throws TransactionCommitFailedException, InterruptedException, ExecutionException {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.delete(storeType, path);
-        tx.commit().get();
+        commit(tx);
         log.debug("DataStore delete succeeded");
     }
 
@@ -492,31 +504,7 @@ public class GenericResourceApiProvider implements AutoCloseable {
         InstanceIdentifier.Builder<PreloadList> preloadListBuilder = InstanceIdentifier
             .<PreloadInformation>builder(PreloadInformation.class).child(PreloadList.class, entry.key());
         InstanceIdentifier<PreloadList> path = preloadListBuilder.build();
-        int tries = 2;
-        while (true) {
-            try {
-                WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                if (merge) {
-                    tx.merge(storeType, path, entry);
-                } else {
-                    tx.put(storeType, path, entry);
-                }
-                tx.commit().get();
-                log.debug("Update DataStore succeeded");
-                break;
-            } catch (final InterruptedException | ExecutionException e) {
-                if (e instanceof OptimisticLockFailedException) {
-                    if (--tries <= 0) {
-                        log.debug("Got OptimisticLockFailedException on last try - failing ");
-                        throw new IllegalStateException(e);
-                    }
-                    log.debug("Got OptimisticLockFailedException - trying again ");
-                } else {
-                    log.debug("Update DataStore failed");
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
+        trySaveEntry(entry, merge, storeType, path);
     }
 
     private void deletePreloadList(final PreloadList entry, LogicalDatastoreType storeType) {
@@ -551,7 +539,7 @@ public class GenericResourceApiProvider implements AutoCloseable {
         throws TransactionCommitFailedException, InterruptedException, ExecutionException {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.delete(storeType, path);
-        tx.commit().get();
+        commit(tx);
         log.debug("DataStore delete succeeded");
     }
 

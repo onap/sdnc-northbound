@@ -159,6 +159,36 @@ public class PreloadNetworkTopologyRPCTest extends GenericResourceApiProviderTes
         assertEquals(expectedOutput, output);
     }
 
+    @Test
+    public void should_retry_save_after_optimistic_lock_failure() throws Exception {
+
+        svcClient.mockHasGraph(true);
+        PropBuilder svcResultProp = svcClient.createExecuteOKResult();
+        svcClient.mockExecute(svcResultProp);
+        failFirstCommitWithOptimisticLock();
+
+        PreloadNetworkTopologyOperationInput input = preloadNetworkTopologyOperationInput()
+            .setPreloadNetworkTopologyInformation(preloadNetworkTopologyInformationBuilder()
+                .setNetworkTopologyIdentifierStructure(networkTopologyIdentifierStructureBuilder()
+                    .setNetworkName("test-network-name")
+                    .setNetworkType("test-network-type").build()
+                ).build()
+            )
+            .setSdncRequestHeader(sdncRequestHeader()
+                .setSvcRequestId("test-svc-request-id")
+                .setSvcAction(SvcAction.Assign).build()
+            )
+            .setRequestInformation(requestInformation()
+                .setRequestId("test-request-id")
+                .setRequestAction(RequestInformation.RequestAction.CreateServiceInstance).build()
+            ).build();
+
+        PreloadNetworkTopologyOperationOutput output =
+            exec(genericResourceApiProvider::preloadNetworkTopologyOperation, input, RpcResult::getResult);
+
+        assertEquals(createExpectedOutput(svcResultProp, input), output);
+    }
+
     private PreloadNetworkTopologyOperationOutput createExpectedOutput(PropBuilder svcResultProp,
         PreloadNetworkTopologyOperationInput input) {
         return preloadNetworkTopologyOperationOutput()

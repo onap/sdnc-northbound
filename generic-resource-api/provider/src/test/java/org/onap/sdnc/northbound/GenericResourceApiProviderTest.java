@@ -21,6 +21,13 @@
 
 package org.onap.sdnc.northbound;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.Futures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -30,7 +37,9 @@ import org.onap.sdnc.northbound.util.PropBuilder;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.testutils.DataBrokerTestModule;
+import org.opendaylight.mdsal.common.api.OptimisticLockFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +77,20 @@ public class GenericResourceApiProviderTest {
 
     public DataBroker getDataBroker() {
         return DataBrokerTestModule.dataBroker();
+    }
+
+    /**
+     * Makes the provider's first write transaction fail its commit the way a concurrent modification does;
+     * later write transactions go to the real data broker.
+     */
+    protected void failFirstCommitWithOptimisticLock() {
+        WriteTransaction conflictingTx = mock(WriteTransaction.class);
+        when(conflictingTx.commit()).thenReturn(FluentFuture.from(
+            Futures.immediateFailedFuture(new OptimisticLockFailedException("test conflict"))));
+
+        DataBroker spyDataBroker = spy(dataBroker);
+        doReturn(conflictingTx).doCallRealMethod().when(spyDataBroker).newWriteOnlyTransaction();
+        genericResourceApiProvider.setDataBroker(spyDataBroker);
     }
 
     public static PropBuilder prop(){
